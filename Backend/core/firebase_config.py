@@ -3,6 +3,12 @@ from firebase_admin import credentials, firestore
 import os
 from dotenv import load_dotenv
 
+"""
+para hacer correctamente la conexion con Firebase, es importante seguir los siguientes pasos:
+1. descargar el archivo JSON de las credenciales de Firebase desde la consola de Firebase.
+2. guardar ese archivo en un lugar seguro dentro de tu proyecto (por ejemplo, en una carpeta llamada "config" o "secrets").
+3. agregar la ruta a ese archivo JSON en key.env, por ejemplo: FIREBASE_KEY_PATH=config/firebase_key.json
+"""
 # Cargar variables de entorno del archivo .env
 load_dotenv()
 
