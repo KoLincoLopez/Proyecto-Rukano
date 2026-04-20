@@ -11,65 +11,63 @@
 </head>
 
 <body>
-    <div class="pantalla-completa">
-        <header class="barra-superior">
-            <nav class="navbar-personalizada">
-    <div class="logo-contenedor">
-        <span class="logo-texto">RUKANO</span>
-    </div>
-
-    <div class="capsula-menu">
-        <div class="links-navegacion">
-            <a href="#" class="link-item activo">Inicio</a>
-            <a href="#" class="link-item">Servicios</a>
-            <a href="#" class="link-item">¿Como funciona?</a>
+    <header class="navbar-integrada">
+        <div class="bloque-logo">RUKANO</div>
+        <div class="bloque-menu">
+            <nav class="links">
+                <a href="#" class="activo">Inicio</a>
+                <a href="#">Servicios</a>
+                <a href="#">¿Como Funciona?</a>
+            </nav>
+            <button class="hamburguesa">☰</button>
         </div>
-        
-        <button class="boton-hamburguesa">
-            <span class="icono-barras">☰</span>
-        </button>
-    </div>
-</nav>
-        </header>
+    </header>
 
-        <section class="seccion-hero">
-            <h1 class="titulo-hogar">SERVICIOS PARA TU HOGAR</h1>
+    <section class="seccion-hero">
+        <h1 class="titulo-hogar">SERVICIOS PARA TU HOGAR</h1>
 
-            <div class="barra-gruesa-gris"></div>
+        <div class="barra-gruesa-gris"></div>
 
-            <div class="fila-busqueda">
-                <div class="caja-busqueda">
-                    <span class="placeholder-texto">¿Que necesitas?</span>
+        <div class="fila-busqueda">
+            <div class="caja-busqueda">
+                <input type="text" class="input-invisible" placeholder="¿QUE NECESITAS?">
+                <svg class="lupa-profesional" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+                        stroke="black" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M21 21L16.65 16.65" stroke="black" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="contenedor-botones">
+            <button class="boton-ovalado activo">LIMPIEZA</button>
+            <button class="boton-ovalado">ELECTRICIDAD</button>
+            <button class="boton-ovalado">GASFITERIA</button>
+            <button class="boton-ovalado">JARDINERIA</button>
+            <button class="boton-ovalado">OTROS</button>
+        </div>
+
+        <div class="linea-fina-separadora"></div>
+    </section>
+
+    <section class="grilla-servicios">
+        <div class="card-tecnico">
+            <div class="cabecera-card">
+                <div class="cuadrado-avatar"></div>
+                <div class="estrellas-y-lineas">
+                    <div class="estrellas">★★★★★</div>
+                    <div class="linea-datos"></div>
+                    <div class="linea-datos"></div>
                 </div>
             </div>
-
-            <div class="contenedor-botones">
-                <button class="boton-ovalado activo">LIMPIEZA</button>
-                <button class="boton-ovalado">ELECTRICIDAD</button>
-                <button class="boton-ovalado">GASFITERIA</button>
-                <button class="boton-ovalado">JARDINERIA</button>
-                <button class="boton-ovalado">OTROS</button>
+            <div class="cuerpo-card">
+                <span class="texto-detalle">Detalles:</span>
+                <div class="rectangulo-blanco-detalle"></div>
             </div>
-
-            <div class="linea-fina-separadora"></div>
-        </section>
-
-        <section class="grilla-servicios">
-            <div class="card-tecnico">
-                <div class="cabecera-card">
-                    <div class="cuadrado-avatar"></div>
-                    <div class="estrellas-y-lineas">
-                        <div class="estrellas">★★★★★</div>
-                        <div class="linea-datos"></div>
-                        <div class="linea-datos"></div>
-                    </div>
-                </div>
-                <div class="cuerpo-card">
-                    <span class="texto-detalle">Detalles:</span>
-                    <div class="rectangulo-blanco-detalle"></div>
-                </div>
-            </div>
-        </section>
+        </div>
+    </section>
     </div>
 
     <script type="module" src="js/Firebase-config.js"></script>
