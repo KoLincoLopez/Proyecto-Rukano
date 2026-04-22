@@ -1,0 +1,67 @@
+/*  RESET */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+}
+
+/*  NAVBAR */
+.navbar {
+    background-color: #34495e;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar button {
+    background-color: #e67e22;
+    border: none;
+    padding: 8px 12px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/*  CONTENEDOR REGISTRO */
+.container {
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+}
+
+#registro {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 350px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+}
+
+/*  INPUTS */
+#registro input,
+#registro select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/*  CHECKBOX */
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+/*  BOTÓN */
+#btnRegistro {
+    width: 100%;
+    padding: 10px;
+    background-color: #2980b9;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}

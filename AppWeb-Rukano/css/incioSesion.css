@@ -1,0 +1,67 @@
+/*  RESET BÁSICO */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+}
+
+/*  NAVBAR */
+.navbar {
+    background-color: #2c3e50;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar button {
+    background-color: #3498db;
+    border: none;
+    padding: 8px 12px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/*  CONTENEDOR LOGIN */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}
+
+#login {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+}
+
+/*  INPUTS */
+#login input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+/*  CHECKBOX */
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+/*  BOTÓN */
+#btnLogin {
+    width: 100%;
+    padding: 10px;
+    background-color: #27ae60;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
