@@ -1,56 +1,62 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rukano - Registro</title>
+
     <link rel="stylesheet" href="css/registro.css">
 </head>
 
 <body>
 
-<nav class="navbar">
-    <h2>RUKANO</h2>
-    <div>
-        <a href="index.html">
-            <button>Iniciar sesión</button>
-        </a>
-    </div>
-</nav>
+    <nav class="navbar">
+        <h2>RUKANO</h2>
+        <div>
+            <a href="inicioSesion.html">
+                <button>Iniciar sesión</button>
+            </a>
+        </div>
+    </nav>
 
-<div class="container">
+    <div class="container">
 
-    <div id="registro">
+        <div id="registro">
 
-        <h2>Registro</h2>
+            <h2>Registro</h2>
 
-        <input type="text" id="nombres" placeholder="Nombres">
-        <input type="text" id="apellidos" placeholder="Apellidos">
-        <input type="text" id="telefono" placeholder="Teléfono">
+            <input type="text" id="nombres" placeholder="Nombres" required>
+            <input type="text" id="apellidos" placeholder="Apellidos" required>
+            <input type="text" id="telefono" placeholder="Teléfono" required>
 
-        <input type="email" id="email" placeholder="Correo">
+            <input type="email" id="email" placeholder="Correo" required>
 
-        <input type="password" id="password" placeholder="Contraseña">
-        <input type="password" id="confirmPassword" placeholder="Repetir contraseña">
+            <input type="password" id="password" placeholder="Contraseña" required>
+            <input type="password" id="confirmPassword" placeholder="Repetir contraseña" required>
 
-        <div class="checkbox">
-            <input type="checkbox" id="showPassword">
-            <label for="showPassword">Mostrar contraseñas</label>
+            <div class="checkbox">
+                <input type="checkbox" id="showPassword">
+                <label for="showPassword">Mostrar contraseñas</label>
+            </div>
+
+            <select id="rol" required>
+                <option value="">Selecciona tu rol</option>
+                <option value="cliente">Cliente</option>
+                <option value="tecnico">Técnico</option>
+            </select>
+
+            <button id="btnRegistro">Registrarse</button>
+
+            <p style="text-align:center; margin-top:10px;">
+                <a href="index.html">Volver al inicio</a>
+            </p>
+
         </div>
 
-        <select id="rol">
-            <option value="cliente">Cliente</option>
-            <option value="tecnico">Técnico</option>
-        </select>
-
-        <button id="btnRegistro">Registrarse</button>
-
     </div>
 
-</div>
-
-
-<script type="module" src="js/registro.js"></script>
+    <script type="module" src="js/registro.js"></script>
 
 </body>
 </html>
