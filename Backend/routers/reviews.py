@@ -44,8 +44,8 @@ async def publicar_reseña(datos: dict):
             "createdAt": datetime.utcnow()             # Para mantener un registro de cuándo se creó la reseña
         }
 
-        # 4. Guardamos en la colección 'reseñas'
-        db.collection("reseñas").add(nueva_reseña)
+        # 4. Guardamos en la colección 'resenas'
+        db.collection("resenas").add(nueva_reseña)
 
         return {"status": "success", "message": "Reseña vinculada a la cita con éxito"}
 
@@ -57,10 +57,10 @@ async def publicar_reseña(datos: dict):
 """
 Formato esperado del JSON enviado desde el Frontend para crear una reseña (ejemplo):
 {
-  "idCitas": "1",
-  "idServicio": "2",
-  "idTecnico": "3",
-  "idCliente": "4",
+  "idCitas": "2",
+  "idServicio": "serv1",
+  "idTecnico": "2",
+  "idCliente": "1",
   "puntuacion": 5,
   "comentario": "Excelente trabajo, muy puntual.",
   "fotoUrl": "https://link-a-tu-foto.com/trabajo.jpg"
