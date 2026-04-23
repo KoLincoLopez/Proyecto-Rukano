@@ -1,6 +1,5 @@
-import { auth, db } from "./Firebase-config.js";
+import { auth } from "./Firebase-config.js";
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 window.addEventListener("DOMContentLoaded", () => {
 
@@ -9,14 +8,14 @@ window.addEventListener("DOMContentLoaded", () => {
     const passwordInput = document.getElementById("passwordLogin");
     const checkbox = document.getElementById("showPasswordLogin");
 
-    //  Mostrar contraseña
+    // Mostrar contraseña
     if (checkbox) {
         checkbox.addEventListener("change", () => {
             passwordInput.type = checkbox.checked ? "text" : "password";
         });
     }
 
-    //  LOGIN
+    // LOGIN
     btnLogin.addEventListener("click", async () => {
 
         const email = emailInput.value.trim();
@@ -31,22 +30,27 @@ window.addEventListener("DOMContentLoaded", () => {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            //  OBTENER ROL
-            const docRef = doc(db, "usuarios", user.uid);
-            const docSnap = await getDoc(docRef);
+            const token = await user.getIdToken();
 
-            if (!docSnap.exists()) {
-                alert("Usuario sin datos");
-                return;
+        
+            const response = await fetch("http://localhost:3000/auth/validate", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Error al validar con backend");
             }
 
-            const rol = docSnap.data().rol;
+            const data = await response.json();
 
-            // REDIRECCIÓN
-            if (rol === "cliente") {
-                window.location.href = "panelCliente.html";
-            } else if (rol === "tecnico") {
+          
+            if (data.rol === "TECNICO") {
                 window.location.href = "panelTecnico.html";
+            } else {
+                window.location.href = "panelCliente.html";
             }
 
         } catch (error) {
