@@ -148,6 +148,44 @@ async def eliminar_resena(id_resena: str):
             detail="Error interno al intentar eliminar la reseña"
         )
     
+# Ruta para obtener todas las reseñas de un técnico específico
+@router.get("/resenas_tecnico/{id_tecnico}")
+async def obtener_resenas_tecnico(id_tecnico: str):
+    try:
+        # 1. Consulta en la colección "resenas" filtrando por idTecnico
+        # Usamos FieldFilter para asegurar la precisión del 99.9% exigida [4]
+        query = db.collection("resenas").where(filter=FieldFilter("idTecnico", "==", id_tecnico)).stream()
+        
+        resenas_list = []
+        for doc in query:
+            resena_data = doc.to_dict()
+            # Incluimos el ID del documento por si se necesita para futuras ediciones
+            resena_data["id"] = doc.id
+            resenas_list.append(resena_data)
+
+        # 2. Validación de resultados
+        if not resenas_list:
+            # Si no hay reseñas, devolvemos una lista vacía con un mensaje informativo
+            return {
+                "status": "success",
+                "message": f"El técnico {id_tecnico} aún no tiene reseñas",
+                "data": []
+            }
+
+        # 3. Respuesta exitosa cumpliendo con el RNF 1 (Rendimiento < 2.5s) [5]
+        return {
+            "status": "success",
+            "total_resenas": len(resenas_list),
+            "data": resenas_list
+        }
+
+    except Exception as e:
+        print(f"ERROR AL RECUPERAR RESEÑAS: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail="Error interno al obtener el listado de reseñas"
+        )
+    
 
 """
 Formato esperado del JSON enviado desde el Frontend para crear una reseña (ejemplo):
