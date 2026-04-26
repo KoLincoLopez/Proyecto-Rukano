@@ -1,67 +1,184 @@
-/*  RESET BÁSICO */
-body {
+/*-------------------- PALETA DE COLORES RUKANO --------------------*/
+:root {
+    --c-licorice: #1E0D0A;
+    --c-rosewood: #550006;
+    --c-mahogany: #BF353B;
+    --c-froly: #EE666A;
+    --c-deep-moss: #3D4421;
+    --c-blanco: #FFFFFF;
+    --c-arena: #F5EFEA;
+}
+
+* {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f8;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/*  NAVBAR */
-.navbar {
-    background-color: #2c3e50;
-    color: white;
-    padding: 15px;
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--c-arena);
+    overflow: hidden; 
+}
+
+/*-------------------- LAYOUT DIVIDIDO --------------------*/
+.split-pantalla {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    height: 100vh;
+    width: 100%;
 }
 
-.navbar button {
-    background-color: #3498db;
-    border: none;
-    padding: 8px 12px;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-/*  CONTENEDOR LOGIN */
-.container {
+/* Mitad Izquierda (Imagen) */
+.split-imagen {
+    flex: 1;
+    background-image: linear-gradient(rgba(30, 13, 10, 0.4), rgba(30, 13, 10, 0.4)), url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=2000&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    position: relative;
     display: flex;
+    align-items: flex-start;
+    padding: 50px;
+}
+
+.logo-flotante {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 45px;
+    font-weight: 900;
+    color: var(--c-arena);
+    text-decoration: none;
+    letter-spacing: -2px;
+}
+
+/* Mitad Derecha (Formulario) */
+.split-formulario {
+    flex: 1;
+    background-color: var(--c-arena);
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 80vh;
+    position: relative;
 }
 
-#login {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 300px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+/* Botón de Registro arriba */
+.nav-registro {
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    font-size: 14px;
+    color: #888;
+    font-weight: bold;
 }
 
-/*  INPUTS */
-#login input {
+.btn-link {
+    color: var(--c-mahogany);
+    text-decoration: none;
+    margin-left: 8px;
+    transition: 0.3s;
+}
+
+.btn-link:hover {
+    color: var(--c-froly);
+}
+
+/*-------------------- ESTILOS DEL FORMULARIO --------------------*/
+.formulario-caja {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
+    max-width: 420px;
+    padding: 40px;
 }
 
-/*  CHECKBOX */
-.checkbox {
+.titulo-form {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 40px;
+    color: var(--c-licorice);
+    line-height: 1;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+}
+
+.subtitulo-form {
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 40px;
+}
+
+.grupo-input {
+    margin-bottom: 25px;
+}
+
+.grupo-input input {
+    width: 100%;
+    padding: 15px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(30, 13, 10, 0.2);
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: var(--c-licorice);
+    outline: none;
+    transition: 0.3s;
+}
+
+.grupo-input input:focus {
+    border-bottom-color: var(--c-mahogany);
+}
+
+.grupo-input input::placeholder {
+    color: #999;
+    font-weight: bold;
+}
+
+.checkbox-moderno {
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
+    gap: 10px;
+    margin-bottom: 40px;
+    font-size: 13px;
+    color: #555;
+    font-weight: bold;
 }
 
-/*  BOTÓN */
-#btnLogin {
-    width: 100%;
-    padding: 10px;
-    background-color: #27ae60;
-    border: none;
-    color: white;
+.checkbox-moderno input[type="checkbox"] {
+    accent-color: var(--c-mahogany);
+    width: 16px;
+    height: 16px;
     cursor: pointer;
-    border-radius: 5px;
+}
+
+.btn-primario {
+    width: 100%;
+    background-color: var(--c-mahogany);
+    color: var(--c-blanco);
+    border: none;
+    padding: 20px;
+    border-radius: 50px;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primario:hover {
+    background-color: var(--c-froly);
+    transform: translateY(-3px);
+}
+
+.volver-inicio {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.volver-inicio a {
+    color: #888;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.volver-inicio a:hover {
+    color: var(--c-licorice);
 }
