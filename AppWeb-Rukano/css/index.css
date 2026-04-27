@@ -1,6 +1,10 @@
 html {
-    scroll-behavior: smooth; 
-    scroll-padding-top: 100px; 
+    scroll-behavior: smooth;
+    scroll-padding-top: 100px;
+}
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden !important; 
 }
 
 :root {
@@ -36,17 +40,17 @@ body {
     width: 100%;
     display: flex;
     align-items: center;
-    padding-top: 30px; 
+    padding-top: 30px;
     background-color: transparent;
     z-index: 2000;
     transition: all 0.4s ease;
 }
 
 .navbar-integrada.scrolled {
-    background-color: rgba(30, 13, 10, 0.98); 
-    padding-top: 15px; 
+    background-color: rgba(30, 13, 10, 0.98);
+    padding-top: 15px;
     padding-bottom: 15px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); 
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
 .navbar-integrada.scrolled .bloque-menu {
@@ -59,14 +63,14 @@ body {
     font-family: 'Arial Black', sans-serif;
     font-size: 50px;
     font-weight: 900;
-    color: var(--c-arena) !important; 
+    color: var(--c-arena) !important;
     letter-spacing: -2px;
     line-height: 1;
     padding: 0;
     padding-left: var(--pad-lateral);
-    padding-bottom: 5px; 
+    padding-bottom: 5px;
     text-decoration: none !important;
-    transition: opacity 0.3s ease !important; 
+    transition: opacity 0.3s ease !important;
 }
 
 .bloque-logo:hover {
@@ -75,20 +79,22 @@ body {
 }
 
 .bloque-menu {
-    background-color: var(--c-licorice); 
+    background-color: var(--c-licorice);
     height: 60px;
     flex-grow: 1;
-    margin-left: 80px; 
-    border-radius: 40px 0 0 40px; 
+    margin-left: 80px;
+    border-radius: 40px 0 0 40px;
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     padding: 0 40px 0 50px;
 }
+
 .nav-izquierda {
     display: flex;
     gap: 30px;
 }
+
 .nav-izquierda a {
     color: var(--c-arena);
     text-decoration: none;
@@ -98,7 +104,7 @@ body {
     transition: 0.3s;
 }
 
-.nav-izquierda a:hover, 
+.nav-izquierda a:hover,
 .nav-izquierda a.activo {
     color: var(--c-froly);
     opacity: 1;
@@ -157,7 +163,8 @@ body {
     margin: 0;
 }
 
-.links a:hover, .links a.activo {
+.links a:hover,
+.links a.activo {
     color: var(--c-froly);
     opacity: 1;
 }
@@ -278,7 +285,8 @@ body {
     backdrop-filter: blur(5px);
 }
 
-.boton-ovalado.activo, .boton-ovalado:hover {
+.boton-ovalado.activo,
+.boton-ovalado:hover {
     background-color: var(--c-mahogany);
     border-color: var(--c-mahogany);
     color: var(--c-blanco);
@@ -427,7 +435,7 @@ body {
 }
 
 .pilar {
-    border-left: 1px solid rgba(255,255,255,0.2);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
     padding-left: 30px;
     transition: all 0.4s ease;
 }
@@ -454,7 +462,7 @@ body {
     font-family: 'Arial', sans-serif;
     font-size: 15px;
     line-height: 1.6;
-    color: rgba(255,255,255,0.8);
+    color: rgba(255, 255, 255, 0.8);
     margin: 0;
 }
 
@@ -471,7 +479,7 @@ body {
     margin-bottom: 80px;
     text-align: left;
     color: var(--c-licorice);
-    display: inline-block; 
+    display: inline-block;
     border-bottom: 4px solid var(--c-mahogany);
     padding-bottom: 10px;
 }
@@ -597,7 +605,7 @@ body {
 .cita-corta {
     font-size: 16px;
     font-style: italic;
-    color: rgba(255,255,255,0.7);
+    color: rgba(255, 255, 255, 0.7);
     margin-bottom: 20px;
 }
 
@@ -647,16 +655,16 @@ body {
 }
 
 .cta-final::after {
-    content: "✦ RUKANO ✦"; 
+    content: "✦ RUKANO ✦";
     position: absolute;
-    bottom: -70px; 
+    bottom: -70px;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'Arial Black', sans-serif;
     font-size: 14px;
     color: var(--c-licorice);
     letter-spacing: 8px;
-    opacity: 0.2; 
+    opacity: 0.2;
     white-space: nowrap;
 }
 
@@ -667,15 +675,15 @@ body {
 }
 
 .cta-lado {
-    flex: 1; 
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 80px 40px; 
+    padding: 80px 40px;
 }
 
 .cta-lado.cliente {
-    background-color: var(--c-blanco); 
+    background-color: var(--c-blanco);
     color: var(--c-licorice);
 }
 
@@ -703,7 +711,7 @@ body {
 
 .cta-titulo {
     font-family: 'Arial Black', sans-serif;
-    font-size: 40px; 
+    font-size: 40px;
     line-height: 1.1;
     margin-bottom: 25px;
     text-transform: uppercase;
@@ -818,7 +826,7 @@ body {
 }
 
 .footer-links a {
-    color: rgba(255,255,255,0.6);
+    color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
     font-size: 14px;
     transition: 0.3s;
@@ -829,7 +837,7 @@ body {
 }
 
 .footer-bottom {
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 40px;
     display: flex;
     justify-content: space-between;
@@ -838,7 +846,7 @@ body {
 
 .footer-bottom p {
     font-size: 11px;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255, 255, 255, 0.4);
     letter-spacing: 1px;
     text-transform: uppercase;
 }
@@ -906,6 +914,7 @@ body {
         opacity: 0;
         transform: translateX(50px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -921,8 +930,214 @@ body {
         opacity: 1;
         transform: translateX(0);
     }
+
     to {
         opacity: 0;
         transform: translateX(-50px);
+    }
+}
+
+/*=================== DISEÑO RESPONSIVO ===================*/
+@media (max-width: 1024px) {
+    :root {
+        --pad-lateral: 40px;
+    }
+
+    .titulo-hogar {
+        font-size: 80px;
+    }
+
+    .bloque-logo {
+        font-size: 40px;
+    }
+
+    .titulo-pasos,
+    .subtitulo-editorial,
+    .cta-titulo {
+        font-size: 36px;
+    }
+
+    .mosaico-testimonios {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .nav-izquierda,
+    .nav-derecha {
+        display: none !important;
+    }
+
+    .bloque-menu {
+        margin-left: auto;
+        padding: 0;
+        background-color: transparent !important;
+        justify-content: flex-end;
+    }
+
+    .hamburguesa {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        border: 2px solid var(--c-arena);
+        color: var(--c-arena);
+        font-size: 24px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0;
+    }
+
+    .hamburguesa:hover{ background-color: var(--c-arena); color: var(--c-licorice); transform: scale(1.05);}
+}
+
+
+@media (max-width: 768px) {
+    :root {
+        --pad-lateral: 30px;
+    }
+
+    .titulo-hogar {
+        font-size: 60px;
+        letter-spacing: -3px;
+    }
+
+    .fila-busqueda {
+        justify-content: flex-start;
+    }
+
+    .caja-busqueda {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .contenedor-botones {
+        justify-content: flex-start;
+    }
+
+    .grilla-servicios {
+        grid-template-columns: 1fr;
+    }
+
+    .grilla-pilares {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .flujo-pasos {
+        flex-direction: column;
+        gap: 60px;
+    }
+
+    .numero-fondo {
+        font-size: 100px;
+        top: -10px;
+    }
+
+    .mosaico-testimonios {
+        grid-template-columns: 1fr;
+    }
+
+    .testimonio-card.principal {
+        padding: 40px;
+    }
+
+    .comillas {
+        font-size: 60px;
+    }
+
+    .cta-container {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .cta-lado {
+        padding: 60px var(--pad-lateral);
+    }
+
+    .cta-final::after {
+        bottom: -50px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .footer-col-marca {
+        align-items: center;
+        text-align: center;
+    }
+
+    .slogan-footer {
+        margin: 0 auto 30px auto;
+    }
+
+    .redes-sociales {
+        justify-content: center;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .menu-contenido a {
+        font-size: 22px; 
+        padding: 20px 30px;
+        text-align: center; 
+    }
+    
+    .menu-contenido a:hover {
+        padding-left: 30px; 
+    }
+
+    .btn-cerrar {
+        right: 25px; 
+        left: auto; 
+        top: 20px;
+        font-size: 45px; 
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --pad-lateral: 20px;
+    }
+
+    .seccion-hero {
+        padding-top: 120px;
+    }
+
+    .titulo-hogar {
+        font-size: 42px;
+        line-height: 1.1;
+        letter-spacing: -2px;
+    }
+
+    .bloque-logo {
+        font-size: 30px;
+    }
+
+    .contenedor-botones {
+        gap: 10px;
+    }
+
+    .boton-ovalado {
+        padding: 10px 18px;
+        font-size: 11px;
+    }
+
+    .titulo-pasos,
+    .subtitulo-editorial,
+    .cta-titulo {
+        font-size: 30px;
+        letter-spacing: -1px;
+    }
+
+    .cta-lado {
+        padding: 50px var(--pad-lateral);
     }
 }
