@@ -33,14 +33,18 @@ def validate_user(authorization: str = Header(None)):
     # limpiar token tipo 
     parts = authorization.split(" ")
     token = parts[1] if len(parts) > 1 else parts[0]
-
     token_lower = token.lower()
 
-    if token == "token_cliente" or "cliente" in token_lower:
+    #  CLIENTE
+    if token_lower == "token_cliente":
         return {"valid": True, "role": "cliente"}
 
-    elif token == "token_tecnico" or "tecnico" in token_lower:
+    #  TÉCNICO
+    elif token_lower == "token_tecnico":
         return {"valid": True, "role": "tecnico"}
 
+    #  INVALIDO
     else:
-        raise HTTPException(status_code=403, detail="Token inválido o usuario no reconocido")
+            status_code=403,
+            detail="Token inválido o usuario no reconocido"
+        )
