@@ -1,67 +1,306 @@
-/*  RESET */
-body {
+/*-------------------- PALETA DE COLORES RUKANO --------------------*/
+:root {
+    --c-licorice: #1E0D0A;
+    --c-rosewood: #550006;
+    --c-mahogany: #BF353B;
+    --c-froly: #EE666A;
+    --c-deep-moss: #3D4421;
+    --c-blanco: #FFFFFF;
+    --c-arena: #F5EFEA;
+}
+
+* {
     margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/*  NAVBAR */
-.navbar {
-    background-color: #34495e;
-    color: white;
-    padding: 15px;
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--c-arena);
+    overflow: hidden; 
+}
+
+/*-------------------- LAYOUT DIVIDIDO --------------------*/
+.split-pantalla {
     display: flex;
+    height: 100vh;
+    width: 100%;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.split-imagen {
+    flex: 1;
+    background-image: linear-gradient(rgba(30, 13, 10, 0.6), rgba(30, 13, 10, 0.6)), url('https://images.unsplash.com/photo-1581244277943-fe4a9c777189?q=80&w=2000&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
+    padding: 50px;
 }
 
-.navbar button {
-    background-color: #e67e22;
-    border: none;
-    padding: 8px 12px;
-    color: white;
-    cursor: pointer;
-    border-radius: 5px;
+.logo-flotante {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 45px;
+    font-weight: 900;
+    color: var(--c-arena);
+    text-decoration: none;
+    letter-spacing: -2px;
 }
 
-/*  CONTENEDOR REGISTRO */
-.container {
+.texto-imagen h1 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 40px;
+    color: var(--c-arena);
+    line-height: 1.1;
+    letter-spacing: -1px;
+}
+
+.split-formulario {
+    flex: 1;
+    background-color: var(--c-arena);
     display: flex;
-    justify-content: center;
-    padding-top: 40px;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow-y: auto; 
+    padding: 100px 0 50px 0;
 }
 
-#registro {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 350px;
-    box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+.nav-registro {
+    position: absolute;
+    top: 50px;
+    right: 50px;
+    font-size: 14px;
+    color: #888;
+    font-weight: bold;
 }
 
-/*  INPUTS */
-#registro input,
-#registro select {
+.btn-link {
+    color: var(--c-mahogany);
+    text-decoration: none;
+    margin-left: 8px;
+    transition: 0.3s;
+}
+
+.btn-link:hover { color: var(--c-froly); }
+
+/*-------------------- ESTILOS DEL FORMULARIO --------------------*/
+.formulario-caja {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
+    max-width: 480px; 
+    padding: 0 40px;
 }
 
-/*  CHECKBOX */
-.checkbox {
+.titulo-form {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 40px;
+    color: var(--c-licorice);
+    line-height: 1;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+}
+
+.subtitulo-form {
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 40px;
+}
+
+.grid-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.grupo-input { margin-bottom: 25px; }
+
+.grupo-input input {
+    width: 100%;
+    padding: 15px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(30, 13, 10, 0.2);
+    font-family: 'Arial', sans-serif;
+    font-size: 15px;
+    color: var(--c-licorice);
+    outline: none;
+    transition: 0.3s;
+}
+
+.grupo-input input:focus { border-bottom-color: var(--c-mahogany); }
+.grupo-input input::placeholder { color: #999; font-weight: bold; }
+
+.checkbox-moderno {
     display: flex;
     align-items: center;
-    gap: 5px;
-    margin-bottom: 10px;
+    gap: 10px;
+    margin-bottom: 30px;
+    font-size: 13px;
+    color: #555;
+    font-weight: bold;
 }
 
-/*  BOTÓN */
-#btnRegistro {
-    width: 100%;
-    padding: 10px;
-    background-color: #2980b9;
-    border: none;
-    color: white;
+.checkbox-moderno input[type="checkbox"] {
+    accent-color: var(--c-mahogany);
+    width: 16px;
+    height: 16px;
     cursor: pointer;
-    border-radius: 5px;
+}
+
+.grupo-select { margin-bottom: 40px; }
+
+.grupo-select select {
+    width: 100%;
+    padding: 15px 0;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid rgba(30, 13, 10, 0.2);
+    font-family: 'Arial', sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--c-licorice);
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.grupo-select select:focus { border-bottom-color: var(--c-mahogany); }
+
+.btn-primario {
+    width: 100%;
+    background-color: var(--c-mahogany);
+    color: var(--c-blanco);
+    border: none;
+    padding: 20px;
+    border-radius: 50px;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primario:hover {
+    background-color: var(--c-froly);
+    transform: translateY(-3px);
+}
+
+.volver-inicio { text-align: center; margin-top: 30px; }
+.volver-inicio a { color: #888; text-decoration: none; font-size: 13px; font-weight: bold; transition: 0.3s; }
+.volver-inicio a:hover { color: var(--c-licorice); }
+
+.split-formulario::-webkit-scrollbar { width: 6px; }
+.split-formulario::-webkit-scrollbar-track { background: var(--c-arena); }
+.split-formulario::-webkit-scrollbar-thumb { background: rgba(30, 13, 10, 0.2); border-radius: 10px; }
+.split-formulario::-webkit-scrollbar-thumb:hover { background: rgba(30, 13, 10, 0.5); }
+
+/*-------------------- SELECTOR DE ROL (TARJETAS) --------------------*/
+.selector-rol-custom {
+    margin-bottom: 40px;
+    width: 100%;
+}
+
+.label-rol {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 13px;
+    color: #888; 
+    display: block;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.opciones-rol {
+    display: flex;
+    gap: 15px;
+}
+
+.tarjeta-rol {
+    flex: 1; 
+    cursor: pointer;
+    position: relative;
+}
+
+.tarjeta-rol input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.contenido-tarjeta {
+    border: 2px solid rgba(30, 13, 10, 0.1);
+    border-radius: 8px;
+    padding: 20px 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+    background-color: transparent;
+}
+
+.contenido-tarjeta h4 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 14px;
+    color: var(--c-licorice);
+    margin-bottom: 5px;
+    transition: 0.3s;
+}
+
+.contenido-tarjeta p {
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    color: #888;
+    margin: 0;
+    transition: 0.3s;
+}
+
+.tarjeta-rol:hover .contenido-tarjeta {
+    border-color: var(--c-mahogany);
+}
+
+.tarjeta-rol input[type="radio"]:checked ~ .contenido-tarjeta {
+    border-color: var(--c-mahogany);
+    background-color: var(--c-mahogany);
+}
+
+.tarjeta-rol input[type="radio"]:checked ~ .contenido-tarjeta h4,
+.tarjeta-rol input[type="radio"]:checked ~ .contenido-tarjeta p {
+    color: var(--c-blanco);
+}
+
+/*-------------------- ANIMACIONES DE TRANSICIÓN --------------------*/
+
+/* Animación de entrada*/
+.split-pantalla {
+    animation: entrarDeslizando 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes entrarDeslizando {
+    from {
+        opacity: 0;
+        transform: translateX(50px); 
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0); 
+    }
+}
+
+/* Animación de salida */
+.animacion-salida {
+    animation: salirDeslizando 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+}
+
+@keyframes salirDeslizando {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-50px); 
+    }
 }
