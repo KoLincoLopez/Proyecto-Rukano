@@ -45,6 +45,7 @@ def validate_user(authorization: str = Header(None)):
 
     #  INVALIDO
     else:
+        raise HTTPException(
             status_code=403,
             detail="Token inválido o usuario no reconocido"
         )
