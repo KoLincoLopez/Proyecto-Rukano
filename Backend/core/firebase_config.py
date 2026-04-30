@@ -1,5 +1,12 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
+
+cred = credentials.Certificate("core/firebase_key.json")
+
+firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+
 import os
 from dotenv import load_dotenv
 
@@ -32,3 +39,4 @@ def initialize_firebase():
 
 # Exportamos el cliente de la base de datos para usarlo en los routers (MVC) [8]
 db = initialize_firebase()
+

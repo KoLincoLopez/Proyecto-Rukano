@@ -1,70 +1,149 @@
 from fastapi import APIRouter, HTTPException
 from core.firebase_config import db
-from datetime import datetime
+from datetime import datetime, timedelta
+import uuid
+from fastapi import Request
+from google.cloud.firestore_v1 import FieldFilter
+from datetime import timezone
 
 router = APIRouter()
 
-@router.post("/crear_reseña")
+@router.post("/crear_resena")
 async def publicar_reseña(datos: dict):
     try:
-        # 1. Obtenemos el idCitas enviado desde el Frontend
         id_cita_referencia = str(datos.get("idCitas"))
-        puntuacion = datos.get("puntuacion") # 1-5 estrellas
-        
-        # 2. Buscamos el documento que tenga el campo 'idCitas' igual al recibido
+        puntuacion = datos.get("puntuacion")
+
         query = db.collection("citas").where("idCitas", "==", id_cita_referencia).stream()
-        
-        # Convertimos el generador en una lista para contar los resultados
         docs = list(query)
-        
+
         if not docs:
             raise HTTPException(status_code=404, detail="La cita no existe en la base de datos")
-        
-        # CORRECCIÓN: Accedemos al primer elemento de la lista 
-        # 'docs' es el DocumentSnapshot, el cual sí tiene .to_dict()
+
         cita_data = docs[0].to_dict()
 
-        # Validamos el estado para cumplir con el RF 6
         if cita_data.get("estado") != "realizado":
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="Solo puedes reseñar servicios marcados como 'realizado'"
             )
 
-        # 3. Construimos la reseña extrayendo los IDs de la cita original
-        # Esto asegura consistencia total entre Cita, Técnico y Cliente
         nueva_reseña = {
+            "idResena": str(uuid.uuid4()),
             "idCitas": id_cita_referencia,
-            "idServicio": cita_data.get("idServicio"), 
-            "idTecnico": cita_data.get("idTecnico"),   
-            "idCliente": cita_data.get("idCliente"),   
+            "idServicio": cita_data.get("idServicio"),
+            "idTecnico": cita_data.get("idTecnico"),
+            "idCliente": cita_data.get("idCliente"),
             "puntuacion": puntuacion,
             "comentario": datos.get("comentario", ""),
-            "fotoUrl": datos.get("fotoUrl", ""),       
-            "createdAt": datetime.utcnow()             # Para mantener un registro de cuándo se creó la reseña
+            "fotoUrl": datos.get("fotoUrl", ""),
+            "createdAt": datetime.utcnow()
         }
 
-        # 4. Guardamos en la colección 'reseñas'
-        db.collection("reseñas").add(nueva_reseña)
+        db.collection("resenas").add(nueva_reseña)
 
-        return {"status": "success", "message": "Reseña vinculada a la cita con éxito"}
+        return {
+            "status": "success",
+            "message": "Reseña vinculada a la cita con éxito",
+            "idResena": nueva_reseña["idResena"]
+        }
 
     except Exception as e:
-        # Manejo de errores
         raise HTTPException(status_code=500, detail=f"Error al procesar: {str(e)}")
-    
 
-"""
-Formato esperado del JSON enviado desde el Frontend para crear una reseña (ejemplo):
-{
-  "idCitas": "1",
-  "idServicio": "2",
-  "idTecnico": "3",
-  "idCliente": "4",
-  "puntuacion": 5,
-  "comentario": "Excelente trabajo, muy puntual.",
-  "fotoUrl": "https://link-a-tu-foto.com/trabajo.jpg"
-}
 
-Para que una reseña sea valida, la cita correspondiente debe existir en firestore y tener el estado "realizado"
-"""
+@router.put("/actualizar_resena/{id_resena}")
+async def actualizar_reseña(id_resena: str, datos_nuevos: dict, request: Request):
+    try:
+        query = db.collection("resenas").where(
+            filter=FieldFilter("idResena", "==", id_resena)
+        ).stream()
+
+        docs = list(query)
+
+        if not docs:
+            raise HTTPException(status_code=404, detail="La reseña no existe")
+
+        doc_snapshot = docs[0]
+        reseña_ref = doc_snapshot.reference
+        reseña_data = doc_snapshot.to_dict()
+
+        fecha_creacion = reseña_data.get("createdAt")
+        ahora = datetime.now(timezone.utc)
+
+        if ahora > fecha_creacion + timedelta(hours=24):
+            raise HTTPException(
+                status_code=403,
+                detail="El plazo de 24 horas para editar esta reseña ha expirado"
+            )
+
+        actualizaciones = {
+            "puntuacion": datos_nuevos.get("puntuacion", reseña_data.get("puntuacion")),
+            "comentario": datos_nuevos.get("comentario", reseña_data.get("comentario")),
+            "fotoUrl": datos_nuevos.get("fotoUrl", reseña_data.get("fotoUrl")),
+            "lastModified": ahora
+        }
+
+        reseña_ref.update(actualizaciones)
+
+        return {"status": "success", "message": "Reseña actualizada correctamente"}
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error interno del servidor: {str(e)}")
+
+
+@router.delete("/eliminar_resena/{id_resena}")
+async def eliminar_resena(id_resena: str):
+    try:
+        query = db.collection("resenas").where(
+            filter=FieldFilter("idResena", "==", id_resena)
+        ).stream()
+
+        docs = list(query)
+
+        if not docs:
+            raise HTTPException(status_code=404, detail="No se encontró la reseña")
+
+        doc_snapshot = docs[0]
+        doc_snapshot.reference.delete()
+
+        return {
+            "status": "success",
+            "message": f"La reseña {id_resena} ha sido eliminada exitosamente"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error interno al eliminar la reseña")
+
+
+@router.get("/resenas_tecnico/{id_tecnico}")
+async def obtener_resenas_tecnico(id_tecnico: str):
+    try:
+        query = db.collection("resenas").where(
+            filter=FieldFilter("idTecnico", "==", id_tecnico)
+        ).stream()
+
+        resenas_list = []
+
+        for doc in query:
+            data = doc.to_dict()
+            data["id"] = doc.id
+            resenas_list.append(data)
+
+        if not resenas_list:
+            return {
+                "status": "success",
+                "message": f"El técnico {id_tecnico} aún no tiene reseñas",
+                "data": []
+            }
+
+        return {
+            "status": "success",
+            "total_resenas": len(resenas_list),
+            "data": resenas_list
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error interno al obtener reseñas")
