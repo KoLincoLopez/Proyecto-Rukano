@@ -9,12 +9,10 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    # El "*" permite que cualquier frontend se conecte (ideal para desarrollo).
-    # En producción, puedes cambiar el "*" por ["http://127.0.0.1:5501", "https://tu-dominio-final.com"]
     allow_origins=["*"], 
     allow_credentials=True,
-    allow_methods=["*"], # Permite todos los métodos (POST, GET, OPTIONS, etc.)
-    allow_headers=["*"], # Permite todos los headers
+    allow_methods=["*"], 
+    allow_headers=["*"], 
 )
 
 app.include_router(search.router, prefix="/search")  # Agrega el router de búsqueda con el prefijo "/search"

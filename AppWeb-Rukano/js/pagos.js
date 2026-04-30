@@ -10,16 +10,17 @@ btnComprar.addEventListener("click", async () => {
         btnComprar.innerText = "Procesando seguridad...";
 
         // 4. Hacemos la petición a tu backend en Render
-        const response = await fetch("https://rukano-sph.onrender.com/payments/create_preference", {
+        const url = new URL("http://127.0.0.1:8000/payments/create_preference");
+        url.searchParams.append("title", "Servicio Eléctrico - Visita Técnica");
+        url.searchParams.append("quantity", 1);
+        url.searchParams.append("price", 15000);
+
+        // 2. Hacemos el fetch SIN el 'body'
+        const response = await fetch(url, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                title: "Servicio Eléctrico - Visita Técnica",
-                quantity: 1,
-                price: 15000
-            })
+                "Accept": "application/json"
+            }
         });
 
         if (!response.ok) {
@@ -35,7 +36,7 @@ btnComprar.addEventListener("click", async () => {
             },
             customization: {
                 texts: {
-                    valueProp: 'security_details', 
+                    valueProp: 'security_details',
                 },
             },
         });
@@ -45,7 +46,7 @@ btnComprar.addEventListener("click", async () => {
     } catch (error) {
         console.error("Error al procesar el pago:", error);
         alert("Hubo un problema de conexión. Por favor, intenta de nuevo.");
-        
+
         btnComprar.disabled = false;
         btnComprar.innerText = "Pagar Ahora";
     }
