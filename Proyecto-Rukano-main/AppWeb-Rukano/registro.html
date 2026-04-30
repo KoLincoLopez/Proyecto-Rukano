@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rukano - Registro</title>
+    <link rel="stylesheet" href="css/registro.css">
+</head>
+
+<body>
+
+    <div class="split-pantalla">
+
+        <div class="split-imagen">
+            <a href="index.html" class="logo-flotante">RUKANO</a>
+            <div class="texto-imagen">
+                <h1>El talento correcto,<br>en el momento exacto.</h1>
+            </div>
+        </div>
+
+        <div class="split-formulario">
+
+            <div class="nav-registro">
+                <span>¿Ya tienes cuenta?</span>
+                <a href="inicioSesion.html" class="btn-link">Inicia sesión</a>
+            </div>
+
+            <div class="formulario-caja scroll-custom">
+                <div id="registro">
+
+                    <h2 class="titulo-form">ÚNETE</h2>
+                    <p class="subtitulo-form">Crea tu cuenta y empieza hoy mismo.</p>
+
+                    <div class="grid-inputs">
+                        <div class="grupo-input">
+                            <input type="text" id="nombres" placeholder="Nombres" required>
+                        </div>
+                        <div class="grupo-input">
+                            <input type="text" id="apellidos" placeholder="Apellidos" required>
+                        </div>
+                    </div>
+
+                    <div class="grupo-input">
+                        <input type="text" id="telefono" placeholder="Teléfono" required>
+                    </div>
+
+                    <div class="grupo-input">
+                        <input type="email" id="email" placeholder="Correo electrónico" required>
+                    </div>
+
+                    <div class="grid-inputs">
+                        <div class="grupo-input">
+                            <input type="password" id="password" placeholder="Contraseña" required>
+                        </div>
+                        <div class="grupo-input">
+                            <input type="password" id="confirmPassword" placeholder="Repetir contraseña" required>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-moderno">
+                        <input type="checkbox" id="showPassword">
+                        <label for="showPassword">Mostrar contraseñas</label>
+                    </div>
+
+                    <div class="selector-rol-custom">
+                        <span class="label-rol">¿Cómo usarás Rukano?</span>
+
+                        <div class="opciones-rol">
+                            <label class="tarjeta-rol">
+                                <input type="radio" name="rol" value="cliente" id="rolCliente" required>
+                                <div class="contenido-tarjeta">
+                                    <h4>SOY CLIENTE</h4>
+                                    <p>Busco profesionales</p>
+                                </div>
+                            </label>
+
+                            <label class="tarjeta-rol">
+                                <input type="radio" name="rol" value="tecnico" id="rolTecnico" required>
+                                <div class="contenido-tarjeta">
+                                    <h4>SOY TÉCNICO</h4>
+                                    <p>Ofrezco servicios</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="btnRegistro" class="btn-primario">REGISTRARSE</button>
+
+                    <p class="volver-inicio">
+                        <a href="index.html">← Volver al inicio</a>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module" src="js/transiciones.js"></script>
+    <script type="module" src="js/registro.js"></script>
+
+</body>
+
+</html>

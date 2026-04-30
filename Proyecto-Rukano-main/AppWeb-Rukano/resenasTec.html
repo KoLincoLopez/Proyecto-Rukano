@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluar Técnico</title>
+
+  <link rel="stylesheet" href="css/resenasTec.css">
+</head>
+
+<body>
+
+<div class="split-pantalla">
+
+    <div class="split-imagen">
+        <a href="#" class="logo-flotante">RUKANO</a>
+        <div class="texto-imagen">
+            <h1>Tu opinión<br>marca la diferencia.</h1>
+        </div>
+    </div>
+
+    <div class="split-formulario">
+
+        <div class="formulario-caja">
+
+            <h2 class="titulo-form">EVALUAR SERVICIO</h2>
+            <p class="subtitulo-form">Cuéntanos tu experiencia con el técnico</p>
+
+            <form id="formResena">
+
+                <div class="grupo-input">
+                    <label class="label-rol">Calificación</label>
+
+                    <div class="stars">
+                        <input type="radio" name="rating" value="5" id="s5">
+                        <label for="s5">★</label>
+
+                        <input type="radio" name="rating" value="4" id="s4">
+                        <label for="s4">★</label>
+
+                        <input type="radio" name="rating" value="3" id="s3">
+                        <label for="s3">★</label>
+
+                        <input type="radio" name="rating" value="2" id="s2">
+                        <label for="s2">★</label>
+
+                        <input type="radio" name="rating" value="1" id="s1">
+                        <label for="s1">★</label>
+                    </div>
+
+                <div class="grupo-input">
+                    <textarea id="comentario" placeholder="Escribe tu experiencia..." required></textarea>
+                </div>
+
+                <button id="btnEnviar" class="btn-primario">
+                    ENVIAR RESEÑA
+                </button>
+
+            </form>
+
+            <div id="mensajeEstado" class="mensaje-estado"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module" src="resenasTec.js"></script>
+
+</body>
+</html>

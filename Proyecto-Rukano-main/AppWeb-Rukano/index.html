@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rukano - Servicios para tu hogar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/index.css" />
+</head>
+
+<body>
+    <section class="seccion-hero">
+        <nav class="navbar-integrada">
+            <a href="#" class="bloque-logo">RUKANO</a>
+
+            <div class="bloque-menu">
+                <div class="nav-izquierda">
+                    <a href="#servicios">Servicios</a>
+                    <a href="#beneficios">Beneficios</a>
+                    <a href="#como-funciona">¿Cómo Funciona?</a>
+                    <a href="#testimonios">Reseñas</a>
+                </div>
+
+                <div class="nav-derecha">
+                    <a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
+                    <a href="registro.html" class="btn-registro-nav">Registrarse</a>
+                </div>
+                <button class="hamburguesa" onclick="openNav()" style="display: none;">☰</button>
+            </div>
+        </nav>
+
+        <div class="contenedor-simetrico contenido-hero">
+            <h1 class="titulo-hogar">SERVICIOS PARA TU<br>HOGAR</h1>
+            <div class="barra-gruesa-gris"></div>
+
+            <div class="fila-busqueda">
+                <div class="caja-busqueda">
+                    <input type="text" class="input-invisible" placeholder="¿QUE NECESITAS?">
+                    <svg class="lupa-profesional" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+                            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="contenedor-botones">
+                <button class="boton-ovalado activo">LIMPIEZA</button>
+                <button class="boton-ovalado">ELECTRICIDAD</button>
+                <button class="boton-ovalado">GASFITERIA</button>
+                <button class="boton-ovalado">JARDINERIA</button>
+                <button class="boton-ovalado">OTROS</button>
+            </div>
+        </div>
+    </section>
+
+    <div class="contenedor-simetrico">
+        
+        <div class="grilla-servicios" id="servicios">
+            <article class="card-editorial">
+                <div class="card-header-pro">
+                    <div class="avatar-circular">
+                        <img src="https://cdn-icons-png.flaticon.com/512/4792/4792929.png" alt="Técnico"
+                            style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    </div>
+                    <div class="info-titulos">
+                        <span class="nota-badge">5.0</span>
+                        <h3 class="nombre-masivo">PEDRO PÉREZ</h3>
+                        <p class="tag-especialidad">ELECTRICISTA DOMICILIARIO</p>
+                    </div>
+                </div>
+
+                <div class="card-body-pro">
+                    <p class="texto-resumen">Instalaciones industriales, domiciliarias y comerciales. Certificado SEC al día.</p>
+                    <button class="btn-outlined-pro">VER PERFIL COMPLETO</button>
+                </div>
+            </article>
+        </div>
+
+        <section class="propuesta-valor" id="beneficios">
+            <h2 class="subtitulo-editorial">¿POR QUÉ CONFIAR EN RUKANO?</h2>
+
+            <div class="grilla-pilares">
+                <div class="pilar">
+                    <div class="numero-editorial">01</div>
+                    <h4>SEGURIDAD TOTAL</h4>
+                    <p>Validamos la identidad y antecedentes de cada técnico para tu tranquilidad.</p>
+                </div>
+
+                <div class="pilar">
+                    <div class="numero-editorial">02</div>
+                    <h4>PAGO GARANTIZADO</h4>
+                    <p>Tu dinero se libera solo cuando confirmas que el trabajo está terminado.</p>
+                </div>
+
+                <div class="pilar">
+                    <div class="numero-editorial">03</div>
+                    <h4>RESPUESTA RÁPIDA</h4>
+                    <p>Agenda servicios en minutos con profesionales disponibles en tu zona.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="como-funciona" id="como-funciona">
+            <h2 class="titulo-pasos">¿CÓMO FUNCIONA RUKANO?</h2>
+
+            <div class="flujo-pasos">
+                <div class="paso-item">
+                    <div class="numero-fondo">01</div>
+                    <div class="paso-contenido">
+                        <h3>ENCUENTRA</h3>
+                        <p>Usa nuestro buscador inteligente para filtrar técnicos por especialidad y zona.</p>
+                    </div>
+                </div>
+
+                <div class="paso-item">
+                    <div class="numero-fondo">02</div>
+                    <div class="paso-contenido">
+                        <h3>COMPARA</h3>
+                        <p>Revisa perfiles reales, fotos de trabajos anteriores y notas de otros clientes.</p>
+                    </div>
+                </div>
+
+                <div class="paso-item">
+                    <div class="numero-fondo">03</div>
+                    <div class="paso-contenido">
+                        <h3>SOLUCIONA</h3>
+                        <p>Contacta al profesional, agenda la visita y paga de forma segura en la plataforma.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonios" id="testimonios">
+            <h2 class="subtitulo-editorial">LO QUE DICEN DE NOSOTROS</h2>
+
+            <div class="mosaico-testimonios">
+                <div class="testimonio-card principal">
+                    <span class="comillas">“</span>
+                    <p class="cita">Encontré un gasfiter en menos de 10 minutos para una emergencia un
+                        domingo. La seguridad de pagar por la App es lo mejor.</p>
+                    <div class="autor">
+                        <div class="avatar-mini"></div>
+                        <div>
+                            <p class="nombre">MARÍA JOSÉ L.</p>
+                            <p class="rol">CLIENTE RECURRENTE</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="columna-secundaria">
+                    <div class="testimonio-card pequeña">
+                        <p class="cita-corta">"Excelente plataforma para nosotros los técnicos. Ordenada y
+                            profesional."</p>
+                        <p class="nombre-mini">RICARDO M. (ELECTRICISTA)</p>
+                    </div>
+
+                    <div class="testimonio-card pequeña">
+                        <p class="cita-corta">"RUKANO me dio la confianza que necesitaba para dejar entrar a
+                            alguien a mi hogar."</p>
+                        <p class="nombre-mini">CARLOS D. (CLIENTE)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-final">
+            <div class="cta-container">
+                <div class="cta-lado cliente">
+                    <div class="cta-contenido">
+                        <span class="cta-tag">¿BUSCAS AYUDA?</span>
+                        <h2 class="cta-titulo">SOLUCIONA TUS PROBLEMAS HOY.</h2>
+                        <p class="cta-texto">Accede a los mejores profesionales de tu zona con solo un clic.
+                            Seguro, rápido y confiable.</p>
+                        <a href="registro.html" class="btn-cta-negro">REGISTRARME COMO CLIENTE</a>
+                    </div>
+                </div>
+
+                <div class="cta-lado profesional">
+                    <div class="cta-contenido">
+                        <span class="cta-tag">¿ERES PROFESIONAL?</span>
+                        <h2 class="cta-titulo">IMPULSA TU TRABAJO CON RUKANO.</h2>
+                        <p class="cta-texto">Llega a cientos de clientes nuevos y gestiona tus servicios de
+                            forma profesional.</p>
+                        <a href="registro.html" class="btn-cta-blanco">UNIRME COMO TÉCNICO</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="footer-rukano">
+        <div class="footer-grid">
+            <div class="footer-col-marca">
+                <h2 class="logo-footer">RUKANO</h2>
+                <p class="slogan-footer">Transformando la forma en que cuidas tu hogar.</p>
+                <div class="redes-sociales">
+                    <a href="#">INSTAGRAM</a>
+                    <a href="#">FACEBOOK</a>
+                    <a href="#">LINKEDIN</a>
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <span class="footer-label">AYUDA</span>
+                <nav class="footer-links">
+                    <a href="#">Centro de ayuda</a>
+                    <a href="#">Seguridad</a>
+                    <a href="#">Cómo pagar</a>
+                </nav>
+            </div>
+
+            <div class="footer-col">
+                <span class="footer-label">COMPAÑÍA</span>
+                <nav class="footer-links">
+                    <a href="#">Sobre nosotros</a>
+                    <a href="#">Términos y condiciones</a>
+                    <a href="#">Privacidad</a>
+                </nav>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 RUKANO. HECHO CON PASIÓN POR EQUIPO TAP</p>
+            <p class="pais-footer">CHILE / SANTIAGO</p>
+        </div>
+    </footer>
+    
+    <script type="module" src="js/Firebase-config.js"></script>
+    <script type="module" src="js/index.js"></script>
+</body>
+
+</html>
