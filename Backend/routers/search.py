@@ -4,6 +4,10 @@ import re
 
 router = APIRouter()
 
+@router.get("/search")
+def search_items():
+    return {"mensaje":"search funcionando"}
+
 @router.get("/categoria_solicitada/{comuna}/{categoria}")
 async def busqueda_por_categoria(comuna: str, categoria: str):
     try:
@@ -11,7 +15,7 @@ async def busqueda_por_categoria(comuna: str, categoria: str):
         # Obtenemos las comunas cercanas a la comuna solicitada para ampliar la búsqueda
         # Si la comuna no está en el diccionario, se busca solo en esa comuna
         comunas_objetivo = COMUNAS_CERCANAS.get(comuna, [comuna])
- 
+
         #1 Obtenemos la referencia de los servicios de la base de datos
         services_ref = db.collection("servicios")
 
@@ -22,115 +26,83 @@ async def busqueda_por_categoria(comuna: str, categoria: str):
         results = []
 
         for doc in query.stream():
-            # Es necesario convertir cada documento de la base de datos a un diccionario
-            # Solo necesitamos agregar los campos relevantes para el dato a devolver al cliente
             servicio_data = doc.to_dict()
 
             es_local = servicio_data.get("comuna") == comuna
 
-            servicio_data["idServicio"] = servicio_data.get("idServicio")  # Agregamos el ID del documento a los datos del servicio
-            servicio_data["idTecnico"] = servicio_data.get("idTecnico") # Agregamos el ID del técnico a los datos del servicio
-            servicio_data["titulo"] = servicio_data.get("titulo")  # Agregamos el título del servicio a los datos del servicio
-            servicio_data["categoria"] = categoria  # Agregamos la categoría al resultado
-            servicio_data["precio base"] = servicio_data.get("precio base")  # Agregamos el precio base del servicio a los datos del servicio
-            servicio_data["descripción"] = servicio_data.get("descripción")  # Agregamos la descripción del servicio a los datos del servicio
-            servicio_data["idTecnico"] = servicio_data.get("idTecnico")  # Agregamos el ID del técnico a los datos del servicio
-            servicio_data["es_local"] = es_local  # Agregamos un campo para indicar si el servicio es local o no, esto se usará para ordenar los resultados dando prioridad a los locales
+            servicio_data["idServicio"] = servicio_data.get("idServicio")
+            servicio_data["idTecnico"] = servicio_data.get("idTecnico")
+            servicio_data["titulo"] = servicio_data.get("titulo")
+            servicio_data["categoria"] = categoria
+            servicio_data["precio base"] = servicio_data.get("precio base")
+            servicio_data["descripción"] = servicio_data.get("descripción")
+            servicio_data["idTecnico"] = servicio_data.get("idTecnico")
+            servicio_data["es_local"] = es_local
 
-            # Guardamos el resultado en la lista de resultados a devolver al cliente
             results.append(servicio_data)
 
-        
         if not results:
             return {"message": "No se encontraron servicios para la categoría solicitada"}
-        else:
-            # Ordenamos los resultados dando prioridad a los servicios locales (es_local = True) sobre los no locales (es_local = False)
-            results.sort(key=lambda x: x["es_local"], reverse=True)
-            return results
-        
+
+        results.sort(key=lambda x: x["es_local"], reverse=True)
+        return results
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/busqueda_general/{comuna}/{texto_busqueda}")
 async def busqueda_general(comuna: str, texto_busqueda: str):
     try:
-        # Obtenemos las comunas cercanas a la comuna solicitada para ampliar la búsqueda
-        # Si la comuna no está en el diccionario, se busca solo en esa comuna
+
         comunas_objetivo = COMUNAS_CERCANAS.get(comuna, [comuna])
 
         services_ref = db.collection("servicios")
-        
-        # 1. Generamos keywords únicas de la búsqueda del usuario
-        # Usamos el texto una vez ya que la función lo procesa internamente
-        keywords_usuario = generar_keywords(texto_busqueda, "", "") 
 
-        # 2. Usamos un diccionario para evitar duplicados y cumplir con Calidad [2]
+        keywords_usuario = generar_keywords(texto_busqueda, "", "")
+
         resultados_unicos = {}
 
         for palabra in keywords_usuario:
 
-            print(f"Buscando la palabra exacta: '{palabra}' en el campo 'keyWords'")
-
-            # Filtramos por keywords y comuna
             docs = services_ref.where("keyWords", "array_contains", palabra).where("comuna", "in", comunas_objetivo).stream()
-            
+
             for doc in docs:
                 if doc.id not in resultados_unicos:
                     data = doc.to_dict()
                     es_local = data.get("comuna") == comuna
-                    # Mapeo limpio siguiendo el principio de ZeroLeaking [4]
+
                     resultados_unicos[doc.id] = {
                         "idServicio": data.get("idServicio"),
                         "idTecnico": data.get("idTecnico"),
                         "titulo": data.get("titulo"),
                         "categoria": data.get("categoria"),
-                        "precio_base": data.get("precio base"),
-                        "descripcion": data.get("descripción"),  # Con tilde como en tu DB
-                        "es_local": es_local  # Agregamos el campo para indicar si es local
+                        "precio base": data.get("precio base"),
+                        "descripcion": data.get("descripción"),
+                        "es_local": es_local
                     }
-        
-        # 3. Convertimos el diccionario a lista para la respuesta final
-        final_list = list(resultados_unicos.values())
 
-        # Ordenamos los resultados dando prioridad a los servicios locales
+        final_list = list(resultados_unicos.values())
         final_list.sort(key=lambda x: x["es_local"], reverse=True)
 
         if not final_list:
             return {"status": "empty", "message": "No se encontraron servicios"}
-            
+
         return {"status": "success", "total": len(final_list), "results": final_list}
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error en búsqueda: {str(e)}")
-  
 
 
+def generar_keywords(titulo, categoria, descripcion):
 
-"""Esta funcion se encarga de generar las keywords de búsqueda a partir del título, categoría y descripción de un servicio.
-Esta funcion no pertenece al microservicio de busqueda, pertenece al microservicio de servicios,
-este se debe ejecutar on create y on update de un servicio, para generar las keywords cada vez que se cree o 
-actualice un servicio en la base de datos."""
-
-# Funcion para generar las keywords de busqueda 
-def generar_keywords(titulo,categoria,descripcion):
-    
-    # Unimos todo el texto en una sola cadena
     full_text = f"{titulo} {categoria} {descripcion}"
-
-    # Lo pasamos a minúsculas para normalizar el texto
     full_text = full_text.lower()
-
-    # Eliminamos caracteres especiales y puntuación usando regex
     clean_text = re.sub(r'[^\w\s]', '', full_text)
-
-    # Dividimos el texto en palabras individuales
     text = clean_text.split()
-        
-    # Filtramos palabras de 2 caracteres o menos para evitar palabras como "de", "la", "el", etc. que no aportan valor a la búsqueda
-    keywords = [text for text in text if len(text) > 2]  
-    return keywords
 
+    keywords = [text for text in text if len(text) > 2]
+    return keywords
 
 
 # Este diccionario se utiliza para definir las comunas cercanas a cada comuna de Santiago

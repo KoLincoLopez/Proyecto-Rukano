@@ -27,33 +27,39 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
+            // Login con Firebase
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
             const token = await user.getIdToken();
 
-        
-            const response = await fetch("http://localhost:3000/auth/validate", {
+            const response = await fetch("http://localhost:8000/auth/validate", {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer " + token
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
 
             if (!response.ok) {
-                throw new Error("Error al validar con backend");
+                throw new Error(`Error backend: ${response.status}`);
             }
 
             const data = await response.json();
 
-          
+            console.log("Respuesta backend:", data);
+
+            // Redirección según rol
             if (data.rol === "TECNICO") {
                 window.location.href = "panelTecnico.html";
-            } else {
+            } else if (data.rol === "CLIENTE") {
                 window.location.href = "panelCliente.html";
+            } else {
+                alert("Rol desconocido");
             }
 
         } catch (error) {
+            console.error(error);
             alert("Error: " + error.message);
         }
 
