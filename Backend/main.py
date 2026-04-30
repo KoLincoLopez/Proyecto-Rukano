@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Header
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from routers import reviews, search, citas, servicios
 
@@ -18,10 +18,29 @@ app.include_router(search.router)
 app.include_router(citas.router, prefix="/citas")
 app.include_router(servicios.router, prefix="/servicios")
 
+
 @app.get("/")
 def inicio():
     return {"mensaje": "Backend funcionando"}
 
+
 @app.post("/auth/validate")
 def validate_user(authorization: str = Header(None)):
-    return {"rol": "TECNICO"}
+
+    if not authorization:
+        raise HTTPException(status_code=401, detail="Token no proporcionado")
+
+    # limpiar token tipo 
+    parts = authorization.split(" ")
+    token = parts[1] if len(parts) > 1 else parts[0]
+
+    token_lower = token.lower()
+
+    if token == "token_cliente" or "cliente" in token_lower:
+        return {"valid": True, "role": "cliente"}
+
+    elif token == "token_tecnico" or "tecnico" in token_lower:
+        return {"valid": True, "role": "tecnico"}
+
+    else:
+        raise HTTPException(status_code=403, detail="Token inválido o usuario no reconocido")
