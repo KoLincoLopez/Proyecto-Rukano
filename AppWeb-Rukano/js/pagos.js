@@ -1,4 +1,4 @@
-const mp = new MercadoPago('APP_USR-6638071284929820-042921-b378cc2d916b6dff6e625c6ef024dbb7-3369359916', {
+const mp = new MercadoPago('APP_USR-4fe19cc9-952e-4ec7-ad20-8998638a546f', {
     locale: 'es-CL' // Configura idioma y moneda de Chile
 });
 
@@ -9,13 +9,11 @@ btnComprar.addEventListener("click", async () => {
         btnComprar.disabled = true;
         btnComprar.innerText = "Procesando seguridad...";
 
-        // 4. Hacemos la petición a tu backend en Render
         const url = new URL("http://127.0.0.1:8000/payments/create_preference");
         url.searchParams.append("title", "Servicio Eléctrico - Visita Técnica");
         url.searchParams.append("quantity", 1);
         url.searchParams.append("price", 15000);
 
-        // 2. Hacemos el fetch SIN el 'body'
         const response = await fetch(url, {
             method: "POST",
             headers: {

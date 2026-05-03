@@ -16,12 +16,12 @@ class MercadoPagoService:
                 }
             ],
             "back_urls": {
-                "success": "https://rukano-sph.onrender.com/exito.html", 
-                "failure": "https://rukano-sph.onrender.com/error.html",
-                "pending": "https://rukano-sph.onrender.com/pendiente.html"
+                # Agregamos la carpeta /payment/ a la ruta
+                "success": "https://rukano-sph.onrender.com/payment/exito.html",
+                "failure": "https://rukano-sph.onrender.com/payment/error.html",
+                "pending": "https://rukano-sph.onrender.com/payment/pendiente.html"
             },
-            "auto_return": "approved",
-            "notification_url": "https://rukano-sph.onrender.com/payments/webhook"
+            "auto_return": "approved"
         }
         
         response = self.sdk.preference().create(preference_data)
