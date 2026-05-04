@@ -1,4 +1,4 @@
-const mp = new MercadoPago('APP_USR-4fe19cc9-952e-4ec7-ad20-8998638a546f', {
+const mp = new MercadoPago('TEST-f27713ec-0ad5-4dfa-8876-75f2c54da7eb', {
     locale: 'es-CL' 
 });
 
@@ -9,12 +9,21 @@ btnComprar.addEventListener("click", async () => {
         btnComprar.disabled = true;
         btnComprar.innerText = "Procesando seguridad...";
 
-        const url = new URL("https://rukano-sph.onrender.com/payments/create_preference");
-        url.searchParams.append("title", "Servicio Eléctrico - Visita Técnica");
-        url.searchParams.append("quantity", 1);
-        url.searchParams.append("price", 15000);
+        const url = "https://rukano-sph.onrender.com/payments/create_preference";
+        const datosPago = {
+            title: "Servicio Eléctrico - Visita Técnica",
+            quantity: 1,
+            price: 15000
+        };
 
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(datosPago)
+        });
 
         if (!response.ok) {
             throw new Error(`Error en el servidor: ${response.status}`);
