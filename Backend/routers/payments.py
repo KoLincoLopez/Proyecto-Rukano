@@ -3,10 +3,10 @@ from services.mercadopago_service import MercadoPagoService
 from core.firebase_config import db
 from pydantic import BaseModel
 
-router = APIRouter(
-    prefix="/payments",
-    tags=["Payments"]
-)
+mp_service = MercadoPagoService()
+
+router = APIRouter( prefix="/payments", tags=["Payments"])
+
 class PreferenceRequest(BaseModel):
     title: str
     quantity: int
