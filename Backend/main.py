@@ -16,7 +16,7 @@ app.add_middleware(
 # Registramos todos los microservicios de forma ordenada
 app.include_router(search.router, prefix="/search")
 app.include_router(reviews.router, prefix="/reviews")
-app.include_router(payments.router) # El tuyo de pagos
+app.include_router(payments.router) # El de pagos
 app.include_router(citas.router, prefix="/citas")
 app.include_router(servicios.router, prefix="/servicios")
 

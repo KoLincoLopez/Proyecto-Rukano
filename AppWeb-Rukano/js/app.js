@@ -1,4 +1,4 @@
-const mp = new MercadoPago('TU_PUBLIC_KEY_DE_PRUEBA', {
+const mp = new MercadoPago('TESTUSER8174397253389317040', {
     locale: 'es-CL'
 });
 
@@ -9,21 +9,20 @@ btnComprar.addEventListener("click", async () => {
         btnComprar.disabled = true;
         btnComprar.innerText = "Cargando...";
 
-       
+
         const response = await fetch("https://rukano-sph.onrender.com/payments/create_preference", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                title: "Producto de prueba",
+                title: "Servicio Eléctrico - Visita Técnica",
                 quantity: 1,
                 price: 15000
             })
         });
-
         const data = await response.json();
-        
+
         const preferenceId = data.preference_id;
 
         mp.bricks().create("wallet", "wallet_container", {
