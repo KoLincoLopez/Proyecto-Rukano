@@ -68,6 +68,7 @@ def obtener_todos():
 
 
 # ELIMINAR SERVICIO 
+
 @router.delete("/{servicio_id}")
 def eliminar_servicio(servicio_id: str):
 
