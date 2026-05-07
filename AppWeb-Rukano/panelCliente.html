@@ -15,7 +15,8 @@
         .box {
             background: white;
             padding: 40px;
-            width: 320px;
+            width: 800px;
+            max-width: 90%;
             margin: auto;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -31,6 +32,63 @@
             border-radius: 5px;
         }
 
+        .reserva {
+            margin-top: 30px;
+            text-align: left;
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .reserva h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .detalle-reserva {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .dato {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .dato strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+       }
+
+        .historial {
+            margin-top: 25px;
+            text-align: left;
+       }
+
+        .historial ul {
+            padding-left: 20px;
+       }
+
+        .btn-reservar {
+            background: #c9363f;
+        }
+
+        .btn-reservar:hover {
+            background: #a92d35;
+        }
+
+        @media (max-width: 700px) {
+            .detalle-reserva {
+                grid-template-columns: 1fr;
+            }
+}
+
         button:hover {
             background: #219150;
         }
@@ -42,6 +100,99 @@
     <div class="box">
         <h1>Bienvenido Cliente </h1>
         <p>Has iniciado sesión correctamente</p>
+
+        <section class="reserva">
+            <h2>Confirmar reserva</h2>
+
+            <div class="detalle-reserva">
+                <div class="dato">
+                    <strong>Servicio</strong>
+                    Electricidad domiciliaria
+                </div>
+
+                <div class="dato">
+                    <strong>Técnico</strong>
+                    Pedro Pérez
+                </div>
+
+                <div class="dato">
+                    <strong>Fecha</strong>
+                    Viernes 10 de mayo
+                </div>
+
+                <div class="dato">
+                    <strong>Horario</strong>
+                    15:00 - 16:00 hrs
+                </div>
+
+                <div class="dato">
+                    <strong>Precio estimado</strong>
+                    $25.000
+                </div>
+
+                <div class="dato">
+                    <strong>Estado</strong>
+                    Pendiente de confirmación
+                </div>
+            </div>
+
+            <button class="btn-reservar">Reservar servicio</button>
+
+            <div class="historial">
+                <h3>Historial de citas pendientes</h3>
+                <ul>
+                    <li>Gasfitería - Martes 14 de mayo - Pendiente</li>
+                    <li>Limpieza hogar - Jueves 16 de mayo - Pendiente</li>
+                </ul>
+            </div>
+
+            <div class="historial">
+
+            <h3>Pagos y facturación</h3>
+
+            <div class="dato">
+                <strong>Método de pago</strong>
+                Tarjeta de crédito terminada en 4582
+            </div>
+
+            <div class="dato" style="margin-top: 15px;">
+                <strong>Estado del pago</strong>
+                Pago realizado correctamente
+            </div>
+
+            <h3 style="margin-top: 25px;">Historial de boletas</h3>
+
+            <ul>
+                 <li>Boleta #001 - Electricidad domiciliaria - $25.000</li>
+                 <li>Boleta #002 - Limpieza hogar - $18.000</li>
+            </ul>
+        </div>
+
+        <hr style="margin: 30px 0;">
+
+        <div class="historial">
+            <h3>Reportes y disputas</h3>
+
+            <div class="dato">
+                <strong>Estado del último reclamo</strong>
+                En revisión por soporte
+            </div>
+
+            <div class="dato" style="margin-top: 15px;">
+                <strong>Enviar reclamo</strong>
+
+                <textarea 
+                    placeholder="Describe el problema con el servicio..."
+                        style="width: 100%; height: 100px; box-sizing: border-box; margin-top: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"
+                    ></textarea>
+
+                <button style="margin-top: 15px;">
+                    Enviar reporte
+                </button>
+            </div>
+        </div>
+
+        </section>
 
         <button id="btnLogout">Cerrar sesión</button>
     </div>

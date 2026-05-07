@@ -15,10 +15,70 @@
         .box {
             background: white;
             padding: 40px;
-            width: 320px;
+            width: 800px;
+            max-width: 90%;
             margin: auto;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .agenda {
+            margin-top: 30px;
+            text-align: left;
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .agenda h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .detalle-agenda {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .dato {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .dato strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .historial {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .historial ul {
+            padding-left: 20px;
+        }
+
+        .disponible {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .reservado {
+            color: #c9363f;
+            font-weight: bold;
+        } 
+
+        @media (max-width: 700px) {
+            .detalle-agenda {
+                grid-template-columns: 1fr;
+            }
         }
 
         button {
@@ -42,6 +102,44 @@
     <div class="box">
         <h1>Bienvenido Técnico </h1>
         <p>Has iniciado sesión correctamente</p>
+
+        <section class="agenda">
+            <h2>Agenda virtual</h2>
+
+            <div class="detalle-agenda">
+               <div class="dato">
+                   <strong>Lunes</strong>
+                   09:00 - 12:00 hrs <br>
+                   <span class="disponible">Disponible</span>
+                </div>
+
+                <div class="dato">
+                    <strong>Martes</strong>
+                    14:00 - 18:00 hrs <br>
+                    <span class="reservado">Reservado</span>
+                </div>
+
+                <div class="dato">
+                    <strong>Miércoles</strong>
+                    10:00 - 13:00 hrs <br>
+                    <span class="disponible">Disponible</span>
+                </div>
+
+                <div class="dato">
+                    <strong>Viernes</strong>
+                    15:00 - 17:00 hrs <br>
+                    <span class="reservado">Reservado</span>
+                </div>
+            </div>
+
+            <div class="historial">
+                <h3>Servicios agendados</h3>
+                <ul>
+                    <li>Electricidad domiciliaria - Martes 14:00 hrs - Cliente: María José</li>
+                    <li>Instalación de enchufes - Viernes 15:00 hrs - Cliente: Carlos Díaz</li>
+                </ul>
+            </div>
+        </section>
 
         <button id="btnLogout">Cerrar sesión</button>
     </div>
