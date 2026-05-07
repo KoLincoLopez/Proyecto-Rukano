@@ -1,7 +1,10 @@
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-# Importamos todos los routers juntos
-from routers import search, reviews, payments, citas, servicios
+
+try:
+    from .routers import search, reviews, payments, citas, servicios
+except ImportError:
+    from routers import search, reviews, payments, citas, servicios
 
 app = FastAPI()
 

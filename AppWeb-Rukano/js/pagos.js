@@ -1,51 +1,72 @@
-const mp = new MercadoPago('APP_USR-4fe19cc9-952e-4ec7-ad20-8998638a546f', {
-    locale: 'es-CL' // Configura idioma y moneda de Chile
+const mp = new MercadoPago("TEST-f27713ec-0ad5-4dfa-8876-75f2c54da7eb", {
+    locale: "es-CL"
 });
 
 const btnComprar = document.getElementById("btn-comprar");
+const isLocalBackend = (
+    window.location.protocol === "file:" ||
+    ["localhost", "127.0.0.1"].includes(window.location.hostname)
+);
+const apiBaseUrl = isLocalBackend ? "http://localhost:8000" : "https://rukano-sph.onrender.com";
+const preferRedirectCheckout = true;
 
 btnComprar.addEventListener("click", async () => {
     try {
         btnComprar.disabled = true;
-        btnComprar.innerText = "Procesando seguridad...";
+        btnComprar.textContent = "Procesando seguridad...";
 
-        const url = new URL("http://127.0.0.1:8000/payments/create_preference");
-        url.searchParams.append("title", "Servicio Eléctrico - Visita Técnica");
-        url.searchParams.append("quantity", 1);
-        url.searchParams.append("price", 15000);
-
-        const response = await fetch(url, {
+        const response = await fetch(`${apiBaseUrl}/payments/create_preference`, {
             method: "POST",
             headers: {
-                "Accept": "application/json"
-            }
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: "Servicio Electrico - Visita Tecnica",
+                quantity: 1,
+                price: 15000
+            })
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            throw new Error(`Error en el servidor: ${response.status}`);
+            throw new Error(data.detail || `Error en el servidor: ${response.status}`);
         }
 
-        const data = await response.json();
         const preferenceId = data.preference_id;
+        if (!preferenceId) {
+            throw new Error("El servidor no devolvio preference_id");
+        }
+
+        if (preferRedirectCheckout) {
+            const checkoutUrl = data.sandbox_init_point || data.init_point;
+            if (!checkoutUrl) {
+                throw new Error("El servidor no devolvio una URL de checkout");
+            }
+
+            window.location.href = checkoutUrl;
+            return;
+        }
 
         mp.bricks().create("wallet", "wallet_container", {
             initialization: {
-                preferenceId: preferenceId,
+                preferenceId
             },
             customization: {
                 texts: {
-                    valueProp: 'security_details',
-                },
+                    valueProp: "security_details"
+                }
             },
+            locale: "es-CL"
         });
 
         btnComprar.style.display = "none";
-
     } catch (error) {
         console.error("Error al procesar el pago:", error);
-        alert("Hubo un problema de conexión. Por favor, intenta de nuevo.");
+        alert(`Hubo un problema al iniciar el pago: ${error.message}`);
 
         btnComprar.disabled = false;
-        btnComprar.innerText = "Pagar Ahora";
+        btnComprar.textContent = "Pagar Ahora";
     }
 });
