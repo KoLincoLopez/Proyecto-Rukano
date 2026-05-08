@@ -3,7 +3,10 @@ from pydantic import BaseModel
 from datetime import datetime, timezone
 import uuid
 import re 
-from core.firebase_config import db
+try:
+    from ..core.firebase_config import db
+except ImportError:
+    from core.firebase_config import db
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 router = APIRouter()

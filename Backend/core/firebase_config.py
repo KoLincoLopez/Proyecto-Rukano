@@ -1,15 +1,33 @@
-import firebase_admin
-from firebase_admin import credentials, firestore
 import os
+from pathlib import Path
 
-ruta_credenciales = os.getenv("FIREBASE_CREDENTIALS")
+import firebase_admin
+from dotenv import load_dotenv
+from firebase_admin import credentials, firestore
 
-if not ruta_credenciales:
-    raise ValueError("FIREBASE_CREDENTIALS no está configurado")
+BASE_DIR = Path(__file__).resolve().parents[1]
+load_dotenv(BASE_DIR / ".env")
 
-cred = credentials.Certificate(ruta_credenciales)
 
-if not firebase_admin._apps:
+def initialize_firebase():
+    if firebase_admin._apps:
+        return firestore.client()
+
+    cert_path = os.getenv("FIREBASE_KEY_PATH") or os.getenv("FIREBASE_CREDENTIALS")
+    if cert_path:
+        cert_file = Path(cert_path)
+    else:
+        cert_file = BASE_DIR / "core" / "firebase_key.json"
+
+    if not cert_file.is_absolute():
+        cert_file = BASE_DIR / cert_file
+
+    if not cert_file.exists():
+        raise FileNotFoundError(f"No se encontro la credencial Firebase: {cert_file}")
+
+    cred = credentials.Certificate(str(cert_file))
     firebase_admin.initialize_app(cred)
+    return firestore.client()
 
-db = firestore.client()
+
+db = initialize_firebase()
