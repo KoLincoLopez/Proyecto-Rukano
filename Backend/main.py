@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from routers import reviews, search, citas, servicios
+from routers import reviews, search, citas, servicios, reports
 
 app = FastAPI()
 
@@ -18,6 +18,7 @@ app.include_router(citas.router, prefix="/citas")
 app.include_router(servicios.router, prefix="/servicios")
 app.include_router(reviews.router, prefix="/reviews")
 app.include_router(servicios.router, prefix="/servicios")
+app.include_router(reports.router, prefix="/reports")  # Agrega el router de reportes con el prefijo "/reports"
 
 @app.get("/")
 def inicio():
