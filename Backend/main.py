@@ -1,5 +1,8 @@
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+<<<<<<< HEAD
+from routers import reviews, search, citas, servicios
+=======
 from routers import search  # Importa el router de búsqueda
 from routers import reviews  # Importa el router de reseñas
 from routers import reports  # Importa el router de reportes
@@ -8,6 +11,7 @@ try:
     from .routers import search, reviews, payments, citas, servicios
 except ImportError:
     from routers import search, reviews, payments, citas, servicios
+>>>>>>> main
 
 app = FastAPI()
 
@@ -19,14 +23,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registramos todos los microservicios de forma ordenada
-app.include_router(search.router, prefix="/search")
-app.include_router(reviews.router, prefix="/reviews")
-app.include_router(payments.router) # El de pagos
+app.include_router(reviews.router)
+app.include_router(search.router)
 app.include_router(citas.router, prefix="/citas")
 app.include_router(servicios.router, prefix="/servicios")
+<<<<<<< HEAD
+app.include_router(reviews.router, prefix="/reviews")
+app.include_router(servicios.router, prefix="/servicios")
+=======
 app.include_router(reports.router, prefix="/reports")  # Agrega el router de reportes con el prefijo "/reports"
 
+>>>>>>> main
 
 @app.get("/")
 def inicio():

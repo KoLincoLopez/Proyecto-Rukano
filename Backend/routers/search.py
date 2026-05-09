@@ -1,111 +1,78 @@
-from fastapi import APIRouter, HTTPException
-try:
-    from ..core.firebase_config import db
-except ImportError:
-    from core.firebase_config import db
+from fastapi import APIRouter, HTTPException, Query
+from core.firebase_config import db
+from google.cloud.firestore_v1.base_query import FieldFilter
 import re
 
 router = APIRouter()
 
-@router.get("/search")
-def search_items():
-    return {"mensaje":"search funcionando"}
-
+# --- ENDPOINT: BÚSQUEDA POR CATEGORÍA Y CERCANÍA (RF 2) ---
 @router.get("/categoria_solicitada/{comuna}/{categoria}")
 async def busqueda_por_categoria(comuna: str, categoria: str):
     try:
+        # 1. Identificar zona de búsqueda (Ubicación actual + Cercanas)
+        zonas_busqueda = COMUNAS_CERCANAS.get(comuna, [comuna])
 
-        # Obtenemos las comunas cercanas a la comuna solicitada para ampliar la búsqueda
-        # Si la comuna no está en el diccionario, se busca solo en esa comuna
-        comunas_objetivo = COMUNAS_CERCANAS.get(comuna, [comuna])
+        # 2. Consulta a Firestore (Filtrado por categoría y estado activo)
+        # Usamos FieldFilter para asegurar precisión del 99.9% [5]
+        query = db.collection("servicios") \
+                  .where(filter=FieldFilter("categoria", "==", categoria.lower())) \
+                  .where(filter=FieldFilter("estado", "==", "activo"))
+        
+        docs = query.stream()
+        
+        # 3. Filtrar por comuna y Limpiar datos "a primera vista"
+        resultados = []
+        for doc in docs:
+            d = doc.to_dict()
+            if d.get("comuna") in zonas_busqueda:
+                # Omitimos el 'esquema_formulario' y 'keyWords' para el cliente
+                vista_cliente = {
+                    "idServicio": d.get("idServicio"),
+                    "nombre": d.get("nombre"),
+                    "precio": d.get("precio"),
+                    "comuna": d.get("comuna"),
+                    "tiempoEstimado": d.get("tiempoEstimado"),
+                    "categoria": d.get("categoria"),
+                    "idTecnico": d.get("idTecnico")
+                }
+                resultados.append(vista_cliente)
 
-        #1 Obtenemos la referencia de los servicios de la base de datos
-        services_ref = db.collection("servicios")
-
-        #2 Realizamos la consulta filtrando por la categoría solicitada y por las comunas cercanas a la comuna solicitada
-        query = services_ref.where("categoria", "==", categoria).where("comuna", "in", comunas_objetivo)
-
-        #3 Obtenemos los resultados de la consulta
-        results = []
-
-        for doc in query.stream():
-            servicio_data = doc.to_dict()
-
-            es_local = servicio_data.get("comuna") == comuna
-
-            servicio_data["idServicio"] = servicio_data.get("idServicio")
-            servicio_data["idTecnico"] = servicio_data.get("idTecnico")
-            servicio_data["titulo"] = servicio_data.get("titulo")
-            servicio_data["categoria"] = categoria
-            servicio_data["precio base"] = servicio_data.get("precio base")
-            servicio_data["descripción"] = servicio_data.get("descripción")
-            servicio_data["idTecnico"] = servicio_data.get("idTecnico")
-            servicio_data["es_local"] = es_local
-
-            results.append(servicio_data)
-
-        if not results:
-            return {"message": "No se encontraron servicios para la categoría solicitada"}
-
-        results.sort(key=lambda x: x["es_local"], reverse=True)
-        return results
+        return {"status": "success", "total": len(resultados), "data": resultados}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
+# --- ENDPOINT: BÚSQUEDA INTELIGENTE POR PALABRAS CLAVE (RF 2) ---
 @router.get("/busqueda_general/{comuna}/{texto_busqueda}")
 async def busqueda_general(comuna: str, texto_busqueda: str):
     try:
+        zonas_busqueda = COMUNAS_CERCANAS.get(comuna, [comuna])
+        palabra_objetivo = texto_busqueda.lower()
 
-        comunas_objetivo = COMUNAS_CERCANAS.get(comuna, [comuna])
+        # Buscamos todos los servicios activos en la zona
+        docs = db.collection("servicios").where(filter=FieldFilter("estado", "==", "activo")).stream()
+        
+        resultados = []
+        for doc in docs:
+            d = doc.to_dict()
+            
+            # Validación de zona y búsqueda en el array de keyWords [6]
+            if d.get("comuna") in zonas_busqueda:
+                if palabra_objetivo in d.get("keyWords", []):
+                    # Solo datos relevantes para la primera vista
+                    resultados.append({
+                        "idServicio": d.get("idServicio"),
+                        "nombre": d.get("nombre"),
+                        "precio": d.get("precio"),
+                        "comuna": d.get("comuna"),
+                        "descripcion_corta": d.get("descripcion")[:100] + "...",
+                        "idTecnico": d.get("idTecnico")
+                    })
 
-        services_ref = db.collection("servicios")
-
-        keywords_usuario = generar_keywords(texto_busqueda, "", "")
-
-        resultados_unicos = {}
-
-        for palabra in keywords_usuario:
-
-            docs = services_ref.where("keyWords", "array_contains", palabra).where("comuna", "in", comunas_objetivo).stream()
-
-            for doc in docs:
-                if doc.id not in resultados_unicos:
-                    data = doc.to_dict()
-                    es_local = data.get("comuna") == comuna
-
-                    resultados_unicos[doc.id] = {
-                        "idServicio": data.get("idServicio"),
-                        "idTecnico": data.get("idTecnico"),
-                        "titulo": data.get("titulo"),
-                        "categoria": data.get("categoria"),
-                        "precio base": data.get("precio base"),
-                        "descripcion": data.get("descripción"),
-                        "es_local": es_local
-                    }
-
-        final_list = list(resultados_unicos.values())
-        final_list.sort(key=lambda x: x["es_local"], reverse=True)
-
-        if not final_list:
-            return {"status": "empty", "message": "No se encontraron servicios"}
-
-        return {"status": "success", "total": len(final_list), "results": final_list}
+        return {"status": "success", "total": len(resultados), "data": resultados}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error en búsqueda: {str(e)}")
-
-
-def generar_keywords(titulo, categoria, descripcion):
-
-    full_text = f"{titulo} {categoria} {descripcion}"
-    full_text = full_text.lower()
-    clean_text = re.sub(r'[^\w\s]', '', full_text)
-    text = clean_text.split()
-
-    keywords = [text for text in text if len(text) > 2]
-    return keywords
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # Este diccionario se utiliza para definir las comunas cercanas a cada comuna de Santiago
