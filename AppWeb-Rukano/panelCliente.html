@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rukano - Panel Cliente</title>
     <link rel="stylesheet" href="css/panelCliente.css">
 
@@ -18,8 +19,8 @@
                 <a href="#">Soporte</a>
             </div>
             <div class="nav-derecha">
-                <span id="nombreUsuarioNav" class="link-sesion" style="cursor: default; opacity: 1;">Cargando...</span>
-                <button id="btnLogout" class="btn-registro-nav" style="border: none; cursor: pointer; font-family: inherit;">Salir</button>
+                <span id="nombreUsuarioNav" class="link-sesion nombre-usuario-nav">Cargando...</span>
+                <button id="btnLogout" class="btn-registro-nav">Salir</button>
             </div>
             <button class="hamburguesa" onclick="openNav()">☰</button>
         </div>
@@ -32,7 +33,7 @@
             <p class="dash-subtitulo">Gestiona tus servicios, pagos y configuraciones.</p>
         </header>
         <!-- NUEVO: BUSCADOR INTEGRADO EN EL PANEL (RUTA B) -->
-        <div class="buscador-panel-interno" style="margin-bottom: 60px;">
+        <div class="buscador-panel-interno">
             <div class="caja-busqueda-panel">
                 <input type="text" placeholder="EJ: ELECTRICISTA, GÁSFITER..." class="input-panel">
                 <svg class="lupa-panel" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -41,13 +42,18 @@
                 </svg>
             </div>
             
-            <div class="contenedor-botones" style="justify-content: flex-start; margin-top: 20px;">
-                <button class="btn-panel activo">LIMPIEZA</button>
-                <button class="btn-panel">ELECTRICIDAD</button>
-                <button class="btn-panel">GASFITERÍA</button>
-                <button class="btn-panel">JARDINERÍA</button>
+            <div class="contenedor-botones">
+                <button class="btn-panel activo" data-categoria="limpieza">LIMPIEZA</button>
+                <button class="btn-panel" data-categoria="electricidad">ELECTRICIDAD</button>
+                <button class="btn-panel" data-categoria="gasfiteria">GASFITERÍA</button>
+                <button class="btn-panel" data-categoria="jardineria">JARDINERÍA</button>
             </div>
         </div>
+
+        <section class="resultados-busqueda-panel">
+            <h2 class="seccion-titulo-mini">Resultados</h2>
+            <div class="grilla-servicios-panel" id="resultados-servicios-panel"></div>
+        </section>
 
        <section class="stats-row">
             <div class="stat-box">
@@ -98,17 +104,17 @@
                 </div>
             </div>
         </section>
-        <section class="pagos-pendientes" style="margin-top: 40px;">
+        <section class="pagos-pendientes">
             <h2 class="seccion-titulo-mini">Pagos Pendientes</h2>
             
-            <div class="card-pago" style="background: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div class="card-pago">
+                <div class="pago-header">
                     <div>
-                        <h4 style="margin: 0; font-size: 1.1rem; color: #111827;">Servicio Eléctrico - Visita Técnica</h4>
-                        <p style="margin: 4px 0 0; color: #6b7280; font-size: 0.9rem;">Total a pagar: <strong>$15.000</strong></p>
+                        <h4>Servicio Eléctrico - Visita Técnica</h4>
+                        <p>Total a pagar: <strong>$15.000</strong></p>
                     </div>
                     
-                    <button id="btn-comprar" style="background: #000000; color: #ffffff; padding: 10px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s;">
+                    <button id="btn-comprar">
                         Pagar Ahora
                     </button>
                 </div>
@@ -119,6 +125,6 @@
         <script src="https://sdk.mercadopago.com/js/v2"></script>
         <script src="js/pagos.js"></script>
     </main>
-
+<script type="module" src="js/panel.js"></script>
 </body>
 </html>
