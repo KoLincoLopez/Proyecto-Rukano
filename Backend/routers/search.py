@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from core.firebase_config import db
+try:
+    from ..core.firebase_config import db
+except ImportError:
+    from core.firebase_config import db
 import re
 
 router = APIRouter()
