@@ -23,7 +23,6 @@ class ReservaCita(BaseModel):
 @router.post("/reservar")
 async def reservar_cita(datos: ReservaCita):
     try:
-        # 1. Obtener los datos del servicio para validar el formulario (RF 3)
         servicio_ref = db.collection("servicios").document(datos.idServicio)
         servicio_doc = servicio_ref.get()
 
@@ -33,56 +32,53 @@ async def reservar_cita(datos: ReservaCita):
         datos_servicio = servicio_doc.to_dict()
         esquema = datos_servicio.get("esquema_formulario", [])
 
-        # 2. VALIDACIÓN TÉCNICA: ¿Están todas las respuestas obligatorias?
+        # --- CORRECCIÓN DE VALIDACIÓN (RF 3) ---
+        # Convertimos todo a string para evitar errores de tipo int vs str
+        respuestas_str = {str(k): v for k, v in datos.respuestas_formulario.items()}
+
         for pregunta in esquema:
-            p_id = pregunta["id_pregunta"]
-            if pregunta["obligatorio"] and p_id not in datos.respuestas_formulario:
+            p_id = str(pregunta["id_pregunta"]) # Forzamos a string
+            if pregunta.get("obligatorio") and p_id not in respuestas_str:
                 raise HTTPException(
                     status_code=400, 
-                    detail=f"Falta responder la pregunta obligatoria: {pregunta['pregunta']}"
+                    detail=f"Falta pregunta obligatoria: {pregunta.get('pregunta')}"
                 )
 
-        # 3. TRANSACCIÓN PARA EVITAR DOBLE RESERVA (RF 4 y Algoritmo de Concurrencia)
-        # Esto asegura que dos usuarios no paguen por la misma hora [5]
-        transaction = db.transaction()
-
+        # --- TRANSACCIÓN (RF 4) ---
         @firestore.transactional
         def ejecutar_reserva(transaction):
             id_cita = str(uuid.uuid4())
             ahora = datetime.now(timezone.utc)
 
-            # Estructura final de la cita para la base de datos
+            # Usamos .get con valores por defecto para evitar Error 500
             cita_data = {
                 "idCita": id_cita,
                 "idServicio": datos.idServicio,
                 "idCliente": datos.idCliente,
-                "idTecnico": datos_servicio["idTecnico"],
-                "tituloServicio": datos_servicio["nombre"],
+                "idTecnico": datos_servicio.get("idTecnico", "N/A"),
+                "tituloServicio": datos_servicio.get("nombre", "Servicio sin nombre"),
                 "fecha": datos.fecha,
                 "hora": datos.hora,
-                "respuestas_formulario": datos.respuestas_formulario, # El formulario respondido [6]
-                "estado": "pagada", # Según RF 5, el dinero se retiene tras el pago [7]
+                "respuestas_formulario": respuestas_str,
+                "estado": "pagada",
                 "pagoRetenido": True,
                 "createdAt": ahora
             }
 
-            # Guardar la cita y actualizar la agenda automáticamente [8]
             transaction.set(db.collection("citas").document(id_cita), cita_data)
-            
             return id_cita
 
+        transaction = db.transaction()
         id_final = ejecutar_reserva(transaction)
 
-        return {
-            "status": "success",
-            "message": "Cita agendada y formulario vinculado correctamente",
-            "idCita": id_final
-        }
+        return {"status": "success", "idCita": id_final}
 
     except HTTPException as he:
         raise he
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al procesar reserva: {str(e)}")
+        # Esto te dirá el error real en la terminal (ej. falta un import)
+        print(f"ERROR CRÍTICO: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
     
 """
 Ejemplo de payload para reservar una cita con el formulario respondido:
