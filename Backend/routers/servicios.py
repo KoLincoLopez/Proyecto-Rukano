@@ -3,7 +3,10 @@ from pydantic import BaseModel
 from datetime import datetime, timezone
 import uuid
 import re 
-from core.firebase_config import db
+try:
+    from ..core.firebase_config import db
+except ImportError:
+    from core.firebase_config import db
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 router = APIRouter()
@@ -16,18 +19,6 @@ class PreguntaFormulario(BaseModel):
     tipo: str         # Ej: "text", "boolean", "number"
     obligatorio: bool
 
-# --- TU FUNCIÓN DE KEYWORDS (Indexación para RF 2) ---
-
-def generar_keywords(titulo, categoria, descripcion):
-    full_text = f"{titulo} {categoria} {descripcion}"
-    full_text = full_text.lower()
-    clean_text = re.sub(r'[^\w\s]', '', full_text)
-    words = clean_text.split()
-    keywords = list(set([w for w in words if len(w) > 2]))
-    return keywords
-
-# --- MODELO DE DATOS ACTUALIZADO (Asegura Integridad 99.9%) ---
-
 class Servicio(BaseModel): 
     idTecnico: str 
     nombre: str 
@@ -38,8 +29,17 @@ class Servicio(BaseModel):
     tiempoEstimado: str 
     que_incluye: list[str]    
     que_no_incluye: list[str]
-    # NUEVO CAMPO: Lista con la estructura del formulario (RF 3)
     esquema_formulario: list[PreguntaFormulario] 
+
+# --- FUNCIONES AUXILIARES ---
+
+def generar_keywords(titulo, categoria, descripcion):
+    full_text = f"{titulo} {categoria} {descripcion}"
+    full_text = full_text.lower()
+    clean_text = re.sub(r'[^\w\s]', '', full_text)
+    words = clean_text.split()
+    keywords = list(set([w for w in words if len(w) > 2]))
+    return keywords
 
 # --- ENDPOINTS ---
 
@@ -68,7 +68,7 @@ async def crear_servicio(datos: Servicio):
             "keyWords": palabras_clave,
             "que_incluye": datos.que_incluye,
             "que_no_incluye": datos.que_no_incluye,
-            "esquema_formulario": [p.dict() for p in datos.esquema_formulario], # Guardamos la lista de preguntas
+            "esquema_formulario": [p.dict() for p in datos.esquema_formulario], 
             "estado": "active",
             "createdAt": ahora
         }
@@ -78,6 +78,37 @@ async def crear_servicio(datos: Servicio):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- ENDPOINTS RECUPERADOS DE LA RAMA 'PRUEBA-LOGIN' ---
+
+@router.get("/tecnico/{tecnico_id}")
+async def obtener_servicios_tecnico(tecnico_id: str):
+    servicios_ref = db.collection("servicios")
+    
+    # Nota: Actualizado para buscar por 'idTecnico' en lugar de 'tecnicoId' para que coincida con el modelo de main
+    docs = servicios_ref.where(filter=FieldFilter("idTecnico", "==", tecnico_id)).stream()
+
+    servicios = []
+    for doc in docs:
+        data = doc.to_dict()
+        data["id"] = doc.id
+        servicios.append(data)
+
+    return servicios
+
+@router.get("/")
+async def obtener_todos():
+    docs = db.collection("servicios").stream()
+    servicios = []
+    
+    for doc in docs:
+        data = doc.to_dict()
+        data["id"] = doc.id
+        servicios.append(data)
+
+    return servicios
+
+# --- ENDPOINTS DE EDICIÓN Y ELIMINACIÓN DE 'MAIN' ---
 
 @router.patch("/editar/{servicio_id}") 
 async def editar_servicio(servicio_id: str, updates: dict): 
@@ -113,5 +144,6 @@ async def eliminar_servicio(servicio_id: str):
     ref = db.collection("servicios").document(servicio_id) 
     if not ref.get().exists: 
         raise HTTPException(status_code=404, detail="Servicio no encontrado")
+    
     ref.delete()
     return {"msg": "Servicio eliminado permanentemente"}

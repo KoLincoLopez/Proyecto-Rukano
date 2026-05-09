@@ -33,7 +33,7 @@ class ResolucionReporte(BaseModel):
 async def crear_reporte_servicio(datos: ReporteServicio):
     try:
         # 1. VERIFICACIÓN: ¿Existe la cita? (Crucial para RF 5 y RF 9)
-        cita_query = db.collection("citas").where(filter=FieldFilter("idCita", "==", datos.idCita)).stream()
+        cita_query = db.collection("citas").where(filter=FieldFilter("idCitas", "==", datos.idCita)).stream()
         if not list(cita_query):
             raise HTTPException(status_code=404, detail=f"Error: La cita con ID {datos.idCita} no existe")
 
