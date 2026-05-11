@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from core.firebase_config import db
+try:
+    from ..core.firebase_config import db
+except ImportError:
+    from core.firebase_config import db
 from datetime import datetime, timedelta
 import uuid
 from fastapi import Request
@@ -11,10 +14,11 @@ router = APIRouter()
 @router.post("/crear_resena")
 async def publicar_reseña(datos: dict):
     try:
-        id_cita_referencia = str(datos.get("idCitas"))
+        id_cita_referencia = str(datos.get("idCitas") or datos.get("idCita"))
         puntuacion = datos.get("puntuacion")
 
-        query = db.collection("citas").where("idCitas", "==", id_cita_referencia).stream()
+        # El documento de cita guarda el campo "idCita" en la colección "citas".
+        query = db.collection("citas").where("idCita", "==", id_cita_referencia).stream()
         docs = list(query)
 
         if not docs:

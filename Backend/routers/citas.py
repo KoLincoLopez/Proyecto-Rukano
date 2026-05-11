@@ -1,97 +1,103 @@
 from fastapi import APIRouter, HTTPException
-from core.firebase_config import db
-from datetime import datetime
-from google.cloud import firestore
+from pydantic import BaseModel
+from datetime import datetime, timezone
+import uuid
+try:
+    from ..core.firebase_config import db
+except ImportError:
+    from core.firebase_config import db
+from google.cloud import firestore # Para transacciones de concurrencia
 
 router = APIRouter()
 
-#  RESERVAR CON TRANSACCIÓN (CONCURRENCIA REAL)
+# --- MODELO DE DATOS PARA LA RESERVA ---
+class ReservaCita(BaseModel):
+    idServicio: str
+    idCliente: str
+    fecha: str  # Formato "YYYY-MM-DD"
+    hora: str   # Formato "HH:MM"
+    # Aquí es donde el cliente envía el formulario ya respondido
+    respuestas_formulario: dict 
+
+# --- ENDPOINT: RESERVAR CON VALIDACIÓN DE FORMULARIO ---
 @router.post("/reservar")
-def reservar(data: dict):
+async def reservar_cita(datos: ReservaCita):
+    try:
+        servicio_ref = db.collection("servicios").document(datos.idServicio)
+        servicio_doc = servicio_ref.get()
 
-    tecnico_id = data["tecnicoId"]
-    cliente_id = data["clienteId"]
-    fecha = data["fecha"]
-    hora = data["hora"]
+        if not servicio_doc.exists:
+            raise HTTPException(status_code=404, detail="El servicio no existe")
+        
+        datos_servicio = servicio_doc.to_dict()
+        esquema = datos_servicio.get("esquema_formulario", [])
 
-    citas_ref = db.collection("citas")
-    transaction = db.transaction()
+        # --- CORRECCIÓN DE VALIDACIÓN (RF 3) ---
+        # Convertimos todo a string para evitar errores de tipo int vs str
+        respuestas_str = {str(k): v for k, v in datos.respuestas_formulario.items()}
 
-    @firestore.transactional
-    def transaction_func(transaction):
+        for pregunta in esquema:
+            p_id = str(pregunta["id_pregunta"]) # Forzamos a string
+            if pregunta.get("obligatorio") and p_id not in respuestas_str:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Falta pregunta obligatoria: {pregunta.get('pregunta')}"
+                )
 
-        query = citas_ref.where("tecnicoId", "==", tecnico_id)\
-                         .where("fecha", "==", fecha)\
-                         .where("hora", "==", hora)\
-                         .where("estado", "==", "confirmada")
+        # --- TRANSACCIÓN (RF 4) ---
+        @firestore.transactional
+        def ejecutar_reserva(transaction):
+            id_cita = str(uuid.uuid4())
+            ahora = datetime.now(timezone.utc)
 
-        docs = list(query.stream(transaction=transaction))
+            # Usamos .get con valores por defecto para evitar Error 500
+            cita_data = {
+                "idCita": id_cita,
+                "idServicio": datos.idServicio,
+                "idCliente": datos.idCliente,
+                "idTecnico": datos_servicio.get("idTecnico", "N/A"),
+                "tituloServicio": datos_servicio.get("nombre", "Servicio sin nombre"),
+                "fecha": datos.fecha,
+                "hora": datos.hora,
+                "respuestas_formulario": respuestas_str,
+                "estado": "pagada",
+                "pagoRetenido": True,
+                "createdAt": ahora
+            }
 
-        if docs:
-            raise HTTPException(status_code=400, detail="Hora ocupada")
+            transaction.set(db.collection("citas").document(id_cita), cita_data)
+            return id_cita
 
-        nueva_cita = citas_ref.document()
-        transaction.set(nueva_cita, {
-            "tecnicoId": tecnico_id,
-            "clienteId": cliente_id,
-            "fecha": fecha,
-            "hora": hora,
-            "estado": "confirmada",
-            "motivoCancelacion": "",
-            "createdAt": datetime.utcnow()
-        })
+        transaction = db.transaction()
+        id_final = ejecutar_reserva(transaction)
 
-    transaction_func(transaction)
+        return {"status": "success", "idCita": id_final}
 
-    return {"msg": "Reserva creada"}
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        # Esto te dirá el error real en la terminal (ej. falta un import)
+        print(f"ERROR CRÍTICO: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+"""
+Ejemplo de payload para reservar una cita con el formulario respondido:
+{
+  "idServicio": "f1d0abce-82cf-4943-85c7-c67eae9a57c0",
+  "idCliente": "1",
+  "fecha": "string",
+  "hora": "string",
+  "respuestas_formulario": {
+    "1": "Si",
+    "2": "Calefón Junkers modelo 2022"
+  }
+}
+"""
 
-
-#  CANCELAR CITA CON MOTIVO
-@router.put("/cancelar/{cita_id}")
-def cancelar(cita_id: str, motivo: str):
-
-    if not motivo:
-        raise HTTPException(status_code=400, detail="Motivo obligatorio")
-
-    ref = db.collection("citas").document(cita_id)
-    cita = ref.get().to_dict()
-
-    if not cita:
-        raise HTTPException(status_code=404, detail="Cita no encontrada")
-
-    hoy = datetime.utcnow().date()
-    fecha_cita = datetime.strptime(cita["fecha"], "%Y-%m-%d").date()
-
-    if fecha_cita < hoy:
-        raise HTTPException(status_code=400, detail="No se puede cancelar después del día del servicio")
-
-    ref.update({
-        "estado": "cancelada",
-        "motivoCancelacion": motivo
-    })
-
-    return {"msg": "Cita cancelada"}
-
-
-#  AGENDA VIRTUAL DEL TÉCNICO (FILTRADA Y ORDENADA)
+# --- OBTENER CITAS DEL TÉCNICO (AGUDA VIRTUAL) ---
 @router.get("/agenda/{tecnico_id}")
-def obtener_agenda(tecnico_id: str):
-
-    citas_ref = db.collection("citas")
-
-    query = citas_ref.where("tecnicoId", "==", tecnico_id)\
-                     .where("estado", "==", "confirmada")
-
-    docs = query.stream()
-
-    agenda = []
-
-    for doc in docs:
-        data = doc.to_dict()
-        data["id"] = doc.id
-        agenda.append(data)
-
-    #  ORDENAR POR FECHA Y HORA
-    agenda.sort(key=lambda x: (x["fecha"], x["hora"]))
-
-    return agenda
+async def obtener_agenda(tecnico_id: str):
+    # RF 4: El técnico puede visualizar sus compromisos de forma ordenada [8]
+    docs = db.collection("citas").where("idTecnico", "==", tecnico_id).stream()
+    agenda = [doc.to_dict() for doc in docs]
+    return sorted(agenda, key=lambda x: (x['fecha'], x['hora']))

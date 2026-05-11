@@ -2,51 +2,129 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rukano - Panel Cliente</title>
+    <link rel="stylesheet" href="css/panelCliente.css">
 
-    <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            margin-top: 100px;
-            background: #f5f5f5;
-        }
-
-        .box {
-            background: white;
-            padding: 40px;
-            width: 320px;
-            margin: auto;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        button {
-            padding: 10px;
-            margin-top: 20px;
-            cursor: pointer;
-            border: none;
-            background: #27ae60;
-            color: white;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background: #219150;
-        }
-    </style>
 </head>
 
 <body>
+<nav class="navbar-integrada panel-nav">
+        <a href="index.html" class="bloque-logo">RUKANO</a>
+        
+        <div class="bloque-menu">
+            <div class="nav-izquierda">
+                <a href="#" class="activo">Mi Panel</a>
+                <a href="#">Mis Pedidos</a>
+                <a href="#">Soporte</a>
+            </div>
+            <div class="nav-derecha">
+                <span id="nombreUsuarioNav" class="link-sesion nombre-usuario-nav">Cargando...</span>
+                <button id="btnLogout" class="btn-registro-nav">Salir</button>
+            </div>
+            <button class="hamburguesa" onclick="openNav()">☰</button>
+        </div>
+    </nav>
 
-    <div class="box">
-        <h1>Bienvenido Cliente </h1>
-        <p>Has iniciado sesión correctamente</p>
+    <main class="dashboard-container">
+        
+        <header class="dash-header">
+            <h1 class="dash-titulo">TU PANEL</h1>
+            <p class="dash-subtitulo">Gestiona tus servicios, pagos y configuraciones.</p>
+        </header>
+        <!-- NUEVO: BUSCADOR INTEGRADO EN EL PANEL (RUTA B) -->
+        <div class="buscador-panel-interno">
+            <div class="caja-busqueda-panel">
+                <input type="text" placeholder="EJ: ELECTRICISTA, GÁSFITER..." class="input-panel">
+                <svg class="lupa-panel" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            
+            <div class="contenedor-botones">
+                <button class="btn-panel activo" data-categoria="limpieza">LIMPIEZA</button>
+                <button class="btn-panel" data-categoria="electricidad">ELECTRICIDAD</button>
+                <button class="btn-panel" data-categoria="gasfiteria">GASFITERÍA</button>
+                <button class="btn-panel" data-categoria="jardineria">JARDINERÍA</button>
+            </div>
+        </div>
 
-        <button id="btnLogout">Cerrar sesión</button>
-    </div>
+        <section class="resultados-busqueda-panel">
+            <h2 class="seccion-titulo-mini">Resultados</h2>
+            <div class="grilla-servicios-panel" id="resultados-servicios-panel"></div>
+        </section>
 
-    <script type="module" src="js/panel.js"></script>
+       <section class="stats-row">
+            <div class="stat-box">
+                <span class="stat-num" id="contador-activos">...</span>
+                <span class="stat-label">Servicios Activos</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-num" id="contador-completados">...</span>
+                <span class="stat-label">Trabajos Completados</span>
+            </div>
+        </section>
 
+        <section class="acciones-grid">
+            <a href="#" class="card-accion destaque">
+                <div class="accion-texto">
+                    <h3>AGENDAR AHORA</h3>
+                    <p>Encuentra un profesional disponible en tu zona.</p>
+                </div>
+                <div class="accion-icono">✦</div>
+            </a>
+            <a href="#" class="card-accion">
+                <div class="accion-texto">
+                    <h3>MÉTODOS DE PAGO</h3>
+                    <p>Administra tus tarjetas y facturación.</p>
+                </div>
+            </a>
+            <a href="configuracion.html" class="card-accion">
+                <div class="accion-texto">
+                    <h3>MI DIRECCIÓN</h3>
+                    <p>Actualiza la información de tu hogar.</p>
+                </div>
+            </a>
+        </section>
+
+        <section class="actividad-reciente">
+            <h2 class="seccion-titulo-mini">Servicio en Curso</h2>
+            
+            <div class="card-tracking">
+                <div class="tracking-info">
+                    <h4>REPARACIÓN ELÉCTRICA</h4>
+                    <p>Hoy, 14:30 hrs • <strong>Pedro Pérez</strong></p>
+                </div>
+                
+                <div class="tracking-steps">
+                    <div class="step completado">Solicitado</div>
+                    <div class="step activo">En Camino</div>
+                    <div class="step">Trabajando</div>
+                </div>
+            </div>
+        </section>
+        <section class="pagos-pendientes">
+            <h2 class="seccion-titulo-mini">Pagos Pendientes</h2>
+            
+            <div class="card-pago">
+                <div class="pago-header">
+                    <div>
+                        <h4>Servicio Eléctrico - Visita Técnica</h4>
+                        <p>Total a pagar: <strong>$15.000</strong></p>
+                    </div>
+                    
+                    <button id="btn-comprar">
+                        Pagar Ahora
+                    </button>
+                </div>
+                
+                <div id="wallet_container"></div>
+            </div>
+        </section>
+        <script src="https://sdk.mercadopago.com/js/v2"></script>
+        <script src="js/pagos.js"></script>
+    </main>
+<script type="module" src="js/panel.js"></script>
 </body>
 </html>
