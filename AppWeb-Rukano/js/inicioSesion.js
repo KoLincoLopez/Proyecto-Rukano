@@ -7,6 +7,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const emailInput = document.getElementById("emailLogin");
     const passwordInput = document.getElementById("passwordLogin");
     const checkbox = document.getElementById("showPasswordLogin");
+    const apiBaseUrl = getApiBaseUrl();
 
     // Mostrar contraseña
     if (checkbox) {
@@ -33,7 +34,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const token = await user.getIdToken();
 
-            const response = await fetch("http://localhost:8000/auth/validate", {
+            const response = await fetch(`${apiBaseUrl}/auth/validate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -68,3 +69,12 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
+function getApiBaseUrl() {
+    const isLocal = (
+        window.location.protocol === "file:" ||
+        ["localhost", "127.0.0.1"].includes(window.location.hostname)
+    );
+
+    return isLocal ? "http://localhost:8000" : "https://rukano-sph.onrender.com";
+}
