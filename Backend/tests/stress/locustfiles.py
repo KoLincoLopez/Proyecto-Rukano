@@ -73,7 +73,7 @@ def reserva_payload(service_id):
         "idServicio": service_id,
         "idCliente": KNOWN_CLIENTE_ID,
         "fecha": datetime.now().strftime("%Y-%m-%d"),
-        "hora": f"{random.randint(8, 20)}:{random.choice(["00", "30"])}",
+        "hora": f"{random.randint(8, 20)}:{random.choice(['00', '30'])}",
         "respuestas_formulario": {
             "1": "El calefón no enciende",
             "2": "No"
@@ -100,13 +100,13 @@ class RukanoStressTest(HttpUser):
     def buscar_por_categoria(self):
         comuna = "Puente Alto"
         categoria = "cocina"
-        with self.client.get(f"/categoria_solicitada/{comuna}/{categoria}", catch_response=True) as response:
+        with self.client.get(f"/search/categoria_solicitada/{comuna}/{categoria}", catch_response=True) as response:
             log_response(response)
 
     @task(4)
     def buscar_general_keywords(self):
         texto = "urgente"
-        with self.client.get(f"/busqueda_general/Providencia/{texto}", catch_response=True) as response:
+        with self.client.get(f"/search/busqueda_general/Providencia/{texto}", catch_response=True) as response:
             log_response(response)
 
     @task(1)
@@ -161,7 +161,7 @@ class RukanoStressTest(HttpUser):
     def reportar_servicio(self):
         payload = {
             "idCita": KNOWN_CITA_ID or (self.cita_ids[-1] if self.cita_ids else "cita-no-existente"),
-            "idServico": KNOWN_SERVICE_ID or (self.service_ids[-1] if self.service_ids else "servicio-no-existente"),
+            "idServicio": KNOWN_SERVICE_ID or (self.service_ids[-1] if self.service_ids else "servicio-no-existente"),
             "motivo": "Servicio incompleto",
             "cuerpo": fake.paragraph(nb_sentences=3),
             "imagen": "https://example.com/foto.jpg",
@@ -209,7 +209,7 @@ class RukanoStressTest(HttpUser):
             "comentario": fake.sentence(nb_words=12),
             "fotoUrl": "https://example.com/resena.jpg"
         }
-        with self.client.post("/crear_resena", json=payload, catch_response=True) as response:
+        with self.client.post("/reviews/crear_resena", json=payload, catch_response=True) as response:
             if response.status_code == 200:
                 data = response.json()
                 resena_id = data.get("idResena")
@@ -224,7 +224,7 @@ class RukanoStressTest(HttpUser):
             return
 
         payload = {"puntuacion": random.randint(1, 5), "comentario": fake.sentence(nb_words=8)}
-        with self.client.put(f"/actualizar_resena/{resena_id}", json=payload, catch_response=True) as response:
+        with self.client.put(f"/reviews/actualizar_resena/{resena_id}", json=payload, catch_response=True) as response:
             log_response(response)
 
     # @task(1)
@@ -236,7 +236,7 @@ class RukanoStressTest(HttpUser):
     @task(2)
     def resenas_tecnico(self):
         tecnico_id = KNOWN_TECNICO_ID
-        with self.client.get(f"/resenas_tecnico/{tecnico_id}", catch_response=True) as response:
+        with self.client.get(f"/reviews/resenas_tecnico/{tecnico_id}", catch_response=True) as response:
             log_response(response)
 
     @task(1)

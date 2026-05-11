@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query
-from core.firebase_config import db
+try:
+    from ..core.firebase_config import db
+except ImportError:
+    from core.firebase_config import db
 from google.cloud.firestore_v1.base_query import FieldFilter
 import re
 
@@ -15,8 +18,7 @@ async def busqueda_por_categoria(comuna: str, categoria: str):
         # 2. Consulta a Firestore (Filtrado por categoría y estado activo)
         # Usamos FieldFilter para asegurar precisión del 99.9% [5]
         query = db.collection("servicios") \
-                  .where(filter=FieldFilter("categoria", "==", categoria.lower())) \
-                  .where(filter=FieldFilter("estado", "==", "activo"))
+                  .where(filter=FieldFilter("categoria", "==", categoria.lower()))
         
         docs = query.stream()
         
@@ -24,16 +26,18 @@ async def busqueda_por_categoria(comuna: str, categoria: str):
         resultados = []
         for doc in docs:
             d = doc.to_dict()
-            if d.get("comuna") in zonas_busqueda:
+            if d.get("estado") in ("activo", "active") and d.get("comuna") in zonas_busqueda:
                 # Omitimos el 'esquema_formulario' y 'keyWords' para el cliente
                 vista_cliente = {
                     "idServicio": d.get("idServicio"),
                     "nombre": d.get("nombre"),
+                    "descripcion": d.get("descripcion"),
                     "precio": d.get("precio"),
                     "comuna": d.get("comuna"),
                     "tiempoEstimado": d.get("tiempoEstimado"),
                     "categoria": d.get("categoria"),
-                    "idTecnico": d.get("idTecnico")
+                    "idTecnico": d.get("idTecnico"),
+                    "es_local": d.get("comuna") == comuna
                 }
                 resultados.append(vista_cliente)
 
@@ -50,23 +54,27 @@ async def busqueda_general(comuna: str, texto_busqueda: str):
         palabra_objetivo = texto_busqueda.lower()
 
         # Buscamos todos los servicios activos en la zona
-        docs = db.collection("servicios").where(filter=FieldFilter("estado", "==", "activo")).stream()
+        docs = db.collection("servicios").stream()
         
         resultados = []
         for doc in docs:
             d = doc.to_dict()
             
             # Validación de zona y búsqueda en el array de keyWords [6]
-            if d.get("comuna") in zonas_busqueda:
-                if palabra_objetivo in d.get("keyWords", []):
+            if d.get("estado") in ("activo", "active") and d.get("comuna") in zonas_busqueda:
+                keywords = [str(keyword).lower() for keyword in d.get("keyWords", [])]
+                if palabra_objetivo in keywords:
                     # Solo datos relevantes para la primera vista
+                    descripcion = d.get("descripcion") or ""
                     resultados.append({
                         "idServicio": d.get("idServicio"),
                         "nombre": d.get("nombre"),
                         "precio": d.get("precio"),
                         "comuna": d.get("comuna"),
-                        "descripcion_corta": d.get("descripcion")[:100] + "...",
-                        "idTecnico": d.get("idTecnico")
+                        "descripcion": descripcion,
+                        "descripcion_corta": descripcion[:100] + ("..." if len(descripcion) > 100 else ""),
+                        "idTecnico": d.get("idTecnico"),
+                        "es_local": d.get("comuna") == comuna
                     })
 
         return {"status": "success", "total": len(resultados), "data": resultados}

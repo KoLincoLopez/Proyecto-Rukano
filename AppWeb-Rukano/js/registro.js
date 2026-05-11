@@ -17,13 +17,13 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    btnRegistro.addEventListener("click", async () => {
+    btnRegistro?.addEventListener("click", async () => {
 
         const nombres = document.getElementById("nombres").value.trim();
         const apellidos = document.getElementById("apellidos").value.trim();
         const telefono = document.getElementById("telefono").value.trim();
         const email = document.getElementById("email").value.trim();
-        const rol = document.getElementById("rol").value;
+        const rol = document.querySelector('input[name="rol"]:checked')?.value || "";
 
         const pass = password.value.trim();
         const confirmPass = confirmPassword.value.trim();
@@ -48,6 +48,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const user = userCredential.user;
 
             await setDoc(doc(db, "usuarios", user.uid), {
+                id: user.uid,
                 nombres,
                 apellidos,
                 telefono,

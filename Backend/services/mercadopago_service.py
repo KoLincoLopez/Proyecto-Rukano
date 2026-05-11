@@ -15,7 +15,8 @@ class MercadoPagoService:
         self.sdk = mercadopago.SDK(access_token)
 
     def create_preference(self, item_title: str, quantity: int, unit_price: float):
-        app_base_url = os.getenv("APP_BASE_URL", "https://rukano-sph.onrender.com").rstrip("/")
+        app_base_url = os.getenv("APP_FRONTEND_URL") or os.getenv("APP_BASE_URL", "https://rukano-sph.onrender.com/app")
+        app_base_url = app_base_url.rstrip("/")
         webhook_url = os.getenv("MERCADOPAGO_WEBHOOK_URL")
 
         preference_data = {

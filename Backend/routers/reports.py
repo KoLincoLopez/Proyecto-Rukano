@@ -2,7 +2,10 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from datetime import datetime, timezone
 import uuid
-from core.firebase_config import db
+try:
+    from ..core.firebase_config import db
+except ImportError:
+    from core.firebase_config import db
 from google.cloud.firestore_v1.base_query import FieldFilter # Para búsquedas precisas
 
 router = APIRouter()
@@ -10,7 +13,8 @@ router = APIRouter()
 # --- MODELOS DE DATOS ---
 class ReporteServicio(BaseModel):
     idCita: str
-    idServico: str
+    idServicio: str | None = None
+    idServico: str | None = None
     motivo: str
     cuerpo: str
     imagen: str
@@ -33,7 +37,7 @@ class ResolucionReporte(BaseModel):
 async def crear_reporte_servicio(datos: ReporteServicio):
     try:
         # 1. VERIFICACIÓN: ¿Existe la cita? (Crucial para RF 5 y RF 9)
-        cita_query = db.collection("citas").where(filter=FieldFilter("idCitas", "==", datos.idCita)).stream()
+        cita_query = db.collection("citas").where(filter=FieldFilter("idCita", "==", datos.idCita)).stream()
         if not list(cita_query):
             raise HTTPException(status_code=404, detail=f"Error: La cita con ID {datos.idCita} no existe")
 
@@ -41,11 +45,15 @@ async def crear_reporte_servicio(datos: ReporteServicio):
         nuevo_id = str(uuid.uuid4())
         ahora = datetime.now(timezone.utc)
 
+        id_servicio = datos.idServicio or datos.idServico
+        if not id_servicio:
+            raise HTTPException(status_code=400, detail="Debe indicar idServicio")
+
         reporte_data = {
             "idReporte": nuevo_id,
             "reporteTipo": "servicio",
             "idCita": datos.idCita,
-            "idServico": datos.idServico,
+            "idServicio": id_servicio,
             "motivo": datos.motivo,
             "cuerpo": datos.cuerpo,
             "imagen": datos.imagen,

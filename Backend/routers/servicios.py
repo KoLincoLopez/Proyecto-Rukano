@@ -47,8 +47,9 @@ def generar_keywords(titulo, categoria, descripcion):
 async def crear_servicio(datos: Servicio): 
     try: 
         # 1. VALIDACIÓN DE IDENTIDAD (RF 8)
-        tecnico_ref = db.collection("usuarios").where(filter=FieldFilter("id", "==", datos.idTecnico)).get() 
-        if not tecnico_ref: 
+        tecnico_doc = db.collection("usuarios").document(datos.idTecnico).get()
+        tecnico_ref = db.collection("usuarios").where(filter=FieldFilter("id", "==", datos.idTecnico)).get()
+        if not tecnico_doc.exists and not tecnico_ref:
             raise HTTPException(status_code=404, detail="El técnico no está registrado en la plataforma")
 
         id_generado = str(uuid.uuid4())
@@ -69,7 +70,7 @@ async def crear_servicio(datos: Servicio):
             "que_incluye": datos.que_incluye,
             "que_no_incluye": datos.que_no_incluye,
             "esquema_formulario": [p.dict() for p in datos.esquema_formulario], 
-            "estado": "active",
+            "estado": "activo",
             "createdAt": ahora
         }
 

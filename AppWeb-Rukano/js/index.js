@@ -88,6 +88,7 @@ function getApiBaseUrl() {
 
 function normalizarServicios(data) {
     if (Array.isArray(data)) return data;
+    if (Array.isArray(data.data)) return data.data;
     if (Array.isArray(data.results)) return data.results;
     return [];
 }
@@ -95,7 +96,7 @@ function normalizarServicios(data) {
 function crearCardServicio(servicio) {
     const titulo = servicio.titulo || servicio.nombre || "Servicio disponible";
     const categoria = servicio.categoria || "Servicio";
-    const descripcion = servicio.descripcion || servicio["descripción"] || servicio["descripciÃ³n"] || "Profesional disponible en tu zona.";
+    const descripcion = servicio.descripcion || servicio.descripcion_corta || servicio["descripción"] || servicio["descripciÃ³n"] || "Profesional disponible en tu zona.";
     const precio = servicio["precio base"] || servicio.precio_base || servicio.precio || null;
     const zona = servicio.es_local ? "En tu comuna" : "Comuna cercana";
 

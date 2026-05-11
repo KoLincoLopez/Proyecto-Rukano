@@ -16,7 +16,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // LOGIN
-    btnLogin.addEventListener("click", async () => {
+    btnLogin?.addEventListener("click", async () => {
 
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
@@ -50,9 +50,11 @@ window.addEventListener("DOMContentLoaded", () => {
             console.log("Respuesta backend:", data);
 
             // Redirección según rol
-            if (data.rol === "TECNICO") {
+            const rol = String(data.role || data.rol || "").toLowerCase();
+
+            if (rol === "tecnico") {
                 window.location.href = "panelTecnico.html";
-            } else if (data.rol === "CLIENTE") {
+            } else if (rol === "cliente") {
                 window.location.href = "panelCliente.html";
             } else {
                 alert("Rol desconocido");
