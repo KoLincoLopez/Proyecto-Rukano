@@ -7,6 +7,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const emailInput = document.getElementById("emailLogin");
     const passwordInput = document.getElementById("passwordLogin");
     const checkbox = document.getElementById("showPasswordLogin");
+    const apiBaseUrl = getApiBaseUrl();
 
     // Mostrar contraseña
     if (checkbox) {
@@ -16,7 +17,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // LOGIN
-    btnLogin.addEventListener("click", async () => {
+    btnLogin?.addEventListener("click", async () => {
 
         const email = emailInput.value.trim();
         const password = passwordInput.value.trim();
@@ -27,36 +28,53 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
+            // Login con Firebase
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
             const token = await user.getIdToken();
 
-        
-            const response = await fetch("http://localhost:3000/auth/validate", {
+            const response = await fetch(`${apiBaseUrl}/auth/validate`, {
                 method: "POST",
                 headers: {
-                    "Authorization": "Bearer " + token
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
 
             if (!response.ok) {
-                throw new Error("Error al validar con backend");
+                throw new Error(`Error backend: ${response.status}`);
             }
 
             const data = await response.json();
 
-          
-            if (data.rol === "TECNICO") {
+            console.log("Respuesta backend:", data);
+
+            // Redirección según rol
+            const rol = String(data.role || data.rol || "").toLowerCase();
+
+            if (rol === "tecnico") {
                 window.location.href = "panelTecnico.html";
-            } else {
+            } else if (rol === "cliente") {
                 window.location.href = "panelCliente.html";
+            } else {
+                alert("Rol desconocido");
             }
 
         } catch (error) {
+            console.error(error);
             alert("Error: " + error.message);
         }
 
     });
 
 });
+
+function getApiBaseUrl() {
+    const isLocal = (
+        window.location.protocol === "file:" ||
+        ["localhost", "127.0.0.1"].includes(window.location.hostname)
+    );
+
+    return isLocal ? "http://localhost:8000" : "https://rukano-sph.onrender.com";
+}
