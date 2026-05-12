@@ -1148,3 +1148,29 @@ body {
     align-items: center;
     text-decoration: none;
 }
+
+.btnEditar,
+.btnEliminar {
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+}
+
+.btnEditar {
+    background: #2980b9;
+}
+
+.btnEliminar {
+    background: #c0392b;
+}
+
+.btnEditar:hover {
+    background: #1f6694;
+}
+
+.btnEliminar:hover {
+    background: #962d22;
+}

@@ -3,103 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <title>Rukano - Panel Técnico</title>
+    <link rel="stylesheet" href="css/index.css">
 
     <style>
         body {
-            font-family: Arial;
-            text-align: center;
-            margin-top: 100px;
-            background: #f5f5f5;
+            background-color: var(--c-arena);
+            font-family: Arial, sans-serif;
+            margin: 0;
         }
 
-        .box {
-            background: white;
-            padding: 40px;
-            width: 800px;
-            max-width: 90%;
-            margin: auto;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        .panel-tecnico {
+            width: 1000px;
+            max-width: 92%;
+            margin: 70px auto;
         }
 
-        .agenda {
-            margin-top: 30px;
-            text-align: left;
-            background: #fafafa;
-            padding: 25px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
+        .panel-header {
+            background-color: var(--c-licorice);
+            color: var(--c-arena);
+            padding: 45px;
+            border-bottom: 8px solid var(--c-mahogany);
+            margin-bottom: 35px;
         }
 
-        .agenda h2 {
-            text-align: center;
-            margin-bottom: 20px;
+        .panel-header h1 {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 48px;
+            line-height: 1;
+            letter-spacing: -2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
         }
 
-        .detalle-agenda {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .dato {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .dato strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .historial {
-            margin-top: 25px;
-            text-align: left;
-        }
-
-        .historial ul {
-            padding-left: 20px;
-        }
-
-        .disponible {
-            color: #27ae60;
+        .panel-header p {
+            opacity: 0.85;
             font-weight: bold;
         }
 
-        .reservado {
-            color: #c9363f;
-            font-weight: bold;
-        } 
-
-        @media (max-width: 700px) {
-            .detalle-agenda {
-                grid-template-columns: 1fr;
-            }
+        .panel-card {
+            background-color: var(--c-blanco);
+            padding: 35px;
+            margin-bottom: 35px;
+            border: 2px solid transparent;
+            border-bottom: 2px solid #E0E0E0;
+            transition: 0.3s;
         }
 
-        .form-servicio {
-            margin-top: 30px;
-            text-align: left;
-            background: #fafafa;
-            padding: 25px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
+        .panel-card:hover {
+            border: 2px solid var(--c-licorice);
         }
 
-        .form-servicio h2 {
-            text-align: center;
-            margin-bottom: 20px;
+        .panel-card h2 {
+            font-family: 'Arial Black', sans-serif;
+            color: var(--c-licorice);
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            letter-spacing: -1px;
         }
 
         .form-servicio label {
             display: block;
-            margin-top: 12px;
+            margin-top: 15px;
+            margin-bottom: 6px;
             font-weight: bold;
-            color: #333;
+            color: var(--c-licorice);
         }
 
         .form-servicio input,
@@ -107,48 +74,160 @@
         .form-servicio textarea {
             width: 100%;
             box-sizing: border-box;
-            padding: 10px;
-            margin-top: 6px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            padding: 13px;
+            border-radius: 0;
+            border: 2px solid #ddd;
+            font-family: Arial, sans-serif;
+            background: var(--c-gris-claro);
         }
 
         .form-servicio textarea {
-            height: 80px;
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .agenda-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .agenda-dia {
+            background: var(--c-gris-claro);
+            border: 2px solid #ddd;
+            padding: 18px;
+        }
+
+        .agenda-dia strong {
+            display: block;
+            color: var(--c-licorice);
+            margin-bottom: 10px;
+            font-family: 'Arial Black', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .agenda-dia label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .agenda-dia input[type="time"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 6px;
+        }
+
+        .btn-panel,
+        .btn-logout {
+            margin-top: 20px;
+            background-color: var(--c-mahogany);
+            color: var(--c-blanco);
+            border: none;
+            padding: 14px 26px;
+            border-radius: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-panel:hover {
+            background-color: var(--c-froly);
+            transform: translateY(-2px);
         }
 
         #mensajeServicio {
             margin-top: 15px;
             font-weight: bold;
-            color: #2980b9;
+            color: var(--c-mahogany);
         }
 
-        button {
-            padding: 10px;
-            margin-top: 20px;
-            cursor: pointer;
+        #listaMisServicios .dato {
+            background: var(--c-gris-claro);
+            padding: 20px;
+            border: 1px solid #ddd;
+            margin-top: 15px;
+        }
+
+        .btnEditar,
+        .btnEliminar {
             border: none;
-            background: #2980b9;
+            padding: 10px 16px;
+            border-radius: 12px;
+            cursor: pointer;
             color: white;
-            border-radius: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        button:hover {
+        .btnEditar {
+            background: #2980b9;
+        }
+
+        .btnEliminar {
+            background: #c0392b;
+        }
+
+        .btnEditar:hover {
             background: #1f6694;
+        }
+
+        .btnEliminar:hover {
+            background: #962d22;
+        }
+
+        .btn-logout {
+            display: block;
+            margin: 25px auto;
+            background-color: var(--c-licorice);
+        }
+
+        .btn-logout:hover {
+            background-color: var(--c-rosewood);
+        }
+
+        .footer-panel {
+            margin-top: 40px;
+            padding: 25px;
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .panel-header h1 {
+                font-size: 34px;
+            }
+
+            .panel-card {
+                padding: 25px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-    <div class="box">
-        <h1>Bienvenido Técnico </h1>
-        <p>Has iniciado sesión correctamente</p>
+    <main class="panel-tecnico">
 
-        <section class="form-servicio">
+        <section class="panel-header">
+            <h1>Panel Técnico</h1>
+            <p>Administra tus servicios, perfil profesional y horarios disponibles en Rukano.</p>
+        </section>
+
+        <section class="panel-card">
             <h2>Publicar servicio</h2>
 
-            <form id="formServicio">
+            <form id="formServicio" class="form-servicio">
+
                 <label for="tituloServicio">Título del servicio</label>
                 <input type="text" id="tituloServicio" placeholder="Ej: Electricista domiciliario">
 
@@ -169,66 +248,99 @@
                 <label for="precioServicio">Precio estimado</label>
                 <input type="number" id="precioServicio" placeholder="Ej: 25000">
 
+                <label for="tiempoServicio">Tiempo estimado</label>
+                <input type="text" id="tiempoServicio" placeholder="Ej: 2 horas">
+
+                <label for="descripcionServicio">Descripción del servicio</label>
+                <textarea id="descripcionServicio" placeholder="Ej: Servicio especializado para reparación e instalación domiciliaria."></textarea>
+
+                <label for="descripcionTecnicoServicio">Descripción del técnico</label>
+                <textarea id="descripcionTecnicoServicio" placeholder="Ej: Técnico con experiencia en reparaciones domiciliarias."></textarea>
+
+                <label for="experienciaTecnicoServicio">Experiencia</label>
+                <input type="text" id="experienciaTecnicoServicio" placeholder="Ej: 3 años de experiencia">
+
                 <label for="incluyeServicio">Qué incluye</label>
-                <textarea id="incluyeServicio" placeholder="Ej: Diagnóstico inicial y reparación básica"></textarea>
+                <textarea id="incluyeServicio" placeholder="Ej: Diagnóstico inicial&#10;Mano de obra básica&#10;Revisión del problema"></textarea>
 
                 <label for="noIncluyeServicio">Qué no incluye</label>
-                <textarea id="noIncluyeServicio" placeholder="Ej: Materiales adicionales"></textarea>
+                <textarea id="noIncluyeServicio" placeholder="Ej: Materiales especiales&#10;Transporte adicional"></textarea>
 
-                <button type="submit">Publicar servicio</button>
+                <h2 style="margin-top:35px;">Disponibilidad del servicio</h2>
+
+                <div class="agenda-grid">
+                    <div class="agenda-dia">
+                        <strong>Lunes</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Lunes">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+
+                    <div class="agenda-dia">
+                        <strong>Martes</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Martes">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+
+                    <div class="agenda-dia">
+                        <strong>Miércoles</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Miércoles">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+
+                    <div class="agenda-dia">
+                        <strong>Jueves</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Jueves">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+
+                    <div class="agenda-dia">
+                        <strong>Viernes</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Viernes">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-panel">Publicar servicio</button>
 
                 <p id="mensajeServicio"></p>
             </form>
         </section>
 
-        <section class="form-servicio">
-           <h2>Mis servicios publicados</h2>
+        <section class="panel-card">
+            <h2>Mis servicios publicados</h2>
 
             <div id="listaMisServicios">
-               <p>Cargando servicios...</p>
+                <p>Cargando servicios...</p>
             </div>
         </section>
 
-        <section class="agenda">
-            <h2>Agenda virtual</h2>
+        <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
 
-            <div class="detalle-agenda">
-               <div class="dato">
-                   <strong>Lunes</strong>
-                   09:00 - 12:00 hrs <br>
-                   <span class="disponible">Disponible</span>
-                </div>
+    </main>
 
-                <div class="dato">
-                    <strong>Martes</strong>
-                    14:00 - 18:00 hrs <br>
-                    <span class="reservado">Reservado</span>
-                </div>
-
-                <div class="dato">
-                    <strong>Miércoles</strong>
-                    10:00 - 13:00 hrs <br>
-                    <span class="disponible">Disponible</span>
-                </div>
-
-                <div class="dato">
-                    <strong>Viernes</strong>
-                    15:00 - 17:00 hrs <br>
-                    <span class="reservado">Reservado</span>
-                </div>
-            </div>
-
-            <div class="historial">
-                <h3>Servicios agendados</h3>
-                <ul>
-                    <li>Electricidad domiciliaria - Martes 14:00 hrs - Cliente: María José</li>
-                    <li>Instalación de enchufes - Viernes 15:00 hrs - Cliente: Carlos Díaz</li>
-                </ul>
-            </div>
-        </section>
-
-        <button id="btnLogout">Cerrar sesión</button>
-    </div>
+    <footer class="footer-panel">
+        <p>&copy; 2026 RUKANO - Panel Técnico</p>
+    </footer>
 
     <script type="module" src="js/panel.js"></script>
 

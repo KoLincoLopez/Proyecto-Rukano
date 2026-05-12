@@ -82,18 +82,27 @@
 
 <body>
 
+    <nav style="width: 100%; background: white; padding: 20px 40px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center;">
+        <a href="index.html" style="text-decoration: none; color: #1E0D0A; font-size: 28px; font-family: Arial Black;">
+            RUKANO
+        </a>
+
+        <a href="index.html" style="text-decoration:none; color:#333; font-weight:bold;">
+            Volver al inicio
+        </a>
+    </nav>
 
     <main class="perfil">
         <div class="perfil-header">
-            <img id="fotoTecnico" src="" alt="Técnico">
-            <h1 id="nombreTecnico"></h1>
+            <img id="fotoTecnico" src="https://cdn-icons-png.flaticon.com/512/4792/4792929.png" alt="Técnico">
+            <h1 id="nombreTecnico">Cargando técnico...</h1>
             <p id="especialidadTecnico"></p>
-            <span class="badge-perfil" id="ratingTecnico"></span>
+            <span class="badge-perfil" id="ratingTecnico">Servicio activo</span>
         </div>
 
         <section class="seccion-perfil">
-            <h2>Sobre el técnico</h2>
-            <p id="descripcionTecnico"></p>
+            <h2>Sobre el servicio</h2>
+            <p id="descripcionTecnico">Cargando información...</p>
         </section>
 
         <section class="seccion-perfil">
@@ -111,130 +120,36 @@
 
             <div class="dato-perfil">
                 <strong>Precio estimado:</strong>
-                <span id="precioTecnico"></span>
+                $<span id="precioTecnico"></span>
+            </div>
+
+            <div class="dato-perfil">
+                <strong>Tiempo estimado:</strong>
+                <span id="tiempoTecnico"></span>
             </div>
         </section>
 
         <section class="seccion-perfil">
-            <h2>Reseñas</h2>
-
-            <div class="dato-perfil" id="resenaUno"></div>
-            <div class="dato-perfil" id="resenaDos"></div>
+            <h2>Disponibilidad</h2>
+            <div class="dato-perfil" id="agendaTecnico">
+                Cargando disponibilidad...
+            </div>
         </section>
 
-        <a href="panelCliente.html" class="btn-reservar-perfil">Reservar servicio</a>
+        <a href="#" id="btnReservarServicio" class="btn-reservar-perfil">
+            Reservar servicio
+        </a>
+
         <br>
+
         <a href="index.html" class="btn-volver">Volver al inicio</a>
     </main>
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        const tecnico = params.get("tecnico") || "pedro";
-
-        const datos = {
-            pedro: {
-                nombre: "Pedro Pérez",
-                especialidad: "Electricista domiciliario",
-                rating: "Valoración 5.0",
-                descripcion: "Técnico especializado en instalaciones eléctricas domiciliarias, reparación de fallas y mantención preventiva.",
-                incluye: "Revisión eléctrica, diagnóstico inicial e instalación básica.",
-                noIncluye: "Materiales eléctricos adicionales ni trabajos industriales.",
-                precio: "$25.000",
-                foto: "https://cdn-icons-png.flaticon.com/512/4792/4792929.png",
-                resena1: "Excelente atención, llegó puntual y explicó todo muy claro.",
-                resena2: "Buen servicio y precio justo."
-            },
-
-            carlos: {
-                nombre: "Carlos Muñoz",
-                especialidad: "Gasfiter certificado",
-                rating: "Valoración 4.8",
-                descripcion: "Especialista en reparación de fugas, mantención de baños, cañerías y emergencias domiciliarias.",
-                incluye: "Diagnóstico, revisión de cañerías y reparación básica.",
-                noIncluye: "Repuestos, grifería nueva o trabajos mayores.",
-                precio: "$30.000",
-                foto: "https://cdn-icons-png.flaticon.com/512/3077/3077018.png",
-                resena1: "Solucionó una fuga rápidamente.",
-                resena2: "Muy responsable y ordenado."
-            },
-
-            ana: {
-                nombre: "Ana Rojas",
-                especialidad: "Servicio de limpieza",
-                rating: "Valoración 4.9",
-                descripcion: "Realiza limpieza profunda de hogares, oficinas y departamentos con atención personalizada.",
-                incluye: "Limpieza general, baños, cocina y superficies principales.",
-                noIncluye: "Limpieza industrial o retiro de escombros.",
-                precio: "$18.000",
-                foto: "https://cdn-icons-png.flaticon.com/512/1995/1995574.png",
-                resena1: "Dejó todo muy limpio y ordenado.",
-                resena2: "Excelente servicio para departamento."
-            },
-
-            luis: {
-                nombre: "Luis Herrera",
-                especialidad: "Jardinería y poda",
-                rating: "Valoración 4.7",
-                descripcion: "Realiza mantención de jardines, corte de pasto, limpieza exterior y poda de árboles.",
-                incluye: "Corte de pasto, limpieza exterior y mantención básica.",
-                noIncluye: "Retiro masivo de ramas o maquinaria especial.",
-                precio: "$22.000",
-                foto: "https://cdn-icons-png.flaticon.com/512/1518/1518914.png",
-                resena1: "Muy buen trabajo en el jardín.",
-                resena2: "Puntual y cuidadoso."
-            },
-
-            mario: {
-                nombre: "Mario Silva",
-                especialidad: "Cerrajería",
-                rating: "Valoración 4.6",
-                descripcion: "Servicio de apertura de puertas, cambio de chapas e instalación de cerraduras de seguridad.",
-                incluye: "Apertura simple, revisión de cerradura y cambio básico de chapa.",
-                noIncluye: "Cerraduras especiales o materiales adicionales.",
-                precio: "$20.000",
-                foto: "https://cdn-icons-png.flaticon.com/512/3064/3064197.png",
-                resena1: "Llegó rápido y solucionó el problema.",
-                resena2: "Buen trato y precio justo."
-            },
-
-            jose: {
-                nombre: "José Reyes",
-                especialidad: "Pintura y terminaciones",
-                rating: "Valoración 4.9",
-                descripcion: "Realiza pintura interior y exterior, reparación de muros y terminaciones para el hogar.",
-                incluye: "Evaluación, preparación básica de muro y pintura de superficie.",
-                noIncluye: "Pintura, materiales o reparación estructural.",
-                precio: "$35.000",
-                foto: "https://cdn-icons-png.flaticon.com/512/4140/4140048.png",
-                resena1: "Muy prolijo con las terminaciones.",
-                resena2: "El trabajo quedó excelente."
-            }
-        };
-
-        const info = datos[tecnico];
-
-        document.getElementById("fotoTecnico").src = info.foto;
-        document.getElementById("nombreTecnico").textContent = info.nombre;
-        document.getElementById("especialidadTecnico").textContent = info.especialidad;
-        document.getElementById("ratingTecnico").textContent = info.rating;
-        document.getElementById("descripcionTecnico").textContent = info.descripcion;
-        document.getElementById("incluyeTecnico").textContent = info.incluye;
-        document.getElementById("noIncluyeTecnico").textContent = info.noIncluye;
-        document.getElementById("precioTecnico").textContent = info.precio;
-        document.getElementById("resenaUno").textContent = info.resena1;
-        document.getElementById("resenaDos").textContent = info.resena2;
-    </script>
-
-     <footer class="footer-rukano">
+    <footer class="footer-rukano">
         <div class="footer-grid">
             <div class="footer-col-marca">
                 <h2 class="logo-footer">RUKANO</h2>
                 <p class="slogan-footer">Transformando la forma en que cuidas tu hogar.</p>
-                <div class="redes-sociales">
-                    <a href="#">INSTAGRAM</a>
-                    <a href="#">FACEBOOK</a>
-                    <a href="#">LINKEDIN</a>
-                </div>
             </div>
 
             <div class="footer-col">
@@ -261,7 +176,103 @@
             <p class="pais-footer">CHILE / SANTIAGO</p>
         </div>
     </footer>
-    
+
+    <script type="module">
+        import { db } from "./js/Firebase-config.js";
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const params = new URLSearchParams(window.location.search);
+        const idServicio = params.get("id");
+
+        const nombreTecnico = document.getElementById("nombreTecnico");
+        const especialidadTecnico = document.getElementById("especialidadTecnico");
+        const descripcionTecnico = document.getElementById("descripcionTecnico");
+        const incluyeTecnico = document.getElementById("incluyeTecnico");
+        const noIncluyeTecnico = document.getElementById("noIncluyeTecnico");
+        const precioTecnico = document.getElementById("precioTecnico");
+        const tiempoTecnico = document.getElementById("tiempoTecnico");
+        const agendaTecnico = document.getElementById("agendaTecnico");
+        const btnReservarServicio = document.getElementById("btnReservarServicio");
+
+        async function cargarPerfil() {
+            if (!idServicio) {
+                nombreTecnico.textContent = "Servicio no encontrado";
+                descripcionTecnico.textContent = "No se recibió el ID del servicio.";
+                agendaTecnico.textContent = "No hay disponibilidad registrada.";
+                btnReservarServicio.style.display = "none";
+                return;
+            }
+
+            try {
+                const servicioRef = doc(db, "servicios", idServicio);
+                const servicioSnap = await getDoc(servicioRef);
+
+                if (!servicioSnap.exists()) {
+                    nombreTecnico.textContent = "Servicio no encontrado";
+                    descripcionTecnico.textContent = "El servicio no existe en la base de datos.";
+                    agendaTecnico.textContent = "No hay disponibilidad registrada.";
+                    btnReservarServicio.style.display = "none";
+                    return;
+                }
+
+                const servicio = servicioSnap.data();
+
+                nombreTecnico.textContent = servicio.nombreTecnico || `Técnico ${servicio.idTecnico || ""}`;
+                especialidadTecnico.textContent = servicio.categoria || "Servicio";
+                descripcionTecnico.textContent = servicio.descripcion || servicio.nombre || "Servicio disponible";
+
+                incluyeTecnico.textContent = Array.isArray(servicio.que_incluye)
+                    ? servicio.que_incluye.join(", ")
+                    : servicio.incluye || "No especificado";
+
+                noIncluyeTecnico.textContent = Array.isArray(servicio.que_no_incluye)
+                    ? servicio.que_no_incluye.join(", ")
+                    : servicio.noIncluye || "No especificado";
+
+                precioTecnico.textContent = Math.round(servicio.precio || 0);
+                tiempoTecnico.textContent = servicio.tiempoEstimado || "No especificado";
+
+                cargarDisponibilidad(servicio.disponibilidad);
+
+                const nombreServicio = servicio.nombre || servicio.titulo || "Servicio";
+                const nombreVisibleTecnico = servicio.nombreTecnico || `Técnico ${servicio.idTecnico || ""}`;
+
+                const linkReserva =
+                    `panelCliente.html?servicio=${encodeURIComponent(nombreServicio)}` +
+                    `&tecnico=${encodeURIComponent(nombreVisibleTecnico)}` +
+                    `&precio=${encodeURIComponent(Math.round(servicio.precio || 0))}` +
+                    `&idTecnico=${encodeURIComponent(servicio.idTecnico || "")}` +
+                    `&idServicio=${encodeURIComponent(idServicio)}`;
+
+                btnReservarServicio.href = linkReserva;
+
+            } catch (error) {
+                console.log(error);
+                nombreTecnico.textContent = "Error al cargar perfil";
+                descripcionTecnico.textContent = "No se pudo cargar la información.";
+                agendaTecnico.textContent = "Error al cargar disponibilidad.";
+                btnReservarServicio.style.display = "none";
+            }
+        }
+
+        function cargarDisponibilidad(disponibilidad) {
+            if (!Array.isArray(disponibilidad) || disponibilidad.length === 0) {
+                agendaTecnico.textContent = "Este servicio aún no tiene horarios disponibles.";
+                return;
+            }
+
+            agendaTecnico.innerHTML = disponibilidad
+                .map(item => `
+                    <p>
+                        <strong>${item.dia}:</strong>
+                        ${item.inicio} - ${item.fin}
+                    </p>
+                `)
+                .join("");
+        }
+
+        cargarPerfil();
+    </script>
 
 </body>
 </html>
