@@ -10,7 +10,6 @@ load_dotenv(BASE_DIR / ".env")
 
 
 def initialize_firebase():
-<<<<<<< HEAD
     """
     Inicializa el SDK de Firebase utilizando las credenciales seguras.
     Esto soporta la arquitectura Serverless del proyecto [6].
@@ -25,10 +24,8 @@ def initialize_firebase():
             firebase_admin.initialize_app(cred)
         else:
             raise Exception("Error: No se encontró la variable FIREBASE_KEY_PATH")
-=======
     if firebase_admin._apps:
         return firestore.client()
->>>>>>> f6fa2304ef4cf4ceab946c182f8237a0e7ce6869
 
     cert_path = os.getenv("FIREBASE_KEY_PATH") or os.getenv("FIREBASE_CREDENTIALS")
     if cert_path:
