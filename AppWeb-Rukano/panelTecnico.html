@@ -81,6 +81,48 @@
             }
         }
 
+        .form-servicio {
+            margin-top: 30px;
+            text-align: left;
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .form-servicio h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-servicio label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-servicio input,
+        .form-servicio select,
+        .form-servicio textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .form-servicio textarea {
+            height: 80px;
+        }
+
+        #mensajeServicio {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #2980b9;
+        }
+
         button {
             padding: 10px;
             margin-top: 20px;
@@ -102,6 +144,50 @@
     <div class="box">
         <h1>Bienvenido Técnico </h1>
         <p>Has iniciado sesión correctamente</p>
+
+        <section class="form-servicio">
+            <h2>Publicar servicio</h2>
+
+            <form id="formServicio">
+                <label for="tituloServicio">Título del servicio</label>
+                <input type="text" id="tituloServicio" placeholder="Ej: Electricista domiciliario">
+
+                <label for="categoriaServicio">Categoría</label>
+                <select id="categoriaServicio">
+                    <option value="">Selecciona una categoría</option>
+                    <option value="Electricidad">Electricidad</option>
+                    <option value="Gasfitería">Gasfitería</option>
+                    <option value="Limpieza">Limpieza</option>
+                    <option value="Jardinería">Jardinería</option>
+                    <option value="Cerrajería">Cerrajería</option>
+                    <option value="Pintura">Pintura</option>
+                </select>
+
+                <label for="comunaServicio">Comuna</label>
+                <input type="text" id="comunaServicio" placeholder="Ej: Puente Alto">
+
+                <label for="precioServicio">Precio estimado</label>
+                <input type="number" id="precioServicio" placeholder="Ej: 25000">
+
+                <label for="incluyeServicio">Qué incluye</label>
+                <textarea id="incluyeServicio" placeholder="Ej: Diagnóstico inicial y reparación básica"></textarea>
+
+                <label for="noIncluyeServicio">Qué no incluye</label>
+                <textarea id="noIncluyeServicio" placeholder="Ej: Materiales adicionales"></textarea>
+
+                <button type="submit">Publicar servicio</button>
+
+                <p id="mensajeServicio"></p>
+            </form>
+        </section>
+
+        <section class="form-servicio">
+           <h2>Mis servicios publicados</h2>
+
+            <div id="listaMisServicios">
+               <p>Cargando servicios...</p>
+            </div>
+        </section>
 
         <section class="agenda">
             <h2>Agenda virtual</h2>
