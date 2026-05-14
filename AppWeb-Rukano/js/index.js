@@ -1,5 +1,4 @@
-import { db } from "./Firebase-config.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const API_URL = "http://127.0.0.1:8000";
 
 let servicios = [];
 let serviciosActuales = [];
@@ -26,34 +25,38 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("scroll", actualizarNavbar);
 
     async function cargarServiciosFirestore() {
-        if (!grillaServicios) return;
+            if (!grillaServicios) return;
 
-        grillaServicios.innerHTML = crearEstadoBusqueda("Cargando servicios...");
+    grillaServicios.innerHTML = crearEstadoBusqueda("Cargando servicios...");
 
-        try {
-            const resultado = await getDocs(collection(db, "servicios"));
+    try {
+        const response = await fetch(`${API_URL}/servicios/`);
 
-            servicios = [];
-
-            resultado.forEach((docServicio) => {
-                const data = docServicio.data();
-
-                if (data.estado === "activo" || data.estado === "active") {
-                    servicios.push({
-                        id: docServicio.id,
-                        ...data
-                    });
-                }
-            });
-
-            serviciosActuales = servicios;
-            cantidadVisible = 6;
-            pintarServicios(grillaServicios);
-
-        } catch (error) {
-            console.log("Error al cargar servicios:", error);
-            grillaServicios.innerHTML = crearEstadoBusqueda("No pudimos cargar los servicios.");
+        if (!response.ok) {
+            throw new Error("Error al obtener servicios");
         }
+
+        const resultado = await response.json();
+
+        servicios = [];
+
+        resultado.forEach((servicio) => {
+            if (servicio.estado === "activo" || servicio.estado === "active") {
+                servicios.push({
+                    id: servicio.idServicio || servicio.id,
+                    ...servicio
+                });
+            }
+        });
+
+        serviciosActuales = servicios;
+        cantidadVisible = 6;
+        pintarServicios(grillaServicios);
+
+    } catch (error) {
+        console.log("Error al cargar servicios:", error);
+        grillaServicios.innerHTML = crearEstadoBusqueda("No pudimos cargar los servicios.");
+    }
     }
 
     function buscarPorTexto() {

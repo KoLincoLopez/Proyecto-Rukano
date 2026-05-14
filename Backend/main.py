@@ -7,13 +7,13 @@ from firebase_admin import auth as firebase_auth
 
 try:
     from .core.firebase_config import db
-    from .routers import citas, payments, reports, reviews, search, servicios
+    from .routers import citas,  reports, reviews, search, servicios
 except ImportError:
     from core.firebase_config import db
-    from routers import citas, payments, reports, reviews, search, servicios
+    from routers import citas,  reports, reviews, search, servicios
 
 app = FastAPI()
-
+ 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,7 +25,7 @@ app.add_middleware(
 # Registramos todos los microservicios de forma ordenada.
 app.include_router(search.router, prefix="/search")
 app.include_router(reviews.router, prefix="/reviews")
-app.include_router(payments.router)
+#app.include_router(payments.router)
 app.include_router(citas.router, prefix="/citas")
 app.include_router(servicios.router, prefix="/servicios")
 app.include_router(reports.router, prefix="/reports")

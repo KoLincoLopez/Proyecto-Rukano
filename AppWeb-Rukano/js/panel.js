@@ -12,6 +12,8 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+const API_URL = "http://127.0.0.1:8000";
+
 window.addEventListener("DOMContentLoaded", () => {
 
     let datosUsuarioActual = null;
@@ -123,35 +125,43 @@ window.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                await addDoc(collection(db, "servicios"), {
+                const servicioNuevo = {
                     idTecnico: user.uid,
-                    nombreTecnico: datosUsuarioActual?.nombre || datosUsuarioActual?.nombreCompleto || "Técnico Rukano",
-
                     nombre: titulo,
-                    titulo: titulo,
                     categoria: categoria,
                     comuna: comuna,
-                    precio: Number(precio),
                     descripcion: descripcion,
+                    precio: Number(precio),
                     tiempoEstimado: tiempo,
-
                     que_incluye: textoALista(incluye),
                     que_no_incluye: textoALista(noIncluye),
+                    esquema_formulario: [
+                        {
+                            id_pregunta: "1",
+                            pregunta: "Describe el problema",
+                            tipo: "text",
+                            obligatorio: true
+                        },
+                        {
+                            id_pregunta: "2",
+                            pregunta: "¿Necesitas servicio urgente?",
+                            tipo: "boolean",
+                            obligatorio: false
+                        }
+                    ]
+                };
 
-                    incluye: incluye,
-                    noIncluye: noIncluye,
-
-                    perfilTecnico: {
-                        nombre: datosUsuarioActual?.nombre || datosUsuarioActual?.nombreCompleto || "Técnico Rukano",
-                        descripcion: descripcionTecnico,
-                        experiencia: experiencia
+                const response = await fetch(`${API_URL}/servicios/crear`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
                     },
-
-                    disponibilidad: disponibilidad,
-
-                    estado: "activo",
-                    createdAt: new Date()
+                    body: JSON.stringify(servicioNuevo)
                 });
+
+                if (!response.ok) {
+                    throw new Error("Error al crear servicio en backend");
+                }
 
                 mensajeServicio.textContent = "Servicio publicado correctamente.";
                 formServicio.reset();
