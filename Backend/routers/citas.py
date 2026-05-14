@@ -2,10 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from datetime import datetime, timezone
 import uuid
-try:
-    from ..core.firebase_config import db
-except ImportError:
-    from core.firebase_config import db
+from core.firebase_config import db
 from google.cloud import firestore # Para transacciones de concurrencia
 
 router = APIRouter()

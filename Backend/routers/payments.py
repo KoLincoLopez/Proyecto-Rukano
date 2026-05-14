@@ -1,11 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
 
-try:
-    from ..schemas.payment_schemas import PaymentPreferenceRequest
-    from ..services.mercadopago_service import MercadoPagoService
-except ImportError:
-    from schemas.payment_schemas import PaymentPreferenceRequest
-    from services.mercadopago_service import MercadoPagoService
+from schemas.payment_schemas import PaymentPreferenceRequest
+from services.mercadopago_service import MercadoPagoService
 
 router = APIRouter(
     prefix="/payments",

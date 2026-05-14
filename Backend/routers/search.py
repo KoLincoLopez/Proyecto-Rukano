@@ -1,8 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
-try:
-    from ..core.firebase_config import db
-except ImportError:
-    from core.firebase_config import db
+from core.firebase_config import db
 from google.cloud.firestore_v1.base_query import FieldFilter
 import re
 

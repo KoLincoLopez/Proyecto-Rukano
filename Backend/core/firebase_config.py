@@ -1,46 +1,45 @@
+import json
 import os
-from pathlib import Path
 
 import firebase_admin
-from dotenv import load_dotenv
 from firebase_admin import credentials, firestore
-
-BASE_DIR = Path(__file__).resolve().parents[1]
-load_dotenv(BASE_DIR / ".env")
 
 
 def initialize_firebase():
     """
-    Inicializa el SDK de Firebase utilizando las credenciales seguras.
-    Esto soporta la arquitectura Serverless del proyecto [6].
+    Initialize Firebase Admin from the FIREBASE_CREDENTIALS environment variable.
+
+    FIREBASE_CREDENTIALS must contain the complete service account JSON.
     """
-    # Verificamos si la app ya fue inicializada para evitar errores de duplicidad
-    if not firebase_admin._apps:
-        # Obtenemos la ruta o el contenido del JSON desde la variable de entorno
-        cert_path = os.path.join(os.path.dirname(__file__), "firebase_key.json")
-        
-        if cert_path:
-            cred = credentials.Certificate(cert_path)
-            firebase_admin.initialize_app(cred)
-        else:
-            raise Exception("Error: No se encontró la variable FIREBASE_KEY_PATH")
     if firebase_admin._apps:
         return firestore.client()
 
-    cert_path = os.getenv("FIREBASE_KEY_PATH") or os.getenv("FIREBASE_CREDENTIALS")
-    if cert_path:
-        cert_file = Path(cert_path)
-    else:
-        cert_file = BASE_DIR / "core" / "firebase_key.json"
+    raw_credentials = os.getenv("FIREBASE_CREDENTIALS")
+    if not raw_credentials:
+        raise RuntimeError(
+            "FIREBASE_CREDENTIALS no esta configurada. "
+            "En Render agrega una variable de entorno con el JSON completo "
+            "del service account de Firebase."
+        )
 
-    if not cert_file.is_absolute():
-        cert_file = BASE_DIR / cert_file
+    try:
+        service_account_info = json.loads(raw_credentials)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(
+            "FIREBASE_CREDENTIALS contiene JSON invalido. "
+            "Verifica que pegaste el JSON completo, con comillas dobles y sin "
+            "caracteres extra antes o despues."
+        ) from exc
 
-    if not cert_file.exists():
-        raise FileNotFoundError(f"No se encontro la credencial Firebase: {cert_file}")
+    try:
+        cred = credentials.Certificate(service_account_info)
+        firebase_admin.initialize_app(cred)
+    except Exception as exc:
+        raise RuntimeError(
+            "No se pudo inicializar Firebase Admin con FIREBASE_CREDENTIALS. "
+            "Verifica que el JSON corresponda a un service account valido."
+        ) from exc
 
-    cred = credentials.Certificate(str(cert_file))
-    firebase_admin.initialize_app(cred)
     return firestore.client()
 
 
