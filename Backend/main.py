@@ -6,8 +6,12 @@ from fastapi.staticfiles import StaticFiles
 from firebase_admin import auth as firebase_auth
 
 try:
+
     from .core.firebase_config import db
     from .routers import citas, payments, reports, reviews, search, servicios
+
+    from core.firebase_config import db
+    from routers import citas,  reports, reviews, search, servicios
 except ImportError:
     from core.firebase_config import db
     from routers import citas, payments, reports, reviews, search, servicios
