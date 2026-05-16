@@ -98,3 +98,10 @@ async def obtener_agenda(tecnico_id: str):
     docs = db.collection("citas").where("idTecnico", "==", tecnico_id).stream()
     agenda = [doc.to_dict() for doc in docs]
     return sorted(agenda, key=lambda x: (x['fecha'], x['hora']))
+
+@router.get("/agenda/cliente/{cliente_id}")
+async def obtener_citas_cliente(cliente_id: str):
+    # Devuelve las citas asociadas a un cliente (idCliente)
+    docs = db.collection("citas").where("idCliente", "==", cliente_id).stream()
+    citas = [doc.to_dict() for doc in docs]
+    return sorted(citas, key=lambda x: (x['fecha'], x['hora']))

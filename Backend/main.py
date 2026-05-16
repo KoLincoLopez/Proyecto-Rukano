@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from firebase_admin import auth as firebase_auth
 
 from core.firebase_config import db
-from routers import citas, reports, reviews, search, servicios
+from routers import citas, reports, reviews, search, servicios, users
 
 app = FastAPI()
  
@@ -25,6 +25,7 @@ app.include_router(reviews.router, prefix="/reviews")
 app.include_router(citas.router, prefix="/citas")
 app.include_router(servicios.router, prefix="/servicios")
 app.include_router(reports.router, prefix="/reports")
+app.include_router(users.router, prefix="/users")
 
 # Permite que el backend desplegado tambien sirva las paginas de retorno de pago.
 APP_WEB_DIR = Path(__file__).resolve().parents[1] / "AppWeb-Rukano"
