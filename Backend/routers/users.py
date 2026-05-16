@@ -141,6 +141,38 @@ async def eliminar_foto_perfil(usuario_id: str):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+@router.get("/usuario/publico/{usuario_id}", response_model=dict, summary="Obtener datos públicos de un usuario/ técnico")
+async def obtener_usuario_publico(usuario_id: str):
+    """
+    Devuelve los datos de un usuario omitiendo campos sensibles:
+    - Clientes: oculta `rut`
+    - Técnicos: oculta `rut` y `cuenta_bancaria`
+    """
+    try:
+        usuario_ref = db.collection("usuarios").document(usuario_id)
+        usuario_doc = usuario_ref.get()
+
+        if not usuario_doc.exists:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+        data = usuario_doc.to_dict()
+
+        # Campos sensibles por rol
+        rol = (data.get("rol") or "").lower()
+        public_data = dict(data)  # copia para modificar
+
+        # Ocultar rut siempre
+        public_data.pop("rut", None)
+
+        # Si es técnico, también ocultar cuenta bancaria
+        if rol in ("técnico", "tecnico"):
+            public_data.pop("cuenta_bancaria", None)
+
+        return {"status": "success", "usuario": public_data}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/schemas", summary="Esquemas de Usuario Disponibles")
 async def obtener_schemas():
