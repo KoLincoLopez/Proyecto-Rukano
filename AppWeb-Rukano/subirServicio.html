@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publicar Servicio — Rukano</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  :root {
+    --c-licorice: #1E0D0A;
+    --c-rosewood: #550006;
+    --c-mahogany: #BF353B;
+    --c-froly: #EE666A;
+    --c-deep-moss: #3D4421;
+    --c-blanco: #FFFFFF;
+    --c-gris-claro: #f9f9f9;
+    --c-arena: #F5EFEA;
+    --c-arena-dark: #E8DDD5;
+    --c-border: #D9D0C8;
+    --c-text-muted: #8A7A72;
+    --c-success: #3D6B2E;
+    --c-success-bg: #EEF5EA;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--c-arena);
+    color: var(--c-licorice);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    background-color: var(--c-licorice);
+    padding: 0 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 66px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--c-arena);
+    letter-spacing: -2px;
+    text-decoration: none;
+  }
+
+  .nav-pill {
+    background-color: var(--c-mahogany);
+    color: var(--c-blanco);
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 7px 18px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* PAGE WRAP */
+  .page-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 3px solid var(--c-mahogany);
+  }
+
+  .page-header h1 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 54px;
+    font-weight: 900;
+    color: var(--c-licorice);
+    letter-spacing: -3px;
+    line-height: 0.95;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .page-header p {
+    color: var(--c-text-muted);
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* STEPS BAR */
+  .steps-bar {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 2.5rem;
+    border: 2px solid var(--c-licorice);
+    overflow: hidden;
+    background: var(--c-blanco);
+  }
+
+  .step-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 6px;
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--c-text-muted);
+    border-right: 2px solid var(--c-licorice);
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .step-item:last-child { border-right: none; }
+  .step-item.active { background: var(--c-licorice); color: var(--c-arena); }
+  .step-item.done { background: var(--c-deep-moss); color: var(--c-arena); cursor: pointer; }
+
+  .step-num {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+    flex-shrink: 0;
+    background: var(--c-border);
+    color: var(--c-text-muted);
+  }
+
+  .step-item.active .step-num { background: var(--c-mahogany); color: white; }
+  .step-item.done .step-num { background: var(--c-arena); color: var(--c-deep-moss); }
+
+  /* SECTION */
+  .section {
+    background: var(--c-blanco);
+    border: 2px solid var(--c-licorice);
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+    display: none;
+    animation: fadeIn 0.22s ease;
+  }
+
+  .section.visible { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid var(--c-arena-dark);
+  }
+
+  .section-icon {
+    width: 44px;
+    height: 44px;
+    background-color: var(--c-licorice);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-arena);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 19px;
+    font-weight: 900;
+    color: var(--c-licorice);
+    letter-spacing: -0.8px;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+
+  .section-header p {
+    font-size: 12px;
+    color: var(--c-text-muted);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* FORM */
+  .field { margin-bottom: 1.5rem; }
+
+  label {
+    display: block;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--c-licorice);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 7px;
+  }
+
+  label .req { color: var(--c-mahogany); margin-left: 3px; }
+
+  label .hint {
+    font-family: 'Arial', sans-serif;
+    font-weight: 900;
+    color: var(--c-text-muted);
+    font-size: 10px;
+    margin-left: 8px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  textarea {
+    width: 100%;
+    border: 2px solid var(--c-border);
+    border-radius: 0;
+    padding: 12px 14px;
+    font-family: 'Arial', sans-serif;
+    font-size: 14px;
+    color: var(--c-licorice);
+    background: var(--c-arena);
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    -webkit-appearance: none;
+  }
+
+  input:focus, textarea:focus {
+    border-color: var(--c-licorice);
+    background: var(--c-blanco);
+  }
+
+  input.error, textarea.error {
+    border-color: var(--c-mahogany);
+    background: #FEF5F5;
+  }
+
+  textarea { resize: vertical; min-height: 110px; }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  .input-prefix { position: relative; }
+
+  .input-prefix .prefix-sym {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--c-text-muted);
+    font-size: 14px;
+    font-weight: 900;
+    pointer-events: none;
+    font-family: 'Arial Black', sans-serif;
+  }
+
+  .input-prefix input { padding-left: 30px; }
+
+  .char-count {
+    text-align: right;
+    font-size: 10.5px;
+    color: var(--c-text-muted);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  /* LIST BUILDER */
+  .list-builder {
+    border: 2px solid var(--c-border);
+    overflow: hidden;
+    background: var(--c-arena);
+  }
+
+  .list-items {
+    padding: 10px 10px 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 36px;
+  }
+
+  .list-item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--c-blanco);
+    border: 1.5px solid var(--c-border);
+    padding: 8px 10px;
+    animation: slideIn 0.18s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-5px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .list-bullet { width: 8px; height: 8px; flex-shrink: 0; }
+  .list-bullet.include { background: var(--c-deep-moss); }
+  .list-bullet.exclude { background: var(--c-mahogany); }
+
+  .list-item-row span { flex: 1; font-size: 13.5px; color: var(--c-licorice); }
+
+  .btn-icon {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--c-text-muted);
+    transition: all 0.15s;
+    flex-shrink: 0;
+    font-size: 15px;
+  }
+
+  .btn-icon:hover { color: var(--c-mahogany); background: #FEF0F0; }
+
+  .list-add-row {
+    display: flex;
+    border-top: 2px solid var(--c-border);
+  }
+
+  .list-add-row input {
+    border: none;
+    background: var(--c-blanco);
+    flex: 1;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 0;
+  }
+
+  .list-add-row input:focus { box-shadow: none; border: none; background: var(--c-blanco); }
+
+  .btn-add-item {
+    padding: 10px 16px;
+    background: var(--c-licorice);
+    color: var(--c-arena);
+    border: none;
+    border-left: 2px solid var(--c-licorice);
+    cursor: pointer;
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .btn-add-item:hover { background: var(--c-mahogany); }
+
+  .list-error {
+    font-size: 10.5px;
+    color: var(--c-mahogany);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 10px 4px;
+    display: none;
+  }
+
+  .list-error.show { display: block; }
+
+  .list-counter {
+    font-size: 10.5px;
+    color: var(--c-text-muted);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 10px;
+    border-top: 1px solid var(--c-border);
+    background: var(--c-arena-dark);
+  }
+
+  .list-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+  .list-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--c-licorice);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .list-label .dot { width: 9px; height: 9px; flex-shrink: 0; }
+
+  /* QUESTION CARDS */
+  .question-card {
+    border: 2px solid var(--c-border);
+    overflow: hidden;
+    background: var(--c-blanco);
+    margin-bottom: 10px;
+    animation: slideIn 0.2s ease;
+  }
+
+  .question-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--c-arena);
+    border-bottom: 2px solid var(--c-border);
+  }
+
+  .question-num {
+    width: 26px;
+    height: 26px;
+    background: var(--c-licorice);
+    color: var(--c-arena);
+    font-size: 11px;
+    font-weight: 900;
+    font-family: 'Arial Black', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .question-header input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 0;
+    color: var(--c-licorice);
+    font-family: 'Arial', sans-serif;
+    border-radius: 0;
+  }
+
+  .question-header input:focus { box-shadow: none; border: none; background: transparent; }
+  .question-header input::placeholder { color: var(--c-text-muted); font-weight: normal; }
+
+  .question-options {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--c-blanco);
+    flex-wrap: wrap;
+  }
+
+  .q-type-label {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--c-text-muted);
+    flex-shrink: 0;
+  }
+
+  .toggle-group {
+    display: flex;
+    border: 2px solid var(--c-licorice);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .toggle-btn {
+    padding: 6px 14px;
+    font-size: 11px;
+    font-weight: 900;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--c-blanco);
+    color: var(--c-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .toggle-btn:not(:last-child) { border-right: 2px solid var(--c-licorice); }
+  .toggle-btn.active-text { background: var(--c-licorice); color: var(--c-arena); }
+  .toggle-btn.active-bool { background: var(--c-deep-moss); color: var(--c-arena); }
+
+  .required-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--c-text-muted);
+    cursor: pointer;
+    user-select: none;
+    margin-left: auto;
+  }
+
+  .toggle-switch {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--c-border);
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    border: 2px solid var(--c-border);
+  }
+
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: white;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+
+  .toggle-switch.on { background: var(--c-mahogany); border-color: var(--c-mahogany); }
+  .toggle-switch.on::after { transform: translateX(16px); }
+
+  /* BUTTONS */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    background: var(--c-mahogany);
+    color: white;
+    border: 2px solid var(--c-mahogany);
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 50px;
+  }
+
+  .btn-primary:hover { background: var(--c-froly); border-color: var(--c-froly); transform: translateY(-2px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: transparent;
+    color: var(--c-licorice);
+    border: 2px solid var(--c-licorice);
+    font-family: 'Arial', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 50px;
+  }
+
+  .btn-secondary:hover { background: var(--c-licorice); color: var(--c-arena); }
+
+  .btn-add-question {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    border: 2px dashed var(--c-border);
+    background: transparent;
+    font-family: 'Arial', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--c-text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 10px;
+  }
+
+  .btn-add-question:hover { border-color: var(--c-mahogany); color: var(--c-mahogany); background: #FEF5F5; }
+
+  .nav-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--c-arena-dark);
+  }
+
+  .field-error {
+    font-size: 10.5px;
+    color: var(--c-mahogany);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 5px;
+    display: none;
+  }
+
+  .field-error.show { display: block; }
+
+  /* PREVIEW */
+  .preview-title {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--c-licorice);
+    letter-spacing: -1.5px;
+    text-transform: uppercase;
+    line-height: 1.05;
+    margin-bottom: 14px;
+  }
+
+  .preview-meta { display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+
+  .preview-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--c-licorice);
+    color: var(--c-arena);
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 900;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .preview-badge i { font-size: 14px; color: var(--c-froly); }
+
+  .preview-desc {
+    color: #555;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+    padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+    background: var(--c-arena);
+    border-left: 4px solid var(--c-mahogany);
+  }
+
+  .preview-lists { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.75rem; }
+
+  .preview-list-box { padding: 1.25rem; border: 2px solid; }
+  .preview-list-box.include { background: var(--c-success-bg); border-color: #A3C99A; }
+  .preview-list-box.exclude { background: #FEF0F0; border-color: #F5BBBB; }
+
+  .preview-list-title {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .preview-list-box.include .preview-list-title { color: var(--c-deep-moss); }
+  .preview-list-box.exclude .preview-list-title { color: var(--c-rosewood); }
+
+  .preview-list-box li {
+    font-size: 13.5px;
+    color: var(--c-licorice);
+    margin-bottom: 6px;
+    list-style: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .preview-list-box li::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+
+  .preview-list-box.include li::before { background: var(--c-deep-moss); }
+  .preview-list-box.exclude li::before { background: var(--c-mahogany); }
+
+  .preview-questions h3 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    color: var(--c-licorice);
+  }
+
+  .preview-question-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--c-arena);
+    border: 1.5px solid var(--c-border);
+    margin-bottom: 6px;
+    font-size: 13.5px;
+  }
+
+  .q-type {
+    font-size: 10px;
+    padding: 4px 11px;
+    font-weight: 900;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    border-radius: 50px;
+  }
+
+  .q-type.text { background: var(--c-licorice); color: var(--c-arena); }
+  .q-type.bool { background: var(--c-deep-moss); color: var(--c-arena); }
+
+  .q-required-badge {
+    font-size: 10px;
+    padding: 4px 11px;
+    background: var(--c-mahogany);
+    color: white;
+    font-weight: 900;
+    font-family: 'Arial', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    margin-left: auto;
+    border-radius: 50px;
+  }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 5rem 2rem;
+    background: var(--c-blanco);
+    border: 2px solid var(--c-licorice);
+  }
+
+  .success-screen.visible { display: block; }
+
+  .success-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--c-deep-moss);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 36px;
+    color: var(--c-arena);
+  }
+
+  .success-screen h2 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 40px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    color: var(--c-licorice);
+    margin-bottom: 10px;
+  }
+
+  .success-screen p {
+    color: var(--c-text-muted);
+    font-size: 12px;
+    font-weight: 900;
+    max-width: 380px;
+    margin: 0 auto 2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.8;
+  }
+
+  /* EMPTY QUESTIONS */
+  .empty-questions {
+    text-align: center;
+    padding: 2.5rem;
+    border: 2px dashed var(--c-border);
+    margin-bottom: 10px;
+    color: var(--c-text-muted);
+    background: var(--c-arena);
+  }
+
+  .empty-questions i { font-size: 36px; display: block; margin-bottom: 10px; opacity: 0.4; }
+
+  .empty-questions p {
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 0 24px; }
+    .page-header h1 { font-size: 36px; letter-spacing: -1.5px; }
+    .field-row, .list-grid, .preview-lists { grid-template-columns: 1fr; }
+    .section { padding: 1.5rem; }
+    .steps-bar { display: none; }
+    .question-options { gap: 8px; }
+    .required-toggle { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">rukano</a>
+  <span class="nav-pill">Portal Técnico</span>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>Publica tu servicio</h1>
+    <p>Completa la información para que los clientes te encuentren y contraten</p>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-item active" id="step-1-btn" onclick="goStep(1)">
+      <div class="step-num">1</div> Info básica
+    </div>
+    <div class="step-item" id="step-2-btn" onclick="goStep(2)">
+      <div class="step-num">2</div> Alcance
+    </div>
+    <div class="step-item" id="step-3-btn" onclick="goStep(3)">
+      <div class="step-num">3</div> Preguntas
+    </div>
+    <div class="step-item" id="step-4-btn" onclick="goStep(4)">
+      <div class="step-num">4</div> Publicar
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="section visible" id="section-1">
+    <div class="section-header">
+      <div class="section-icon"><i class="ti ti-file-description"></i></div>
+      <div>
+        <h2>Información básica</h2>
+        <p>Nombre, descripción, precio y duración de tu servicio</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Título del servicio <span class="req">*</span></label>
+      <input type="text" id="titulo" placeholder="Ej: Instalación de grifería y llaves de paso" maxlength="80">
+      <div class="char-count"><span id="titulo-count">0</span> / 80</div>
+      <div class="field-error" id="err-titulo">El título es obligatorio.</div>
+    </div>
+
+    <div class="field">
+      <label>Descripción <span class="req">*</span> <span class="hint">Mín. 30 caracteres</span></label>
+      <textarea id="descripcion" placeholder="Describe qué realizas: materiales que usas, procedimientos, experiencia, garantía, etc." maxlength="800" rows="5"></textarea>
+      <div class="char-count"><span id="desc-count">0</span> / 800</div>
+      <div class="field-error" id="err-descripcion">La descripción debe tener al menos 30 caracteres.</div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Precio del servicio <span class="req">*</span></label>
+        <div class="input-prefix">
+          <span class="prefix-sym">$</span>
+          <input type="number" id="precio" placeholder="0" min="0">
+        </div>
+        <div class="field-error" id="err-precio">Ingresa un precio válido mayor a 0.</div>
+      </div>
+      <div class="field">
+        <label>Duración aprox. <span class="req">*</span> <span class="hint">en horas</span></label>
+        <div class="input-prefix">
+          <span class="prefix-sym"><i class="ti ti-clock" style="font-size:13px;vertical-align:-1px"></i></span>
+          <input type="number" id="duracion" placeholder="0" min="0.5" step="0.5">
+        </div>
+        <div class="field-error" id="err-duracion">Ingresa una duración válida.</div>
+      </div>
+    </div>
+
+    <div class="nav-buttons" style="justify-content:flex-end">
+      <button class="btn-primary" onclick="nextStep(1)">Siguiente <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="section" id="section-2">
+    <div class="section-header">
+      <div class="section-icon"><i class="ti ti-list-check"></i></div>
+      <div>
+        <h2>Alcance del servicio</h2>
+        <p>Define qué incluye y qué NO incluye — mínimo 3 ítems en cada lista</p>
+      </div>
+    </div>
+
+    <div class="list-grid">
+      <div>
+        <div class="list-label">
+          <div class="dot" style="background:var(--c-deep-moss)"></div>
+          Qué incluye <span class="req" style="color:var(--c-mahogany);margin-left:2px">*</span>
+        </div>
+        <div class="list-builder">
+          <div class="list-items" id="include-items"></div>
+          <div class="list-error" id="err-include">Se requieren al menos 3 ítems.</div>
+          <div class="list-counter"><span id="include-count">0</span> ítem(s) — mínimo 3</div>
+          <div class="list-add-row">
+            <input type="text" id="include-input" placeholder="Agregar ítem..." maxlength="100" onkeydown="handleListKey(event,'include')">
+            <button class="btn-add-item" onclick="addItem('include')"><i class="ti ti-plus"></i> Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="list-label">
+          <div class="dot" style="background:var(--c-mahogany)"></div>
+          Qué NO incluye <span class="req" style="color:var(--c-mahogany);margin-left:2px">*</span>
+        </div>
+        <div class="list-builder">
+          <div class="list-items" id="exclude-items"></div>
+          <div class="list-error" id="err-exclude">Se requieren al menos 3 ítems.</div>
+          <div class="list-counter"><span id="exclude-count">0</span> ítem(s) — mínimo 3</div>
+          <div class="list-add-row">
+            <input type="text" id="exclude-input" placeholder="Agregar ítem..." maxlength="100" onkeydown="handleListKey(event,'exclude')">
+            <button class="btn-add-item" onclick="addItem('exclude')"><i class="ti ti-plus"></i> Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-secondary" onclick="prevStep(2)"><i class="ti ti-arrow-left"></i> Anterior</button>
+      <button class="btn-primary" onclick="nextStep(2)">Siguiente <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="section" id="section-3">
+    <div class="section-header">
+      <div class="section-icon"><i class="ti ti-message-question"></i></div>
+      <div>
+        <h2>Formulario al cliente</h2>
+        <p>Preguntas que el cliente responderá al contratar — puedes dejarlo vacío</p>
+      </div>
+    </div>
+
+    <div id="questions-container"></div>
+
+    <button class="btn-add-question" onclick="addQuestion()">
+      <i class="ti ti-plus"></i> Agregar pregunta
+    </button>
+
+    <div class="nav-buttons">
+      <button class="btn-secondary" onclick="prevStep(3)"><i class="ti ti-arrow-left"></i> Anterior</button>
+      <button class="btn-primary" onclick="nextStep(3)">Revisar publicación <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="section" id="section-4">
+    <div class="section-header">
+      <div class="section-icon"><i class="ti ti-eye"></i></div>
+      <div>
+        <h2>Revisar y publicar</h2>
+        <p>Así verán tu servicio los clientes en Rukano — revisa antes de publicar</p>
+      </div>
+    </div>
+
+    <div id="preview-content"></div>
+
+    <div class="nav-buttons">
+      <button class="btn-secondary" onclick="prevStep(4)"><i class="ti ti-arrow-left"></i> Editar</button>
+      <button class="btn-primary" onclick="publishService()" style="font-size:13px;padding:15px 36px;">
+        <i class="ti ti-rocket"></i> Publicar servicio
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon"><i class="ti ti-circle-check"></i></div>
+    <h2>¡Publicado!</h2>
+    <p>Tu servicio ya está visible en Rukano. Te avisaremos cuando un cliente quiera contratarte.</p>
+    <button class="btn-primary" onclick="resetForm()" style="margin:0 auto;">
+      <i class="ti ti-plus"></i> Publicar otro servicio
+    </button>
+  </div>
+
+</div>
+
+<script>
+let currentStep = 1;
+const includeItems = [];
+const excludeItems = [];
+const questions = [];
+let questionCounter = 0;
+
+document.getElementById('titulo').addEventListener('input', function() {
+  document.getElementById('titulo-count').textContent = this.value.length;
+});
+document.getElementById('descripcion').addEventListener('input', function() {
+  document.getElementById('desc-count').textContent = this.value.length;
+});
+
+function goStep(n) {
+  if (n >= currentStep) return;
+  showStep(n);
+}
+
+function nextStep(from) {
+  if (!validateStep(from)) return;
+  showStep(from + 1);
+}
+
+function prevStep(from) {
+  showStep(from - 1);
+}
+
+function showStep(n) {
+  currentStep = n;
+  for (let i = 1; i <= 4; i++) {
+    const sec = document.getElementById('section-' + i);
+    if (sec) sec.classList.toggle('visible', i === n);
+    const btn = document.getElementById('step-' + i + '-btn');
+    if (btn) {
+      btn.classList.remove('active', 'done');
+      if (i === n) btn.classList.add('active');
+      else if (i < n) btn.classList.add('done');
+    }
+  }
+  if (n === 4) buildPreview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validateStep(step) {
+  let ok = true;
+  if (step === 1) {
+    const titulo = document.getElementById('titulo').value.trim();
+    const desc = document.getElementById('descripcion').value.trim();
+    const precio = parseFloat(document.getElementById('precio').value);
+    const duracion = parseFloat(document.getElementById('duracion').value);
+    setErr('titulo', !titulo);
+    setErr('descripcion', desc.length < 30);
+    setErr('precio', !precio || precio <= 0);
+    setErr('duracion', !duracion || duracion <= 0);
+    if (!titulo || desc.length < 30 || !precio || precio <= 0 || !duracion || duracion <= 0) ok = false;
+  }
+  if (step === 2) {
+    const incOk = includeItems.length >= 3;
+    const exOk = excludeItems.length >= 3;
+    document.getElementById('err-include').classList.toggle('show', !incOk);
+    document.getElementById('err-exclude').classList.toggle('show', !exOk);
+    if (!incOk || !exOk) ok = false;
+  }
+  return ok;
+}
+
+function setErr(id, show) {
+  const el = document.getElementById('err-' + id);
+  const inp = document.getElementById(id);
+  if (el) el.classList.toggle('show', show);
+  if (inp) inp.classList.toggle('error', show);
+}
+
+function addItem(type) {
+  const input = document.getElementById(type + '-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const arr = type === 'include' ? includeItems : excludeItems;
+  arr.push(val);
+  renderItems(type);
+  input.value = '';
+  input.focus();
+  if (arr.length >= 3) document.getElementById('err-' + type).classList.remove('show');
+}
+
+function handleListKey(e, type) {
+  if (e.key === 'Enter') { e.preventDefault(); addItem(type); }
+}
+
+function removeItem(type, idx) {
+  const arr = type === 'include' ? includeItems : excludeItems;
+  arr.splice(idx, 1);
+  renderItems(type);
+}
+
+function renderItems(type) {
+  const arr = type === 'include' ? includeItems : excludeItems;
+  const container = document.getElementById(type + '-items');
+  document.getElementById(type + '-count').textContent = arr.length;
+  container.innerHTML = arr.map((item, i) => `
+    <div class="list-item-row">
+      <div class="list-bullet ${type}"></div>
+      <span>${escHtml(item)}</span>
+      <button class="btn-icon" onclick="removeItem('${type}',${i})" title="Eliminar">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+function addQuestion() {
+  questionCounter++;
+  const id = questionCounter;
+  questions.push({ id, text: '', type: 'text', required: false });
+  renderQuestions();
+  setTimeout(() => { const inp = document.getElementById('q-text-' + id); if (inp) inp.focus(); }, 50);
+}
+
+function removeQuestion(id) {
+  const idx = questions.findIndex(q => q.id === id);
+  if (idx !== -1) questions.splice(idx, 1);
+  renderQuestions();
+}
+
+function setQType(id, type) {
+  const q = questions.find(q => q.id === id);
+  if (q) { q.type = type; renderQuestions(); }
+}
+
+function toggleRequired(id) {
+  const q = questions.find(q => q.id === id);
+  if (q) { q.required = !q.required; renderQuestions(); }
+}
+
+function updateQText(id, val) {
+  const q = questions.find(q => q.id === id);
+  if (q) q.text = val;
+}
+
+function renderQuestions() {
+  const c = document.getElementById('questions-container');
+  if (questions.length === 0) {
+    c.innerHTML = `<div class="empty-questions">
+      <i class="ti ti-message-off"></i>
+      <p>Sin preguntas — el formulario estará vacío para el cliente</p>
+    </div>`;
+    return;
+  }
+  c.innerHTML = questions.map((q, idx) => `
+    <div class="question-card" id="qcard-${q.id}">
+      <div class="question-header">
+        <div class="question-num">${idx + 1}</div>
+        <input type="text" id="q-text-${q.id}" value="${escHtml(q.text)}"
+          placeholder="Escribe la pregunta aquí..."
+          oninput="updateQText(${q.id}, this.value)">
+        <button class="btn-icon" onclick="removeQuestion(${q.id})" title="Eliminar">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
+      <div class="question-options">
+        <span class="q-type-label">Tipo:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn ${q.type === 'text' ? 'active-text' : ''}" onclick="setQType(${q.id},'text')">
+            <i class="ti ti-text-size" style="font-size:13px"></i> Texto
+          </button>
+          <button class="toggle-btn ${q.type === 'bool' ? 'active-bool' : ''}" onclick="setQType(${q.id},'bool')">
+            <i class="ti ti-toggle-right" style="font-size:13px"></i> Sí / No
+          </button>
+        </div>
+        <label class="required-toggle" onclick="toggleRequired(${q.id})">
+          <div class="toggle-switch ${q.required ? 'on' : ''}"></div>
+          Obligatoria
+        </label>
+      </div>
+    </div>
+  `).join('');
+}
+
+function buildPreview() {
+  const titulo = document.getElementById('titulo').value.trim();
+  const desc = document.getElementById('descripcion').value.trim();
+  const precio = parseFloat(document.getElementById('precio').value);
+  const duracion = parseFloat(document.getElementById('duracion').value);
+
+  const incHtml = includeItems.map(i => `<li>${escHtml(i)}</li>`).join('');
+  const exHtml = excludeItems.map(i => `<li>${escHtml(i)}</li>`).join('');
+
+  const qHtml = questions.length === 0
+    ? `<p style="font-size:12px;color:var(--c-text-muted);font-weight:900;text-transform:uppercase;letter-spacing:0.5px">Sin preguntas adicionales.</p>`
+    : questions.map((q, idx) => `
+      <div class="preview-question-item">
+        <span style="color:var(--c-text-muted);font-size:11px;font-weight:900;font-family:'Arial Black',sans-serif;min-width:20px;">${idx + 1}.</span>
+        <span style="flex:1;font-size:14px">${escHtml(q.text) || '<em style="color:var(--c-text-muted)">Sin texto</em>'}</span>
+        <span class="q-type ${q.type}">${q.type === 'text' ? 'Texto' : 'Sí / No'}</span>
+        ${q.required ? '<span class="q-required-badge">Obligatoria</span>' : ''}
+      </div>
+    `).join('');
+
+  document.getElementById('preview-content').innerHTML = `
+    <div class="preview-title">${escHtml(titulo)}</div>
+    <div class="preview-meta">
+      <div class="preview-badge"><i class="ti ti-coin"></i> $${precio.toLocaleString('es-CL')}</div>
+      <div class="preview-badge"><i class="ti ti-clock"></i> ${duracion} hora${duracion !== 1 ? 's' : ''} aprox.</div>
+    </div>
+    <div class="preview-desc">${escHtml(desc)}</div>
+    <div class="preview-lists">
+      <div class="preview-list-box include">
+        <div class="preview-list-title">✓ Incluye</div>
+        <ul>${incHtml}</ul>
+      </div>
+      <div class="preview-list-box exclude">
+        <div class="preview-list-title">✗ No incluye</div>
+        <ul>${exHtml}</ul>
+      </div>
+    </div>
+    ${questions.length > 0 ? `<div class="preview-questions"><h3>Preguntas al contratar</h3>${qHtml}</div>` : ''}
+  `;
+}
+
+function publishService() {
+  document.getElementById('section-4').classList.remove('visible');
+  document.getElementById('success-screen').classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  ['titulo','descripcion','precio','duracion'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('titulo-count').textContent = '0';
+  document.getElementById('desc-count').textContent = '0';
+  includeItems.length = 0; excludeItems.length = 0; questions.length = 0; questionCounter = 0;
+  renderItems('include'); renderItems('exclude'); renderQuestions();
+  document.getElementById('success-screen').classList.remove('visible');
+  showStep(1);
+  document.getElementById('section-1').classList.add('visible');
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+renderItems('include'); renderItems('exclude'); renderQuestions();
+</script>
+</body>
+</html>
