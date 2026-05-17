@@ -43,7 +43,7 @@ async def registrar_cliente(datos: RegistroCliente):
             datos.id = str(uuid4())
         
         # Convertimos el schema a diccionario y añadimos metadata del sistema
-        user_data = datos.dict()
+        user_data = datos.model_dump()
         user_data.update({
             "rol": "cliente",
             "createdAt": datetime.now(timezone.utc)
@@ -63,7 +63,7 @@ async def registrar_tecnico(datos: UsuarioTecnico):
             datos.id = str(uuid4())
         
         # Convertimos el schema a diccionario y añadimos metadata del sistema
-        user_data = datos.dict()
+        user_data = datos.model_dump()
         user_data.update({
             "rol": "técnico",
             "createdAt": datetime.now(timezone.utc)
@@ -181,7 +181,7 @@ async def obtener_schemas():
     Esto permite ver cómo se estructuran los datos sin modificar otros endpoints.
     """
     return {
-        "UsuarioBase": UsuarioBase.schema(),
-        "RegistroCliente": RegistroCliente.schema(),
-        "UsuarioTecnico": UsuarioTecnico.schema()
+        "UsuarioBase": UsuarioBase.model_json_schema(),
+        "RegistroCliente": RegistroCliente.model_json_schema(),
+        "UsuarioTecnico": UsuarioTecnico.model_json_schema()
     }

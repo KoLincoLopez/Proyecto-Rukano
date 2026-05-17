@@ -66,7 +66,7 @@ async def crear_servicio(datos: Servicio):
             "keyWords": palabras_clave,
             "que_incluye": datos.que_incluye,
             "que_no_incluye": datos.que_no_incluye,
-            "esquema_formulario": [p.dict() for p in datos.esquema_formulario], 
+            "esquema_formulario": [p.model_dump() for p in datos.esquema_formulario],
             "estado": "activo",
             "createdAt": ahora
         }
