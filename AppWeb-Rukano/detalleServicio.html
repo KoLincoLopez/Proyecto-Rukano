@@ -604,6 +604,13 @@
 
   let reportImageData = '';
 
+  // MOCK: reseñas de prueba para visualización
+  const MOCK_REPORT_REVIEWS = [
+    { user: 'Camila P.', avatar: '', body: 'Reporté este servicio porque el profesional nunca llegó y dejaron el trabajo a medias.' },
+    { user: 'Andrés L.', avatar: '', body: 'Precio muy por encima del mercado para un trabajo tan simple. Cuidado.' },
+    { user: 'Lucía R.', avatar: '', body: 'Atención rápida, pero falló en la limpieza final. No recomiendo totalmente.' }
+  ];
+
   function openReportModal() {
     document.getElementById('report-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -617,6 +624,8 @@
     document.getElementById('report-form-content').classList.remove('hidden');
     document.getElementById('report-success').classList.remove('show');
     reportImageData = '';
+    // Render mock reviews for visual testing
+    renderReportReviews(MOCK_REPORT_REVIEWS);
   }
 
   function closeReportModal() {
