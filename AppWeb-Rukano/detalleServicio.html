@@ -192,7 +192,7 @@
           <i class="ti ti-calendar-check icon-md"></i>
           Contratar servicio
         </button>
-        <button class="btn-report" onclick="openReportModal()">
+        <button class="btn-report" onclick="openReportModal()" disabled aria-disabled="true">
           <i class="ti ti-alert-circle icon-md"></i>
           Reportar servicio
         </button>
@@ -709,6 +709,8 @@
   }
 
   initSchedule();
+  // Ensure UI reflects login state on first load
+  applyLoginState();
 </script>
 </body>
 </html>
