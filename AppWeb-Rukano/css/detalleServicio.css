@@ -1039,6 +1039,7 @@
 
   .modal-success.show { display: block; }
   .modal-form-content.hidden { display: none; }
+  .hidden { display: none !important; }
 
   .ms-icon {
     width: 70px;
@@ -1096,3 +1097,113 @@
 .terms-note { padding: 14px 4px 0; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: var(--c-text-muted); line-height: 1.8; text-align: center; }
 .terms-note a.terms-link { color: var(--c-mahogany); text-decoration: none; }
 .btn-center { max-width: 260px; margin: 0 auto; }
+
+.btn-report {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 12px;
+  border-radius: 50px;
+  background: rgba(191, 53, 59, 0.08);
+  border: 2px solid rgba(191, 53, 59, 0.22);
+  color: var(--c-mahogany);
+  font-family: 'Arial', sans-serif;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s, border-color 0.2s;
+}
+
+/* Report reviews preview (public, small) */
+.review-preview-more { font-size: 12px; color: var(--c-text-muted); margin-top: 6px; font-weight: 900; }
+
+/* Large technician reviews */
+.reviews-large { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+.review-card { display: flex; gap: 14px; background: var(--c-blanco); border: 1px solid var(--c-border); padding: 14px; border-radius: 10px; }
+.review-card-left { flex: 0 0 72px; }
+.review-card-avatar { width: 72px; height: 72px; border-radius: 10px; background: var(--c-licorice); color: var(--c-arena); display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px; overflow:hidden; }
+.review-card-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.review-card-right { flex: 1; display:flex; flex-direction:column; }
+.review-card-header { display:flex;align-items:center;gap:12px; justify-content:space-between; }
+.review-card-user { font-weight:900; color:var(--c-licorice); font-size:15px; }
+.review-card-title { font-weight:700; color:var(--c-mahogany); font-size:14px; }
+.review-card-stars { display:flex; align-items:center; gap:6px; margin-top:8px; }
+.review-card-stars .star { font-size:16px; color: rgba(0,0,0,0.12); }
+.review-card-stars .star.filled { color: #F5C842; }
+.review-card-rating-num { font-weight:900; margin-left:8px; color:var(--c-text-muted); font-size:13px; }
+.review-card-body { margin-top:10px; color:#333; line-height:1.6; font-size:14px; }
+
+.btn-report:hover {
+  background: rgba(191, 53, 59, 0.14);
+  transform: translateY(-1px);
+}
+
+.btn-report:active {
+  transform: translateY(0);
+}
+
+.report-warning {
+  display: none;
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--c-mahogany);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.report-warning.visible {
+  display: block;
+}
+
+.char-count {
+  margin-top: 6px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+.report-preview {
+  margin-top: 10px;
+}
+
+.report-preview img {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+}
+
+.report-overlay .modal {
+  max-width: 520px;
+}
+
+.report-success .ms-icon {
+  background: var(--c-mahogany);
+}
+
+/* Disabled appearance for report button */
+.btn-report[disabled], .btn-report.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  background: rgba(191,53,59,0.05);
+  border-color: rgba(191,53,59,0.12);
+  pointer-events: none;
+}
+
+/* Report reviews */
+.report-reviews { margin-top: 18px; border-top: 1px solid var(--c-arena-dark); padding-top: 12px; }
+.reviews-title { font-family: 'Arial Black', sans-serif; font-size: 12px; font-weight: 900; color: var(--c-licorice); margin-bottom: 8px; }
+.reviews-list { display: flex; flex-direction: column; gap: 10px; }
+.review-item { display: flex; gap: 10px; align-items: flex-start; background: var(--c-arena); border: 1px solid var(--c-border); padding: 10px; border-radius: 10px; }
+.review-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--c-mahogany); color: var(--c-arena); display:flex;align-items:center;justify-content:center;font-weight:900; flex-shrink:0; }
+.review-content { flex:1; }
+.review-user { font-size: 12px; font-weight: 900; color: var(--c-licorice); margin-bottom: 4px; }
+.review-body { font-size: 13px; color: #333; line-height:1.4; }
+.reviews-empty { font-size: 12px; color: var(--c-text-muted); }

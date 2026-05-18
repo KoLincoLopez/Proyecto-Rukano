@@ -12,10 +12,10 @@
 
 <!-- NAV -->
 <nav>
-  <a class="logo" href="#">rukano</a>
+  <a class="logo" href="index.html">rukano</a>
   <div class="nav-right">
     <a href="#" class="nav-link">Explorar</a>
-    <a href="#" class="nav-link">Cómo funciona</a>
+    <a href="index.html#como-funciona" class="nav-link">Cómo funciona</a>
     <a href="#" class="btn-nav-sesion">Iniciar sesión</a>
     <div class="user-chip">
       <div class="user-avatar-sm">M</div>
@@ -137,6 +137,14 @@
       </div>
     </div>
 
+    <!-- RESEÑAS DEL TÉCNICO -->
+    <div class="block" id="tech-reviews-block">
+      <div class="block-label">Reseñas</div>
+      <div class="reviews-large" id="tech-reviews-list">
+        <!-- Reseñas se renderizan aquí -->
+      </div>
+    </div>
+
   </div>
 
   <!-- RIGHT SIDE CARD -->
@@ -192,6 +200,12 @@
           <i class="ti ti-calendar-check icon-md"></i>
           Contratar servicio
         </button>
+        <button class="btn-report" onclick="openReportModal()" disabled aria-disabled="true">
+          <i class="ti ti-alert-circle icon-md"></i>
+          Reportar servicio
+        </button>
+
+        
 
       </div>
     </div>
@@ -302,6 +316,65 @@
   </div>
 </div>
 
+<!-- REPORT MODAL -->
+<div class="modal-overlay report-overlay" id="report-overlay" onclick="closeReportModalOutside(event)">
+  <div class="modal" id="report-modal">
+    <div class="modal-header">
+      <h2>Reportar servicio</h2>
+      <button class="modal-close" onclick="closeReportModal()"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div class="modal-form-content" id="report-form-content">
+      <div class="modal-body">
+        <div class="modal-service-info">
+          <div class="msvc-title">Reporta este servicio</div>
+          <div class="msvc-price">Selecciona motivo, detalle y adjunta una imagen si quieres</div>
+        </div>
+
+        <div class="form-question">
+          <div class="fq-label">Motivo del reporte<span class="fq-req">Obligatorio</span></div>
+          <select class="fq-input" id="report-motivo">
+            <option value="">Selecciona un motivo</option>
+            <option value="Servicio fraudulento">Servicio fraudulento</option>
+            <option value="Estafa">Estafa</option>
+            <option value="Precio Exagerado">Precio Exagerado</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+
+        <div class="form-question">
+          <div class="fq-label">Detalles del reporte<span class="fq-req">30-300 caracteres</span></div>
+          <textarea class="fq-input" id="report-cuerpo" placeholder="Describe qué sucedió y por qué estás reportando este servicio..." rows="4" maxlength="300" oninput="updateReportCharCount()"></textarea>
+          <div class="char-count" id="report-char-count">0 / 300</div>
+        </div>
+
+        <div class="form-question">
+          <div class="fq-label">Imagen (opcional)</div>
+          <input type="file" id="report-imagen" accept="image/*" onchange="handleReportImage(event)" class="fq-input">
+          <div class="report-preview hidden" id="report-image-preview"></div>
+        </div>
+
+        <input type="hidden" id="report-service-id" value="f1d0abce-82cf-4943-85c7-c67eae9a57c0">
+        <div class="report-warning" id="report-warning">Completa todos los campos obligatorios antes de enviar.</div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="closeReportModal()">Cancelar</button>
+        <button class="btn-enviar" onclick="submitReport()">
+          <i class="ti ti-send icon-btn"></i> Enviar reporte
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-success report-success" id="report-success">
+      <div class="ms-icon"><i class="ti ti-circle-check"></i></div>
+      <div class="ms-title">Reporte enviado</div>
+      <div class="ms-desc">Gracias, recibimos tu reporte y lo revisaremos lo antes posible.</div>
+      <button class="btn-contratar btn-center" onclick="closeReportModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- DEMO BAR -->
 <div class="demo-bar">
   <div class="demo-label">Demo — Estado de sesión</div>
@@ -311,220 +384,6 @@
   </div>
 </div>
 
-<script>
-  // ─── SESSION SIMULATION ───
-  let isLoggedIn = false;
-
-  function toggleLogin() {
-    isLoggedIn = !isLoggedIn;
-    applyLoginState();
-  }
-
-  function simulateLogin(e) {
-    e.preventDefault();
-    isLoggedIn = true;
-    applyLoginState();
-  }
-
-  function applyLoginState() {
-    document.body.classList.toggle('logged-in', isLoggedIn);
-    document.getElementById('demo-track').classList.toggle('on', isLoggedIn);
-    document.getElementById('demo-label').textContent = isLoggedIn ? 'Con sesión' : 'Sin sesión';
-  }
-
-  // ─── MODAL ───
-  function closeModal() {
-    document.getElementById('modal-overlay').classList.remove('open');
-    document.body.style.overflow = '';
-    // reset after close
-    setTimeout(() => {
-      document.getElementById('modal-form-content').classList.remove('hidden');
-      document.getElementById('modal-success').classList.remove('show');
-    }, 300);
-  }
-
-  function closeModalOutside(e) {
-    if (e.target === document.getElementById('modal-overlay')) closeModal();
-  }
-
-  // ─── BOOL BUTTONS ───
-  function selectBool(qId, val, btn) {
-    const group = btn.parentElement;
-    group.querySelectorAll('.fq-bool-btn').forEach(b => {
-      b.classList.remove('selected-yes', 'selected-no');
-    });
-    document.getElementById(qId).value = val;
-    btn.classList.add(val === 'si' ? 'selected-yes' : 'selected-no');
-  }
-
-  // ─── SCHEDULE CALENDAR ───
-  const availableTimes = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-  const occupiedScheduleOffsets = [
-    { offset: 1, busy: ['09:00', '10:00', '14:00'] },
-    { offset: 3, busy: ['08:00', '12:00', '15:00', '16:00'] },
-    { offset: 5, busy: ['11:00', '13:00', '17:00'] }
-  ];
-
-  let scheduleDays = [];
-
-  function formatDate(date) {
-    return date.toLocaleDateString('es-CL', { weekday: 'short', day: '2-digit', month: 'short' });
-  }
-
-  function toISODate(date) {
-    return date.toISOString().split('T')[0];
-  }
-
-  function initSchedule() {
-    const today = new Date();
-    scheduleDays = [];
-    for (let i = 0; i < 14; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      const iso = toISODate(d);
-      const config = occupiedScheduleOffsets.find(item => item.offset === i);
-      const busy = config ? config.busy : [];
-      scheduleDays.push({ date: d, iso, busy, fullBusy: busy.length >= availableTimes.length });
-    }
-    renderCalendar();
-    renderTimeSlots();
-  }
-
-  function renderCalendar() {
-    const calendar = document.getElementById('schedule-calendar');
-    calendar.innerHTML = '';
-    scheduleDays.forEach(day => {
-      const dayBtn = document.createElement('button');
-      dayBtn.type = 'button';
-      dayBtn.className = 'calendar-day';
-      dayBtn.textContent = `${formatDate(day.date)}`;
-      dayBtn.dataset.iso = day.iso;
-      if (day.fullBusy) {
-        dayBtn.classList.add('full-busy');
-        dayBtn.disabled = true;
-      } else if (day.busy.length) {
-        dayBtn.classList.add('busy');
-      }
-      dayBtn.addEventListener('click', () => selectScheduleDate(day.iso));
-      calendar.appendChild(dayBtn);
-    });
-  }
-
-  function selectScheduleDate(dateIso) {
-    const selected = scheduleDays.find(day => day.iso === dateIso);
-    if (!selected || selected.fullBusy) return;
-
-    document.getElementById('selectedDate').value = dateIso;
-    document.getElementById('selected-date-label').textContent = selected.date.toLocaleDateString('es-CL', { weekday: 'long', day: '2-digit', month: 'long' });
-    document.getElementById('schedule-warning').classList.remove('visible');
-    document.getElementById('selectedTime').value = '';
-    clearSelectedTime();
-    renderTimeSlots(selected);
-    highlightSelectedDay(dateIso);
-  }
-
-  function highlightSelectedDay(dateIso) {
-    document.querySelectorAll('.calendar-day').forEach(btn => {
-      btn.classList.toggle('selected', btn.dataset.iso === dateIso);
-    });
-  }
-
-  function clearSelectedTime() {
-    document.querySelectorAll('.timeslot-btn').forEach(btn => btn.classList.remove('selected'));
-  }
-
-  function renderTimeSlots(selectedDay = null) {
-    const grid = document.getElementById('timeslot-grid');
-    grid.innerHTML = '';
-    const dateKey = selectedDay ? selectedDay.iso : null;
-    const busyTimes = selectedDay ? selectedDay.busy : [];
-
-    availableTimes.forEach(time => {
-      const timeBtn = document.createElement('button');
-      timeBtn.type = 'button';
-      timeBtn.className = 'timeslot-btn';
-      timeBtn.textContent = time;
-      if (!dateKey) {
-        timeBtn.disabled = true;
-        timeBtn.style.cursor = 'not-allowed';
-        timeBtn.style.opacity = '0.4';
-      } else if (busyTimes.includes(time)) {
-        timeBtn.classList.add('busy');
-        timeBtn.disabled = true;
-      } else {
-        timeBtn.addEventListener('click', () => {
-          document.getElementById('selectedTime').value = time;
-          clearSelectedTime();
-          timeBtn.classList.add('selected');
-          document.getElementById('schedule-warning').classList.remove('visible');
-        });
-      }
-      grid.appendChild(timeBtn);
-    });
-  }
-
-  function validateSchedule() {
-    const selectedDate = document.getElementById('selectedDate').value;
-    const selectedTime = document.getElementById('selectedTime').value;
-    if (!selectedDate || !selectedTime) {
-      document.getElementById('schedule-warning').classList.add('visible');
-      return false;
-    }
-    return true;
-  }
-
-  function resetSchedule() {
-    document.getElementById('selectedDate').value = '';
-    document.getElementById('selectedTime').value = '';
-    document.getElementById('selected-date-label').textContent = 'Ninguna';
-    document.getElementById('schedule-warning').classList.remove('visible');
-    renderCalendar();
-    renderTimeSlots();
-  }
-
-  function openModal() {
-    resetSchedule();
-    document.getElementById('modal-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  // ─── SUBMIT ───
-  function submitForm() {
-    if (!validateSchedule()) return;
-
-    // Validate required fields
-    const q1 = document.getElementById('q1').value.trim();
-    const q2 = document.getElementById('q2').value;
-
-    let ok = true;
-
-    if (!q1) {
-      document.getElementById('q1').style.borderColor = 'var(--c-mahogany)';
-      ok = false;
-    } else {
-      document.getElementById('q1').style.borderColor = '';
-    }
-
-    if (!q2) {
-      document.getElementById('q2-bool').style.outline = '2px solid var(--c-mahogany)';
-      ok = false;
-    } else {
-      document.getElementById('q2-bool').style.outline = '';
-    }
-
-    if (!ok) return;
-
-    // Show success
-    const selectedDate = document.getElementById('selectedDate').value;
-    const selectedTime = document.getElementById('selectedTime').value;
-    const successDesc = document.querySelector('.ms-desc');
-    successDesc.textContent = `Solicitud enviada para el ${new Date(selectedDate).toLocaleDateString('es-CL', { weekday: 'long', day: '2-digit', month: 'long' })} a las ${selectedTime}. Juan Rojas se pondrá en contacto.`;
-
-    document.getElementById('modal-form-content').classList.add('hidden');
-    document.getElementById('modal-success').classList.add('show');
-  }
-
-  initSchedule();
-</script>
+<script src="js/detalleServicio.js"></script>
 </body>
 </html>
