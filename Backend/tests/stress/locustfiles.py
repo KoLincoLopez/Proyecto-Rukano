@@ -158,7 +158,7 @@ class RukanoStressTest(HttpUser):
             log_response(response)
 
     @task(1)
-    def reportar_servicio(self):
+    def reportar_servicio_cita(self):
         payload = {
             "idCita": KNOWN_CITA_ID or (self.cita_ids[-1] if self.cita_ids else "cita-no-existente"),
             "idServicio": KNOWN_SERVICE_ID or (self.service_ids[-1] if self.service_ids else "servicio-no-existente"),
@@ -167,7 +167,7 @@ class RukanoStressTest(HttpUser):
             "imagen": "https://example.com/foto.jpg",
             "solicitaReembolso": random.choice([True, False])
         }
-        with self.client.post("/reports/reportar_servicio", json=payload, catch_response=True) as response:
+        with self.client.post("/reports/reportar_servicio_cita", json=payload, catch_response=True) as response:
             if response.status_code == 200:
                 data = response.json()
                 reporte_id = data.get("idReporte")

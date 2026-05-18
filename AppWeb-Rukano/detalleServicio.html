@@ -12,10 +12,10 @@
 
 <!-- NAV -->
 <nav>
-  <a class="logo" href="#">rukano</a>
+  <a class="logo" href="index.html">rukano</a>
   <div class="nav-right">
     <a href="#" class="nav-link">Explorar</a>
-    <a href="#" class="nav-link">Cómo funciona</a>
+    <a href="index.html#como-funciona" class="nav-link">Cómo funciona</a>
     <a href="#" class="btn-nav-sesion">Iniciar sesión</a>
     <div class="user-chip">
       <div class="user-avatar-sm">M</div>
@@ -192,6 +192,10 @@
           <i class="ti ti-calendar-check icon-md"></i>
           Contratar servicio
         </button>
+        <button class="btn-report" onclick="openReportModal()">
+          <i class="ti ti-alert-circle icon-md"></i>
+          Reportar servicio
+        </button>
 
       </div>
     </div>
@@ -302,6 +306,65 @@
   </div>
 </div>
 
+<!-- REPORT MODAL -->
+<div class="modal-overlay report-overlay" id="report-overlay" onclick="closeReportModalOutside(event)">
+  <div class="modal" id="report-modal">
+    <div class="modal-header">
+      <h2>Reportar servicio</h2>
+      <button class="modal-close" onclick="closeReportModal()"><i class="ti ti-x"></i></button>
+    </div>
+
+    <div class="modal-form-content" id="report-form-content">
+      <div class="modal-body">
+        <div class="modal-service-info">
+          <div class="msvc-title">Reporta este servicio</div>
+          <div class="msvc-price">Selecciona motivo, detalle y adjunta una imagen si quieres</div>
+        </div>
+
+        <div class="form-question">
+          <div class="fq-label">Motivo del reporte<span class="fq-req">Obligatorio</span></div>
+          <select class="fq-input" id="report-motivo">
+            <option value="">Selecciona un motivo</option>
+            <option value="Servicio fraudulento">Servicio fraudulento</option>
+            <option value="Estafa">Estafa</option>
+            <option value="Precio Exagerado">Precio Exagerado</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+
+        <div class="form-question">
+          <div class="fq-label">Detalles del reporte<span class="fq-req">30-300 caracteres</span></div>
+          <textarea class="fq-input" id="report-cuerpo" placeholder="Describe qué sucedió y por qué estás reportando este servicio..." rows="4" maxlength="300" oninput="updateReportCharCount()"></textarea>
+          <div class="char-count" id="report-char-count">0 / 300</div>
+        </div>
+
+        <div class="form-question">
+          <div class="fq-label">Imagen (opcional)</div>
+          <input type="file" id="report-imagen" accept="image/*" onchange="handleReportImage(event)" class="fq-input">
+          <div class="report-preview hidden" id="report-image-preview"></div>
+        </div>
+
+        <input type="hidden" id="report-service-id" value="f1d0abce-82cf-4943-85c7-c67eae9a57c0">
+        <div class="report-warning" id="report-warning">Completa todos los campos obligatorios antes de enviar.</div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancelar" onclick="closeReportModal()">Cancelar</button>
+        <button class="btn-enviar" onclick="submitReport()">
+          <i class="ti ti-send icon-btn"></i> Enviar reporte
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-success report-success" id="report-success">
+      <div class="ms-icon"><i class="ti ti-circle-check"></i></div>
+      <div class="ms-title">Reporte enviado</div>
+      <div class="ms-desc">Gracias, recibimos tu reporte y lo revisaremos lo antes posible.</div>
+      <button class="btn-contratar btn-center" onclick="closeReportModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- DEMO BAR -->
 <div class="demo-bar">
   <div class="demo-label">Demo — Estado de sesión</div>
@@ -330,6 +393,13 @@
     document.body.classList.toggle('logged-in', isLoggedIn);
     document.getElementById('demo-track').classList.toggle('on', isLoggedIn);
     document.getElementById('demo-label').textContent = isLoggedIn ? 'Con sesión' : 'Sin sesión';
+    // Enable/disable report button based on login state
+    const reportBtn = document.querySelector('.btn-report');
+    if (reportBtn) {
+      reportBtn.disabled = !isLoggedIn;
+      reportBtn.classList.toggle('disabled', !isLoggedIn);
+      reportBtn.setAttribute('aria-disabled', (!isLoggedIn).toString());
+    }
   }
 
   // ─── MODAL ───
@@ -522,6 +592,120 @@
 
     document.getElementById('modal-form-content').classList.add('hidden');
     document.getElementById('modal-success').classList.add('show');
+  }
+
+  let reportImageData = '';
+
+  function openReportModal() {
+    document.getElementById('report-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('report-motivo').value = '';
+    document.getElementById('report-cuerpo').value = '';
+    document.getElementById('report-char-count').textContent = '0 / 300';
+    document.getElementById('report-imagen').value = '';
+    document.getElementById('report-image-preview').classList.add('hidden');
+    document.getElementById('report-image-preview').innerHTML = '';
+    document.getElementById('report-warning').classList.remove('visible');
+    document.getElementById('report-form-content').classList.remove('hidden');
+    document.getElementById('report-success').classList.remove('show');
+    reportImageData = '';
+  }
+
+  function closeReportModal() {
+    document.getElementById('report-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => {
+      document.getElementById('report-form-content').classList.remove('hidden');
+      document.getElementById('report-success').classList.remove('show');
+    }, 300);
+  }
+
+  function closeReportModalOutside(e) {
+    if (e.target === document.getElementById('report-overlay')) closeReportModal();
+  }
+
+  function updateReportCharCount() {
+    const count = document.getElementById('report-cuerpo').value.length;
+    document.getElementById('report-char-count').textContent = `${count} / 300`;
+  }
+
+  function handleReportImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      document.getElementById('report-warning').textContent = 'Sólo se permiten imágenes.';
+      document.getElementById('report-warning').classList.add('visible');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      reportImageData = reader.result;
+      const preview = document.getElementById('report-image-preview');
+      preview.innerHTML = `<img src="${reportImageData}" alt="Vista previa de imagen" />`;
+      preview.classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function submitReport() {
+    const motivo = document.getElementById('report-motivo').value;
+    const cuerpo = document.getElementById('report-cuerpo').value.trim();
+    const serviceId = document.getElementById('report-service-id').value;
+    const warning = document.getElementById('report-warning');
+
+    warning.classList.remove('visible');
+    warning.textContent = 'Completa todos los campos obligatorios antes de enviar.';
+
+    if (!motivo || cuerpo.length < 30 || cuerpo.length > 300) {
+      warning.classList.add('visible');
+      if (!motivo) {
+        warning.textContent = 'Selecciona un motivo de reporte.';
+      } else if (cuerpo.length < 30) {
+        warning.textContent = 'El cuerpo del reporte debe tener al menos 30 caracteres.';
+      } else if (cuerpo.length > 300) {
+        warning.textContent = 'El cuerpo del reporte no puede exceder 300 caracteres.';
+      }
+      return;
+    }
+
+    const payload = {
+      idServicio: serviceId,
+      motivo,
+      cuerpo,
+      imagen: reportImageData || ''
+    };
+
+    try {
+      const response = await fetch('/reports/reportar_servicio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      let data = {};
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        try {
+          data = await response.json();
+        } catch (e) {
+          data = {};
+        }
+      } else {
+        const text = await response.text();
+        try { data = text ? JSON.parse(text) : {}; } catch (e) { data = {}; }
+      }
+
+      if (!response.ok) {
+        throw new Error((data && (data.detail || data.message)) || 'Error al enviar el reporte.');
+      }
+
+      document.getElementById('report-form-content').classList.add('hidden');
+      document.getElementById('report-success').classList.add('show');
+    } catch (error) {
+      warning.textContent = error.message;
+      warning.classList.add('visible');
+    }
   }
 
   initSchedule();
