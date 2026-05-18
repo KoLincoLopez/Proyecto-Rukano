@@ -205,8 +205,7 @@
           Reportar servicio
         </button>
 
-        <!-- Preview público de reseñas (mock) -->
-        <div class="report-reviews-preview" id="report-reviews-preview"></div>
+        
 
       </div>
     </div>
@@ -857,40 +856,11 @@
     }
   }
 
-  // Render small public preview under the report button
-  function escapeHtml(str) {
-    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-
-  function renderReportPreview(reviews) {
-    const preview = document.getElementById('report-reviews-preview');
-    if (!preview) return;
-    preview.innerHTML = '';
-    if (!reviews || reviews.length === 0) {
-      preview.innerHTML = '<div class="reviews-empty">No hay reseñas visibles aún.</div>';
-      return;
-    }
-    const max = Math.min(2, reviews.length);
-    for (let i = 0; i < max; i++) {
-      const r = reviews[i];
-      const p = document.createElement('div');
-      p.className = 'review-preview-item';
-      p.innerHTML = `<div class="rp-user">${escapeHtml(r.user)}</div><div class="rp-body">${escapeHtml(r.body)}</div>`;
-      preview.appendChild(p);
-    }
-    if (reviews.length > 2) {
-      const more = document.createElement('div');
-      more.className = 'review-preview-more';
-      more.textContent = `+ ${reviews.length - 2} reseñas más`;
-      preview.appendChild(more);
-    }
-  }
+  
 
   initSchedule();
   // Ensure UI reflects login state on first load
   applyLoginState();
-  // Also render mock preview so reviews are visible without opening modal
-  renderReportPreview(MOCK_REPORT_REVIEWS);
   // Render technician reviews in the dedicated block
   renderTechReviews(MOCK_TECH_REVIEWS);
 </script>
