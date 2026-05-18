@@ -1134,6 +1134,22 @@
 .review-preview-item .rp-body { color: #444; font-size: 13px; margin-top: 4px; }
 .review-preview-more { font-size: 12px; color: var(--c-text-muted); margin-top: 6px; font-weight: 900; }
 
+/* Large technician reviews */
+.reviews-large { display: flex; flex-direction: column; gap: 14px; margin-top: 12px; }
+.review-card { display: flex; gap: 14px; background: var(--c-blanco); border: 1px solid var(--c-border); padding: 14px; border-radius: 10px; }
+.review-card-left { flex: 0 0 72px; }
+.review-card-avatar { width: 72px; height: 72px; border-radius: 10px; background: var(--c-licorice); color: var(--c-arena); display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px; overflow:hidden; }
+.review-card-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.review-card-right { flex: 1; display:flex; flex-direction:column; }
+.review-card-header { display:flex;align-items:center;gap:12px; justify-content:space-between; }
+.review-card-user { font-weight:900; color:var(--c-licorice); font-size:15px; }
+.review-card-title { font-weight:700; color:var(--c-mahogany); font-size:14px; }
+.review-card-stars { display:flex; align-items:center; gap:6px; margin-top:8px; }
+.review-card-stars .star { font-size:16px; color: rgba(0,0,0,0.12); }
+.review-card-stars .star.filled { color: #F5C842; }
+.review-card-rating-num { font-weight:900; margin-left:8px; color:var(--c-text-muted); font-size:13px; }
+.review-card-body { margin-top:10px; color:#333; line-height:1.6; font-size:14px; }
+
 .btn-report:hover {
   background: rgba(191, 53, 59, 0.14);
   transform: translateY(-1px);

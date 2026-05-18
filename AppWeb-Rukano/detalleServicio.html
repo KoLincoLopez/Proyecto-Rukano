@@ -137,6 +137,14 @@
       </div>
     </div>
 
+    <!-- RESEÑAS DEL TÉCNICO -->
+    <div class="block" id="tech-reviews-block">
+      <div class="block-label">Reseñas</div>
+      <div class="reviews-large" id="tech-reviews-list">
+        <!-- Reseñas se renderizan aquí -->
+      </div>
+    </div>
+
   </div>
 
   <!-- RIGHT SIDE CARD -->
@@ -614,6 +622,13 @@
     { user: 'Lucía R.', avatar: '', body: 'Atención rápida, pero falló en la limpieza final. No recomiendo totalmente.' }
   ];
 
+  // MOCK: reseñas del técnico (no son reportes)
+  const MOCK_TECH_REVIEWS = [
+    { user: 'María S.', avatar: '', rating: 5, title: 'Excelente servicio', body: 'Juan fue puntual, muy profesional y dejó todo impecable. Lo recomiendo 100%.' },
+    { user: 'Roberto G.', avatar: '', rating: 4, title: 'Buen trabajo', body: 'Trabajo rápido y con buena mano. Hubo detalles menores pero satisfecho.' },
+    { user: 'Ana P.', avatar: '', rating: 3, title: 'Aceptable', body: 'El trabajo quedó bien pero tardó más de lo acordado.' }
+  ];
+
   function openReportModal() {
     document.getElementById('report-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -772,6 +787,60 @@
     });
   }
 
+  // Render larger technician reviews (title, body, stars, photo)
+  function renderTechReviews(reviews) {
+    const container = document.getElementById('tech-reviews-list');
+    if (!container) return;
+    container.innerHTML = '';
+    if (!reviews || reviews.length === 0) {
+      container.innerHTML = '<div class="reviews-empty">Aún no hay reseñas del técnico.</div>';
+      return;
+    }
+    reviews.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'review-card';
+
+      const left = document.createElement('div');
+      left.className = 'review-card-left';
+      const avatar = document.createElement('div');
+      avatar.className = 'review-card-avatar';
+      if (r.avatar) {
+        const img = document.createElement('img'); img.src = r.avatar; img.alt = r.user || 'avatar';
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = (r.user ? r.user.charAt(0).toUpperCase() : '?');
+      }
+      left.appendChild(avatar);
+
+      const right = document.createElement('div');
+      right.className = 'review-card-right';
+      const header = document.createElement('div'); header.className = 'review-card-header';
+      const name = document.createElement('div'); name.className = 'review-card-user'; name.textContent = r.user || 'Anonimo';
+      const title = document.createElement('div'); title.className = 'review-card-title'; title.textContent = r.title || '';
+      header.appendChild(name); header.appendChild(title);
+
+      const stars = document.createElement('div'); stars.className = 'review-card-stars';
+      const rating = Math.max(0, Math.min(5, Math.round(r.rating || 0)));
+      for (let i=1;i<=5;i++){
+        const s = document.createElement('i'); s.className = 'ti ti-star-filled star';
+        if (i<=rating) s.classList.add('filled'); else s.classList.remove('filled');
+        stars.appendChild(s);
+      }
+      const ratingNum = document.createElement('span'); ratingNum.className='review-card-rating-num'; ratingNum.textContent = (r.rating||0).toString();
+      stars.appendChild(ratingNum);
+
+      const body = document.createElement('div'); body.className = 'review-card-body'; body.textContent = r.body || '';
+
+      right.appendChild(header);
+      right.appendChild(stars);
+      right.appendChild(body);
+
+      card.appendChild(left);
+      card.appendChild(right);
+      container.appendChild(card);
+    });
+  }
+
   // Try to fetch reviews for a report id; if endpoint missing, handle gracefully
   async function fetchReportReviews(reportId) {
     try {
@@ -822,6 +891,8 @@
   applyLoginState();
   // Also render mock preview so reviews are visible without opening modal
   renderReportPreview(MOCK_REPORT_REVIEWS);
+  // Render technician reviews in the dedicated block
+  renderTechReviews(MOCK_TECH_REVIEWS);
 </script>
 </body>
 </html>
