@@ -1177,3 +1177,14 @@
   border-color: rgba(191,53,59,0.12);
   pointer-events: none;
 }
+
+/* Report reviews */
+.report-reviews { margin-top: 18px; border-top: 1px solid var(--c-arena-dark); padding-top: 12px; }
+.reviews-title { font-family: 'Arial Black', sans-serif; font-size: 12px; font-weight: 900; color: var(--c-licorice); margin-bottom: 8px; }
+.reviews-list { display: flex; flex-direction: column; gap: 10px; }
+.review-item { display: flex; gap: 10px; align-items: flex-start; background: var(--c-arena); border: 1px solid var(--c-border); padding: 10px; border-radius: 10px; }
+.review-avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--c-mahogany); color: var(--c-arena); display:flex;align-items:center;justify-content:center;font-weight:900; flex-shrink:0; }
+.review-content { flex:1; }
+.review-user { font-size: 12px; font-weight: 900; color: var(--c-licorice); margin-bottom: 4px; }
+.review-body { font-size: 13px; color: #333; line-height:1.4; }
+.reviews-empty { font-size: 12px; color: var(--c-text-muted); }

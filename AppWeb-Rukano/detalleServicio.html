@@ -346,6 +346,14 @@
 
         <input type="hidden" id="report-service-id" value="f1d0abce-82cf-4943-85c7-c67eae9a57c0">
         <div class="report-warning" id="report-warning">Completa todos los campos obligatorios antes de enviar.</div>
+
+        <!-- REPORT REVIEWS (read-only) -->
+        <div class="report-reviews" id="report-reviews">
+          <div class="reviews-title">Reseñas del reporte</div>
+          <div class="reviews-list" id="reviews-list">
+            <div class="reviews-empty">Aún no hay reseñas para este reporte.</div>
+          </div>
+        </div>
       </div>
 
       <div class="modal-footer">
@@ -702,9 +710,69 @@
 
       document.getElementById('report-form-content').classList.add('hidden');
       document.getElementById('report-success').classList.add('show');
+      // If server returned an idReporte, try to load its reviews
+      const reportId = data && data.idReporte ? data.idReporte : null;
+      if (reportId) fetchReportReviews(reportId);
     } catch (error) {
       warning.textContent = error.message;
       warning.classList.add('visible');
+    }
+  }
+
+  // Render reviews into the read-only list
+  function renderReportReviews(reviews) {
+    const list = document.getElementById('reviews-list');
+    list.innerHTML = '';
+    if (!reviews || !reviews.length) {
+      list.innerHTML = '<div class="reviews-empty">Aún no hay reseñas para este reporte.</div>';
+      return;
+    }
+    reviews.forEach(r => {
+      const item = document.createElement('div');
+      item.className = 'review-item';
+      const avatar = document.createElement('div');
+      avatar.className = 'review-avatar';
+      if (r.avatar) {
+        const img = document.createElement('img');
+        img.src = r.avatar;
+        img.alt = r.user || 'avatar';
+        img.style.width = '100%'; img.style.height = '100%'; img.style.borderRadius = '50%';
+        avatar.innerHTML = '';
+        avatar.appendChild(img);
+      } else {
+        avatar.textContent = (r.user ? r.user.charAt(0).toUpperCase() : '?');
+      }
+
+      const content = document.createElement('div');
+      content.className = 'review-content';
+      const user = document.createElement('div');
+      user.className = 'review-user';
+      user.textContent = r.user || 'Usuario anónimo';
+      const body = document.createElement('div');
+      body.className = 'review-body';
+      body.textContent = r.body || '';
+
+      content.appendChild(user);
+      content.appendChild(body);
+      item.appendChild(avatar);
+      item.appendChild(content);
+      list.appendChild(item);
+    });
+  }
+
+  // Try to fetch reviews for a report id; if endpoint missing, handle gracefully
+  async function fetchReportReviews(reportId) {
+    try {
+      const res = await fetch(`/reports/${reportId}/reviews`);
+      if (!res.ok) {
+        renderReportReviews([]);
+        return;
+      }
+      const json = await res.json();
+      renderReportReviews(Array.isArray(json) ? json : []);
+    } catch (e) {
+      // Endpoint may not exist yet — keep UI quiet
+      renderReportReviews([]);
     }
   }
 
