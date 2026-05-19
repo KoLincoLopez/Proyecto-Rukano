@@ -14,6 +14,7 @@ class UsuarioBase(BaseModel):
     apellido: str
     correo: EmailStr
     direccion: str
+    comuna: str
     telefono: str
     rut: str
     foto_perfil: Optional[str] = None
