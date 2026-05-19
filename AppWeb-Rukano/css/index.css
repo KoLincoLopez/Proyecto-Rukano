@@ -19,6 +19,67 @@ html, body {
     --pad-lateral: 80px;
 }
 
+/*------------------- COMPONENTE DE USUARIO AUTENTICADO -------------------*/
+.perfil-nav-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.usuario-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 14px 6px 6px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 30px;
+    border: 1px solid rgba(245, 239, 234, 0.1);
+}
+
+.usuario-inicial {
+    width: 28px;
+    height: 28px;
+    background-color: var(--c-mahogany);
+    color: var(--c-blanco);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.usuario-nombre {
+    font-family: 'Arial', sans-serif;
+    font-weight: 900;
+    font-size: 13px;
+    color: var(--c-arena);
+    letter-spacing: 1px;
+}
+
+.btn-perfil-nav {
+    background-color: transparent;
+    color: var(--c-arena);
+    border: 1px solid rgba(245, 239, 234, 0.4);
+    text-decoration: none !important;
+    font-family: 'Arial', sans-serif;
+    font-weight: 900;
+    font-size: 11px;
+    padding: 8px 22px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.btn-perfil-nav:hover {
+    background-color: var(--c-arena);
+    border-color: var(--c-arena);
+    color: var(--c-licorice);
+    transform: translateY(-1px);
+}
+
 * {
     margin: 0;
     padding: 0;

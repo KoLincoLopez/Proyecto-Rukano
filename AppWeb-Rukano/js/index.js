@@ -1,3 +1,7 @@
+import { auth, db } from "./Firebase-config.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 const API_URL = "http://127.0.0.1:8000";
 
 let servicios = [];
@@ -10,6 +14,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const lupaBusqueda = document.querySelector(".lupa-profesional");
     const botonesCategoria = document.querySelectorAll(".boton-ovalado[data-categoria]");
     const grillaServicios = document.querySelector("#servicios");
+    const authContainer = document.getElementById("auth-container");
+
+    // OBSERVADOR DE ESTADO (Reacciona al inicio/cierre de sesión)
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            try {
+                // Buscamos el nombre en Firestore usando el UID (Integridad de Datos) [4]
+                const userRef = doc(db, "usuarios", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                let nombreAMostrar = "Usuario";
+                if (userSnap.exists()) {
+                    // Si es Isaac, aquí obtendrá "isaac" del JSON que creamos
+                    nombreAMostrar = userSnap.data().nombre;
+                }
+
+                // REEMPLAZO DINÁMICO RESPETANDO LA ESTÉTICA EDITORIAL
+                authContainer.innerHTML = `
+                    <div class="perfil-nav-container">
+                        <div class="usuario-badge">
+                            <span class="usuario-inicial">${escapeHtml(nombreAMostrar[0].toUpperCase())}</span>
+                            <span class="usuario-nombre">${escapeHtml(nombreAMostrar.toUpperCase())}</span>
+                        </div>
+                        <a href="perfil.html" class="btn-perfil-nav">Mi Perfil</a>
+                    </div>
+                `;
+            } catch (error) {
+                console.error("Error al obtener datos del usuario:", error);
+            }
+        } else {
+            // Si no hay sesión, mostramos el botón original (RF 1) [2]
+            authContainer.innerHTML = `<a href="login.html" class="boton-inicio">Iniciar Sesión</a>`;
+        }
+    });
 
     const actualizarNavbar = () => {
         if (!navbar) return;
