@@ -7,6 +7,7 @@ const API_URL = "http://127.0.0.1:8000";
 let servicios = [];
 let serviciosActuales = [];
 let cantidadVisible = 6;
+let comunaUsuario = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     const navbar = document.querySelector(".navbar-integrada");
@@ -16,41 +17,34 @@ document.addEventListener("DOMContentLoaded", () => {
     const grillaServicios = document.querySelector("#servicios");
     const authContainer = document.getElementById("auth-container");
 
-    // Comuna por defecto para la búsqueda (puedes dinamizarla luego)
-    const comunaUsuario = "La Cisterna";
+    let usuarioLogueado = null;
+    let comunaUsuario = null;
 
     // OBSERVADOR DE ESTADO (Reacciona al inicio/cierre de sesión)q
     onAuthStateChanged(auth, async (user) => {
         if (user) {
+            usuarioLogueado = user;
             try {
-                // Buscamos el nombre en Firestore usando el UID (Integridad de Datos) [4]
+                // Obtenemos el perfil completo desde Firestore (Arquitectura Serverless)
                 const userRef = doc(db, "usuarios", user.uid);
                 const userSnap = await getDoc(userRef);
 
-                let nombreAMostrar = "Usuario";
                 if (userSnap.exists()) {
-                    // Si es Isaac, aquí obtendrá "isaac" del JSON que creamos
-                    nombreAMostrar = userSnap.data().nombre;
+                    const data = userSnap.data();
+                    comunaUsuario = data.comuna; // CAPTURAMOS LA COMUNA REAL DEL USUARIO
+                    
+                    authContainer.innerHTML = `<span>Hola, ${data.nombre}</span>`;
                 }
-
-                // REEMPLAZO DINÁMICO RESPETANDO LA ESTÉTICA EDITORIAL
-                authContainer.innerHTML = `
-                    <div class="perfil-nav-container">
-                        <div class="usuario-badge">
-                            <span class="usuario-inicial">${escapeHtml(nombreAMostrar[0].toUpperCase())}</span>
-                            <span class="usuario-nombre">${escapeHtml(nombreAMostrar.toUpperCase())}</span>
-                        </div>
-                        <a href="perfil.html" class="btn-perfil-nav">Mi Perfil</a>
-                    </div>
-                `;
             } catch (error) {
-                console.error("Error al obtener datos del usuario:", error);
+                console.error("Error al obtener datos:", error);
             }
         } else {
-            // Si no hay sesión, mostramos el botón original (RF 1) [2]
+            usuarioLogueado = null;
+            comunaUsuario = null;
             authContainer.innerHTML = `<a href="login.html" class="boton-inicio">Iniciar Sesión</a>`;
         }
     });
+    
 
     const actualizarNavbar = () => {
         if (!navbar) return;
@@ -88,19 +82,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- FUNCIÓN NÚCLEO DE BÚSQUEDA ---
     async function ejecutarBusqueda(url) {
+    const grillaServicios = document.querySelector("#servicios");
+
+    // 1. RESTRICCIÓN: SI NO HAY SESIÓN, NO HAY BÚSQUEDA
+    if (!usuarioLogueado) {
+        grillaServicios.innerHTML = `
+            <div class="mensaje-alerta">
+                <p>⚠️ <strong>Acceso Restringido:</strong> Debes iniciar sesión para buscar servicios y técnicos en tu zona.</p>
+                <a href="login.html" class="boton-login-msg">Ir al Login</a>
+            </div>`;
+        return; // Detenemos la ejecución aquí
+    }
+
+    // 2. RESTRICCIÓN: SI NO HAY COMUNA ASIGNADA
+    if (!comunaUsuario) {
+        grillaServicios.innerHTML = "<p>Por favor, completa tu dirección en tu perfil para buscar servicios cercanos.</p>";
+        return;
+    }
+
     try {
+        grillaServicios.innerHTML = "<p>Buscando...</p>";
         const response = await fetch(url);
         const resultados = await response.json();
 
-        // 1. Validamos que el status sea "success" según tu backend [1]
-        if (resultados.status === "success" && Array.isArray(resultados.data)) {
-            // 2. Pasamos resultados.data porque ahí es donde está la lista real
-            pintarServicios(resultados.data); 
+        if (resultados.status === "success" && resultados.data.length > 0) {
+            pintarServicios(resultados.data);
         } else {
-            grillaServicios.innerHTML = "<p>No se encontraron servicios en esta zona.</p>";
+            grillaServicios.innerHTML = "<p>No se encontraron técnicos en tu comuna.</p>";
         }
     } catch (error) {
-        console.error("Error en la petición:", error);
+        grillaServicios.innerHTML = "<p>Error de conexión con el servidor.</p>";
         }
     }
 
@@ -183,17 +194,17 @@ document.addEventListener("DOMContentLoaded", () => {
     botonesCategoria.forEach(boton => {
     boton.addEventListener("click", () => {
         const categoria = boton.getAttribute("data-categoria");
-        // URL CORRECTA: BASE + PREFIX + ENDPOINT + PARÁMETROS
+        // Usamos la comuna detectada en el login
         const url = `${API_URL}/search/categoria_solicitada/${comunaUsuario}/${categoria}`;
         ejecutarBusqueda(url);
         });
     });
 
     // --- 2. BÚSQUEDA POR PALABRAS CLAVE (Input + Enter/Lupa) [2, 3] ---
+    // Listener para el Buscador General
     const realizarBusquedaGeneral = () => {
     const texto = inputBusqueda.value.trim();
     if (texto !== "") {
-        // URL CORRECTA: /search/busqueda_general/{comuna}/{texto}
         const url = `${API_URL}/search/busqueda_general/${comunaUsuario}/${texto}`;
         ejecutarBusqueda(url);
         }
