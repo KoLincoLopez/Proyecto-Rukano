@@ -19,6 +19,11 @@ class PreguntaFormulario(BaseModel):
     tipo: str         # Ej: "text", "boolean", "number"
     obligatorio: bool
 
+class Disponibilidad(BaseModel):
+    dia: str          # Ej: "Lunes"
+    hora_inicio: str  # Ej: "09:00"
+    hora_fin: str     # Ej: "17:00"
+
 class Servicio(BaseModel): 
     idTecnico: str 
     nombre: str 
@@ -29,6 +34,7 @@ class Servicio(BaseModel):
     tiempoEstimado: str 
     que_incluye: list[str]    
     que_no_incluye: list[str]
+    disponibilidad: list[Disponibilidad]
     esquema_formulario: list[PreguntaFormulario] 
 
 # --- FUNCIONES AUXILIARES ---
@@ -69,6 +75,7 @@ async def crear_servicio(datos: Servicio):
             "keyWords": palabras_clave,
             "que_incluye": datos.que_incluye,
             "que_no_incluye": datos.que_no_incluye,
+            "disponibilidad": [d.dict() for d in datos.disponibilidad],
             "esquema_formulario": [p.dict() for p in datos.esquema_formulario], 
             "estado": "activo",
             "createdAt": ahora
