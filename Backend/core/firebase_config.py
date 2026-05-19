@@ -1,8 +1,25 @@
 import json
 import os
+from pathlib import Path
 
 import firebase_admin
+from dotenv import load_dotenv
 from firebase_admin import credentials, firestore
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = BASE_DIR.parent
+
+
+def load_local_environment():
+    """
+    Load local environment files without overriding real environment variables.
+
+    Render injects FIREBASE_CREDENTIALS directly, so these calls are only a
+    development convenience when Backend/.env or project-root .env exists.
+    """
+    load_dotenv(BASE_DIR / ".env", override=False)
+    load_dotenv(PROJECT_ROOT / ".env", override=False)
 
 
 def initialize_firebase():
@@ -13,6 +30,8 @@ def initialize_firebase():
     """
     if firebase_admin._apps:
         return firestore.client()
+
+    load_local_environment()
 
     raw_credentials = os.getenv("FIREBASE_CREDENTIALS")
     if not raw_credentials:
