@@ -16,7 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const grillaServicios = document.querySelector("#servicios");
     const authContainer = document.getElementById("auth-container");
 
-    // OBSERVADOR DE ESTADO (Reacciona al inicio/cierre de sesión)
+    // Comuna por defecto para la búsqueda (puedes dinamizarla luego)
+    const comunaUsuario = "La Cisterna";
+
+    // OBSERVADOR DE ESTADO (Reacciona al inicio/cierre de sesión)q
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
@@ -69,34 +72,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
         const response = await fetch(`${API_URL}/servicios/`);
+        const datos = await response.json();
 
-        if (!response.ok) {
-            throw new Error("Error al obtener servicios");
-        }
+        // VALIDACIÓN CRÍTICA (Métrica de Precisión de Datos)
+        // Verificamos si 'datos' es un array. Si es un objeto con una clave, extraemos la lista.
+        const listaFinal = Array.isArray(datos) ? datos : (datos.servicios || []);
 
-        const resultado = await response.json();
-
-        servicios = [];
-
-        resultado.forEach((servicio) => {
-            if (servicio.estado === "activo" || servicio.estado === "active") {
-                servicios.push({
-                    id: servicio.idServicio || servicio.id,
-                    ...servicio
-                });
-            }
-        });
-
-        serviciosActuales = servicios;
-        cantidadVisible = 6;
-        pintarServicios(grillaServicios);
+        console.log("Datos recibidos:", listaFinal);
+        pintarServicios(listaFinal); // Ahora pasamos la lista validada
 
     } catch (error) {
-        console.log("Error al cargar servicios:", error);
-        grillaServicios.innerHTML = crearEstadoBusqueda("No pudimos cargar los servicios.");
+        console.error("Error al cargar servicios:", error);
     }
     }
 
+    // --- FUNCIÓN NÚCLEO DE BÚSQUEDA ---
+    async function ejecutarBusqueda(url) {
+    try {
+        const response = await fetch(url);
+        const resultados = await response.json();
+
+        // 1. Validamos que el status sea "success" según tu backend [1]
+        if (resultados.status === "success" && Array.isArray(resultados.data)) {
+            // 2. Pasamos resultados.data porque ahí es donde está la lista real
+            pintarServicios(resultados.data); 
+        } else {
+            grillaServicios.innerHTML = "<p>No se encontraron servicios en esta zona.</p>";
+        }
+    } catch (error) {
+        console.error("Error en la petición:", error);
+        }
+    }
+
+    async function cargarServiciosIniciales() {
+        try {
+            // Llamamos al router de servicios, NO al de search
+            const response = await fetch(`${API_URL}/servicios/`);
+            
+            if (!response.ok) {
+                throw new Error("Error al obtener servicios");
+            }
+
+            const datos = await response.json();
+            // 2. Llamamos a la función de renderizado con los datos
+            pintarServicios(datos); 
+
+        } catch (error) {
+            console.error("Error al cargar servicios:", error);
+            if (grillaServicios) grillaServicios.innerHTML = "<p>Error al conectar con el servidor.</p>";
+        }
+    }
+
+    cargarServiciosIniciales();
+
+    function pintarServicios(listaDeServicios) {
+    const grilla = document.querySelector("#servicios");
+    grilla.innerHTML = ""; // Limpieza para Rendimiento (RNF 1) [3]
+
+    listaDeServicios.forEach(servicio => {
+        const card = document.createElement("div");
+        card.className = "card-servicio";
+        // Usamos los nombres exactos que viste en el JSON del backend
+        card.innerHTML = `
+            <div class="info">
+                <h3>${servicio.nombre}</h3> 
+                <p>${servicio.descripcion}</p>
+                <p><strong>Comuna:</strong> ${servicio.comuna}</p>
+                <span class="precio">$${servicio.precio.toLocaleString()}</span>
+                <button class="boton-contratar">Contratar</button>
+            </div>
+        `;
+        grilla.appendChild(card);
+        });
+    }
+
+
+    /*  Metodo Viejo
     function buscarPorTexto() {
         const texto = inputBusqueda?.value.trim().toLowerCase();
 
@@ -119,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
         cantidadVisible = 6;
         pintarServicios(grillaServicios);
     }
-
     inputBusqueda?.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
             buscarPorTexto();
@@ -127,23 +177,33 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     lupaBusqueda?.addEventListener("click", buscarPorTexto);
+    */
 
-    botonesCategoria.forEach((boton) => {
-        boton.addEventListener("click", () => {
-            botonesCategoria.forEach((item) => item.classList.remove("activo"));
-            boton.classList.add("activo");
-
-            const categoria = boton.dataset.categoria.toLowerCase();
-
-            serviciosActuales = servicios.filter((servicio) => {
-                return (servicio.categoria || "").toLowerCase() === categoria;
-            });
-
-            cantidadVisible = 6;
-            pintarServicios(grillaServicios);
+    // --- 1. BÚSQUEDA POR CATEGORÍA (Al hacer click en botones) [1, 3] ---
+    botonesCategoria.forEach(boton => {
+    boton.addEventListener("click", () => {
+        const categoria = boton.getAttribute("data-categoria");
+        // URL CORRECTA: BASE + PREFIX + ENDPOINT + PARÁMETROS
+        const url = `${API_URL}/search/categoria_solicitada/${comunaUsuario}/${categoria}`;
+        ejecutarBusqueda(url);
         });
     });
 
+    // --- 2. BÚSQUEDA POR PALABRAS CLAVE (Input + Enter/Lupa) [2, 3] ---
+    const realizarBusquedaGeneral = () => {
+    const texto = inputBusqueda.value.trim();
+    if (texto !== "") {
+        // URL CORRECTA: /search/busqueda_general/{comuna}/{texto}
+        const url = `${API_URL}/search/busqueda_general/${comunaUsuario}/${texto}`;
+        ejecutarBusqueda(url);
+        }
+    };
+
+    lupaBusqueda?.addEventListener("click", realizarBusquedaGeneral);
+    inputBusqueda?.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") realizarBusquedaGeneral();
+    });
+    
     cargarServiciosFirestore();
 });
 
