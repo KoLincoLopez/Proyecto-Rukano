@@ -454,24 +454,34 @@ body {
 }
 
 .btn-outlined-pro {
+    display: flex !important;
+    align-items: center;
+    justify-content: center; /* ¡ESTO CENTRA EL TEXTO PERFECTAMENTE EN EL MEDIO! */
+    text-align: center;
+    
+    width: 100%;
+    padding: 14px 24px;
     background-color: transparent;
     color: var(--c-licorice);
     border: 2px solid var(--c-licorice);
-    padding: 12px 0;
-    font-family: 'Arial', sans-serif;
+    
+    font-family: 'Arial Black', sans-serif;
     font-weight: 900;
     font-size: 12px;
-    letter-spacing: 1px;
+    letter-spacing: 2px; /* Un tracking más ancho para el toque de alta costura */
     text-transform: uppercase;
+    
+    transition: all 0.2s ease;
     cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;
-    border-radius: 50px;
 }
 
+/* Efecto Hover interactivo de estilo Brutalista */
 .btn-outlined-pro:hover {
     background-color: var(--c-licorice);
     color: var(--c-blanco);
+    /* Desplazamiento con sombra sólida característica del diseño */
+    box-shadow: 4px 4px 0px var(--c-mahogany); 
+    transform: translate(-3px, -3px);
 }
 
 .propuesta-valor {
@@ -1203,11 +1213,11 @@ body {
     }
 }
 
-.enlace-perfil{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-decoration: none;
+.enlace-perfil {
+    text-decoration: none !important;
+    display: block;      /* Convierte el enlace en un bloque */
+    width: 100%;         /* Hace que ocupe todo el ancho disponible de la tarjeta */
+    margin-top: auto;    /* Empuja el botón al fondo de la tarjeta de forma simétrica */
 }
 
 .btnEditar,
@@ -1234,4 +1244,153 @@ body {
 
 .btnEliminar:hover {
     background: #962d22;
+}
+
+/*=================== OPTIMIZACIONES DE LA GRILLA GENERAL ===================*/
+.grilla-servicios {
+    display: grid;
+    /* auto-fill + justify-content: center evita que las tarjetas se estiren feamente si hay pocas */
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 40px;
+    padding: 20px 0 60px 0;
+    justify-content: center; 
+}
+
+.card-editorial {
+    background-color: var(--c-blanco);
+    border: 2px solid transparent;
+    border-bottom: 2px solid #E0E0E0;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+    margin-bottom: 0px; /* Removido para que el Grid controle simétricamente el espacio */
+}
+
+
+/*------------------- NUEVO DISEÑO INTERNO DE TARJETAS -------------------*/
+.card-meta-editorial {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding: 15px 0;
+    border-top: 1px dashed rgba(30, 13, 10, 0.15);
+    border-bottom: 1px dashed rgba(30, 13, 10, 0.15);
+}
+
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.meta-tag {
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
+    color: #8c827e;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.meta-value {
+    font-family: 'Arial', sans-serif;
+    font-weight: 900;
+    color: var(--c-licorice);
+}
+
+
+/*------------------- ESTADOS DE BÚSQUEDA Y MENSAJES EDITORIALES -------------------*/
+
+.estado-busqueda-editorial {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 20px;
+    text-align: center;
+    width: 100%;
+}
+
+.bloque-decorativo-brutal {
+    font-size: 28px;
+    color: var(--c-mahogany);
+    margin-bottom: 10px;
+    animation: rotacionBrutal 12s linear infinite;
+}
+
+@keyframes rotacionBrutal {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.estado-texto-masivo {
+    font-family: 'Arial Black', sans-serif;
+    font-size: clamp(20px, 3.5vw, 32px);
+    font-weight: 900;
+    color: var(--c-licorice); /* CORREGIDO: De arena a licorice para visibilidad absoluta */
+    letter-spacing: -1px;
+    line-height: 1.2;
+    margin-bottom: 25px;
+    max-width: 750px;
+}
+
+.linea-decorativa-ancha {
+    width: 100px;
+    height: 5px;
+    background-color: var(--c-licorice);
+}
+
+
+/*------------------- BANNERS BRUTALISTAS DE ALERTA CENTRADOS -------------------*/
+.editorial-alerta {
+    grid-column: 1 / -1;
+    background-color: var(--c-blanco); /* Cambiado a fondo sólido blanco */
+    border: 3px solid var(--c-licorice);
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Perfectamente centrado */
+    text-align: center; /* Perfectamente centrado */
+    position: relative;
+    max-width: 700px;
+    margin: 40px auto;
+    /* Sombra rígida característica del estilo Neo-Brutalista */
+    box-shadow: 12px 12px 0px var(--c-licorice); 
+}
+
+.alerta-restringido {
+    border-top: 8px solid var(--c-mahogany);
+}
+
+.alerta-advertencia {
+    border-top: 8px solid var(--c-deep-moss);
+}
+
+.alerta-titulo {
+    font-family: 'Arial Black', sans-serif;
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 900;
+    color: var(--c-licorice);
+    letter-spacing: -1px;
+    margin-bottom: 15px;
+}
+
+.alerta-texto {
+    font-family: 'Arial', sans-serif;
+    font-size: 15px;
+    color: #555555;
+    max-width: 500px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.contenedor-ver-mas {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-top: 40px;
+    width: 100%;
 }
