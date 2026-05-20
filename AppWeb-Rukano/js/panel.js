@@ -7,9 +7,7 @@ import {
     collection,
     query,
     where,
-    getDocs,
-    deleteDoc,
-    updateDoc
+    getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const API_URL = "http://127.0.0.1:8000";
@@ -135,6 +133,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     tiempoEstimado: tiempo,
                     que_incluye: textoALista(incluye),
                     que_no_incluye: textoALista(noIncluye),
+                    disponibilidad: disponibilidad,
                     esquema_formulario: [
                         {
                             id_pregunta: "1",
@@ -195,8 +194,8 @@ window.addEventListener("DOMContentLoaded", () => {
             if (check.checked && inicio && fin) {
                 disponibilidad.push({
                     dia: check.value,
-                    inicio: inicio,
-                    fin: fin
+                    hora_inicio: inicio,
+                    hora_fin: fin
                 });
             }
         });
@@ -226,25 +225,26 @@ window.addEventListener("DOMContentLoaded", () => {
         lista.innerHTML = "<p>Cargando servicios...</p>";
 
         try {
-            const consulta = query(
-                collection(db, "servicios"),
-                where("idTecnico", "==", uidTecnico)
-            );
+            const response = await fetch(`${API_URL}/servicios/tecnico/${uidTecnico}`);
 
-            const resultado = await getDocs(consulta);
+            if (!response.ok) {
+                throw new Error("Error al obtener servicios del técnico");
+            }
 
-            if (resultado.empty) {
+            const resultado = await response.json();
+
+            if (!resultado.length) {
                 lista.innerHTML = "<p>Aún no has publicado servicios.</p>";
                 return;
             }
 
             lista.innerHTML = "";
 
-            resultado.forEach((docServicio) => {
-                const servicio = docServicio.data();
-
+            resultado.forEach((servicio) => {
                 const disponibilidad = Array.isArray(servicio.disponibilidad)
-                    ? servicio.disponibilidad.map(item => `${item.dia}: ${item.inicio} - ${item.fin}`).join(" | ")
+                    ? servicio.disponibilidad
+                        .map(item => `${item.dia}: ${item.hora_inicio} - ${item.hora_fin}`)
+                        .join(" | ")
                     : "Sin disponibilidad";
 
                 const card = document.createElement("div");
@@ -261,11 +261,11 @@ window.addEventListener("DOMContentLoaded", () => {
                     <p>Estado: ${servicio.estado || "activo"}</p>
 
                     <div style="margin-top:15px; display:flex; gap:10px;">
-                        <button class="btnEditar" data-id="${docServicio.id}">
+                        <button class="btnEditar" data-id="${servicio.id || servicio.idServicio}">
                             Editar título
                         </button>
 
-                        <button class="btnEliminar" data-id="${docServicio.id}">
+                        <button class="btnEliminar" data-id="${servicio.id || servicio.idServicio}">
                             Eliminar
                         </button>
                     </div>
@@ -281,8 +281,18 @@ window.addEventListener("DOMContentLoaded", () => {
                     if (!confirmar) return;
 
                     try {
-                        await deleteDoc(doc(db, "servicios", docServicio.id));
+                        const idServicio = btnEliminar.dataset.id;
+
+                        const response = await fetch(`${API_URL}/servicios/${idServicio}`, {
+                            method: "DELETE"
+                        });
+
+                        if (!response.ok) {
+                            throw new Error("Error al eliminar servicio en backend");
+                        }
+
                         cargarMisServicios(uidTecnico);
+
                     } catch (error) {
                         console.log(error);
                         alert("Error al eliminar servicio");
@@ -297,10 +307,21 @@ window.addEventListener("DOMContentLoaded", () => {
                     if (!nuevoTitulo) return;
 
                     try {
-                        await updateDoc(doc(db, "servicios", docServicio.id), {
-                            nombre: nuevoTitulo,
-                            titulo: nuevoTitulo
+                        const idServicio = btnEditar.dataset.id;
+
+                        const response = await fetch(`${API_URL}/servicios/editar/${idServicio}`, {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                nombre: nuevoTitulo
+                            })
                         });
+
+                        if (!response.ok) {
+                            throw new Error("Error al editar servicio en backend");
+                        }
 
                         cargarMisServicios(uidTecnico);
 
@@ -395,9 +416,9 @@ window.addEventListener("DOMContentLoaded", () => {
                 opcion.style.marginTop = "12px";
 
                 opcion.innerHTML = `
-                    <input type="radio" name="horarioSeleccionado" value="${item.dia}|${item.inicio}|${item.fin}">
+                    <input type="radio" name="horarioSeleccionado" value="${item.dia}|${item.hora_inicio}|${item.hora_fin}">
                     <strong>${item.dia}</strong>
-                    ${item.inicio} - ${item.fin}
+                    ${item.hora_inicio} - ${item.hora_fin}
                 `;
 
                 contenedor.appendChild(opcion);
