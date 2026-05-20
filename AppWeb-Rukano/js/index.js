@@ -208,7 +208,6 @@ async function ejecutarBusqueda(url) {
         if (e.key === "Enter") realizarBusquedaGeneral();
     });
     
-    cargarServiciosFirestore();
 });
 
     // --- FUNCIÓN UNIFICADA DE RENDERIZADO EDITORIAL ---
