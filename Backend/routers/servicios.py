@@ -145,3 +145,20 @@ async def eliminar_servicio(servicio_id: str):
     
     ref.delete()
     return {"msg": "Servicio eliminado permanentemente"}
+
+@router.get("/{servicio_id}")
+async def obtener_servicio(servicio_id: str):
+    try:
+        servicio_ref = db.collection("servicios").document(servicio_id)
+        doc = servicio_ref.get()
+
+        if not doc.exists:
+            raise HTTPException(status_code=404, detail="Servicio no encontrado")
+
+        datos = doc.to_dict()
+        # Aseguramos que el id vaya dentro de la respuesta
+        datos["id"] = servicio_id
+        return datos
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

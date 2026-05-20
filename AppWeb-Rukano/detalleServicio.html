@@ -28,19 +28,19 @@
 <div class="breadcrumb">
   <a href="#">Inicio</a>
   <span class="sep">/</span>
-  <a href="#">Gasfitería</a>
+  <a href="#">Categoria</a>
   <span class="sep">/</span>
-  <span class="current">Instalación completa de grifería</span>
+  <span class="current">cargando nombre...</span>
 </div>
 
 <!-- HERO -->
 <div class="hero-band">
-  <div class="hero-categoria"><i class="ti ti-droplet icon-xs"></i> Gasfitería</div>
-  <div class="hero-titulo">Instalación completa de grifería y llaves de paso</div>
+  <div class="hero-categoria " id="servicio-categoria"><i class="ti ti-droplet icon-xs"></i> Categoria</div>
+  <div class="hero-titulo" id="servicio-nombre">Placeholder de titulo</div>
   <div class="hero-meta">
     <div class="hero-meta-item">
       <i class="ti ti-map-pin"></i>
-      <span class="val">Providencia, RM</span>
+      <span class="val" id="servicio-comuna">Comuna</span>
     </div>
     <div class="hero-meta-item">
       <div class="stars">
@@ -50,15 +50,15 @@
         <i class="ti ti-star-filled star filled"></i>
         <i class="ti ti-star-half-filled star half"></i>
       </div>
-      <span class="val stars-label">4.5 (38 reseñas)</span>
+      <span class="val stars-label" id="tecnico-calificacion">4.5 (38 reseñas)</span>
     </div>
     <div class="hero-meta-item">
       <i class="ti ti-clock"></i>
-      <span class="val">3 horas aprox.</span>
+      <span class="val" id="servicio-tiempo">3 horas aprox.</span>
     </div>
     <div class="hero-meta-item">
       <i class="ti ti-coin"></i>
-      <span class="val">$45.000</span>
+      <span class="val" id="servicio-precio">$45.000</span>
     </div>
   </div>
 </div>
@@ -72,7 +72,7 @@
     <!-- DESCRIPCION -->
     <div class="block">
       <div class="block-label">Descripción del servicio</div>
-      <p class="desc-text">
+      <p class="desc-text" id="servicio-descripcion">
         Ofrezco un servicio completo de instalación y reemplazo de grifería para cocinas, baños y lavaderos. Trabajo con griferías de todas las marcas y modelos: monomando, de dos llaves, termostáticas y empotrables. Incluyo la revisión previa de las tuberías existentes y dejo todo funcionando, sin goteras ni pérdidas de presión.
         <br><br>
         Cuento con más de 8 años de experiencia en el rubro, y mis trabajos incluyen garantía de 30 días por cualquier falla asociada a la instalación. Trabajo limpio y con los materiales sellantes certificados. Si tu grifería ya llegó o la tienes que comprar, te puedo asesorar sobre cuál se adapta mejor a tu instalación.
@@ -85,7 +85,7 @@
       <div class="two-lists">
         <div class="list-box include">
           <div class="list-box-title"><i class="ti ti-circle-check icon-sm"></i> Incluye</div>
-          <ul>
+          <ul id="servicio-incluye">
             <li>Desmontaje de la grifería antigua</li>
             <li>Instalación de la grifería nueva</li>
             <li>Sellado de uniones y conexiones</li>
@@ -96,7 +96,7 @@
         </div>
         <div class="list-box exclude">
           <div class="list-box-title"><i class="ti ti-circle-x icon-sm"></i> No incluye</div>
-          <ul>
+          <ul id="servicio-no-incluye">
             <li>Compra ni suministro de la grifería</li>
             <li>Reparación de tuberías dañadas</li>
             <li>Trabajos de albañilería o cerámicas</li>
@@ -110,10 +110,10 @@
     <div class="block">
       <div class="block-label">Sobre el técnico</div>
       <div class="tech-card">
-        <div class="tech-avatar">JR</div>
+        <div class="tech-avatar" id="tecnico-avatar">JR</div>
         <div class="tech-info">
-          <div class="tech-nombre">Juan Rojas</div>
-          <div class="tech-especialidad">Gasfiter certificado · 8 años de experiencia</div>
+          <div class="tech-nombre" id="tecnico-nombre">Juan Rojas</div>
+          <div class="tech-especialidad" id="tecnico-especialidad">Gasfiter certificado · 8 años de experiencia</div>
           <div class="tech-stars-row">
             <div class="tech-stars stars">
               <i class="ti ti-star-filled star filled"></i>
@@ -122,13 +122,13 @@
               <i class="ti ti-star-filled star filled"></i>
               <i class="ti ti-star-half-filled star half"></i>
             </div>
-            <span class="tech-rating-num">4.5</span>
-            <span class="tech-reviews">38 reseñas</span>
+            <span class="tech-rating-num" id="tecnico-calificacion">4.5</span>
+            <span class="tech-reviews" id="tecnico-reviews">38 reseñas</span>
           </div>
           <div class="tech-badges">
             <span class="tech-badge"><i class="ti ti-shield-check"></i> Identidad verificada</span>
             <span class="tech-badge"><i class="ti ti-certificate"></i> Certificado SEC</span>
-            <span class="tech-badge"><i class="ti ti-map-pin"></i> Providencia</span>
+            <span class="tech-badge"><i class="ti ti-map-pin" id="tecnico-comuna"></i> Providencia</span>
           </div>
         </div>
         <a href="#" class="btn-ver-perfil">
@@ -153,18 +153,18 @@
 
       <div class="side-card-header">
         <div class="side-precio-label">Precio del servicio</div>
-        <div class="side-precio"><sup>$</sup>45.000</div>
+        <div class="side-precio"><sup>$</sup><span id="servicio-precio">45.000</span></div>
         <div class="side-precio-sub">Precio base · IVA incluido</div>
       </div>
 
       <div class="side-card-body">
         <div class="side-detail-row">
           <div class="side-detail-key"><i class="ti ti-clock"></i> Duración</div>
-          <div class="side-detail-val">≈ 3 horas</div>
+          <div class="side-detail-val" id="servicio-tiempo">≈ 3 horas</div>
         </div>
         <div class="side-detail-row">
           <div class="side-detail-key"><i class="ti ti-map-pin"></i> Comuna</div>
-          <div class="side-detail-val">Providencia</div>
+          <div class="side-detail-val" id="servicio-comuna">Providencia</div>
         </div>
         <div class="side-detail-row">
           <div class="side-detail-key"><i class="ti ti-star-filled icon-gold"></i> Calificación</div>
@@ -176,12 +176,12 @@
               <i class="ti ti-star-filled star filled"></i>
               <i class="ti ti-star-half-filled star half"></i>
             </div>
-            <span class="side-detail-val">4.5</span>
+            <span class="side-detail-val" id="tecnico-calificacion">4.5</span>
           </div>
         </div>
         <div class="side-detail-row no-border">
           <div class="side-detail-key"><i class="ti ti-user"></i> Técnico</div>
-          <div class="side-detail-val">Juan Rojas</div>
+          <div class="side-detail-val" id="tecnico-nombre">Juan Rojas</div>
         </div>
       </div>
 
@@ -230,8 +230,8 @@
     <div class="modal-form-content" id="modal-form-content">
       <div class="modal-body">
         <div class="modal-service-info">
-          <div class="msvc-title">Instalación completa de grifería y llaves de paso</div>
-          <div class="msvc-price">$45.000 · Juan Rojas · Providencia</div>
+          <div class="msvc-title" id="servicio-nombre">Instalación completa de grifería y llaves de paso</div>
+          <div class="msvc-price">$<span id="servicio-precio">45.000</span> · <span id="tecnico-nombre">Juan Rojas</span> · <span id="tecnico-comuna">Providencia</span></div>
         </div>
 
         <div class="schedule-section">
@@ -247,8 +247,8 @@
         </div>
 
         <div class="modal-q-label">Responde las preguntas del técnico</div>
-
-        <!-- Pregunta 1: texto, obligatoria -->
+        
+        <!-- Pregunta 1: texto, obligatoria 
         <div class="form-question">
           <div class="fq-label">
             ¿Qué tipo de grifería tienes para instalar?
@@ -257,7 +257,7 @@
           <textarea class="fq-input" id="q1" placeholder="Ej: Monomando de cocina marca Corona, modelo X..." rows="3"></textarea>
         </div>
 
-        <!-- Pregunta 2: Sí/No, obligatoria -->
+        Pregunta 2: Sí/No, obligatoria 
         <div class="form-question">
           <div class="fq-label">
             ¿Ya cuentas con la grifería comprada?
@@ -274,13 +274,13 @@
           <input type="hidden" id="q2" value="">
         </div>
 
-        <!-- Pregunta 3: texto, opcional -->
+        Pregunta 3: texto, opcional 
         <div class="form-question">
           <div class="fq-label">¿Tienes alguna observación adicional?</div>
           <textarea class="fq-input" id="q3" placeholder="Cualquier detalle relevante (acceso al inmueble, materiales adicionales, etc.)" rows="3"></textarea>
         </div>
 
-        <!-- Pregunta 4: Sí/No, opcional -->
+         Pregunta 4: Sí/No, opcional 
         <div class="form-question">
           <div class="fq-label">¿Necesitas boleta o factura por el servicio?</div>
           <div class="fq-bool" id="q4-bool">
@@ -294,7 +294,12 @@
           <input type="hidden" id="q4" value="">
         </div>
       </div>
+      -->
 
+      <div id="formulario-dinamico" class="contenedor-preguntas-dinamicas">
+          </div>
+
+      </div>
       <div class="modal-footer">
         <button class="btn-cancelar" onclick="closeModal()">Cancelar</button>
         <button class="btn-enviar" onclick="submitForm()">
@@ -307,7 +312,7 @@
     <div class="modal-success" id="modal-success">
       <div class="ms-icon"><i class="ti ti-circle-check"></i></div>
       <div class="ms-title">¡Solicitud enviada!</div>
-      <div class="ms-desc">Juan Rojas recibirá tu solicitud y te contactará para confirmar la fecha y hora del servicio.</div>
+      <div class="ms-desc"><span id="tecnico-nombre">Nombre Tecnico</span> recibirá tu solicitud y te contactará para confirmar la fecha y hora del servicio.</div>
       <button class="btn-contratar btn-center" onclick="closeModal()">
         Volver al servicio
       </button>
