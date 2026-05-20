@@ -1,13 +1,16 @@
-import os
-from pathlib import Path
-
 import firebase_admin
-from dotenv import load_dotenv
 from firebase_admin import credentials, firestore
+import os
+from dotenv import load_dotenv
 
-BASE_DIR = Path(__file__).resolve().parents[1]
-load_dotenv(BASE_DIR / ".env")
-
+"""
+para hacer correctamente la conexion con Firebase, es importante seguir los siguientes pasos:
+1. descargar el archivo JSON de las credenciales de Firebase desde la consola de Firebase.
+2. guardar ese archivo en un lugar seguro dentro de tu proyecto (por ejemplo, en una carpeta llamada "config" o "secrets").
+3. agregar la ruta a ese archivo JSON en key.env, por ejemplo: FIREBASE_KEY_PATH=config/firebase_key.json
+"""
+# Cargar variables de entorno del archivo .env
+load_dotenv()
 
 def initialize_firebase():
     """
@@ -17,31 +20,15 @@ def initialize_firebase():
     # Verificamos si la app ya fue inicializada para evitar errores de duplicidad
     if not firebase_admin._apps:
         # Obtenemos la ruta o el contenido del JSON desde la variable de entorno
-        cert_path = os.path.join(os.path.dirname(__file__), "firebase_key.json")
+        cert_path = os.getenv("FIREBASE_KEY_PATH")
         
         if cert_path:
             cred = credentials.Certificate(cert_path)
             firebase_admin.initialize_app(cred)
         else:
-            raise Exception("Error: No se encontró la variable FIREBASE_KEY_PATH")
-    if firebase_admin._apps:
-        return firestore.client()
+            raise Exception("Error: No se encontrÃ³ la variable FIREBASE_KEY_PATH")
 
-    cert_path = os.getenv("FIREBASE_KEY_PATH") or os.getenv("FIREBASE_CREDENTIALS")
-    if cert_path:
-        cert_file = Path(cert_path)
-    else:
-        cert_file = BASE_DIR / "core" / "firebase_key.json"
-
-    if not cert_file.is_absolute():
-        cert_file = BASE_DIR / cert_file
-
-    if not cert_file.exists():
-        raise FileNotFoundError(f"No se encontro la credencial Firebase: {cert_file}")
-
-    cred = credentials.Certificate(str(cert_file))
-    firebase_admin.initialize_app(cred)
     return firestore.client()
 
-
+# Exportamos el cliente de la base de datos para usarlo en los routers (MVC) [8]
 db = initialize_firebase()

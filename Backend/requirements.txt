@@ -1,5 +1,6 @@
-fastapi
-uvicorn
-firebase-admin
-python-dotenv
-mercadopago
+fastapi>=0.100.0,<1.0.0
+uvicorn>=0.23.0,<1.0.0
+pydantic[email]>=2.0.0,<3.0.0
+firebase-admin>=6.0.0,<8.0.0
+python-dotenv>=1.0.0,<2.0.0
+mercadopago>=2.2.0,<3.0.0

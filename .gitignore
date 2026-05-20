@@ -4,4 +4,8 @@ __pycache__/
 *.env
 firebase_key.json
 **/firebase_key.json
+*firebase_key*.json
+**/*firebase_key*.json
+serviceAccountKey.json
+**/serviceAccountKey.json
 .venv/

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publicar Servicio — Rukano</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="css/subirServicio.css">
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">rukano</a>
+  <span class="nav-pill">Portal Técnico</span>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <h1>Publica tu servicio</h1>
+    <p>Completa la información para que los clientes te encuentren y contraten</p>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-item active" id="step-1-btn" onclick="goStep(1)">
+      <div class="step-num">1</div> Info básica
+    </div>
+    <div class="step-item" id="step-2-btn" onclick="goStep(2)">
+      <div class="step-num">2</div> Alcance
+    </div>
+    <div class="step-item" id="step-3-btn" onclick="goStep(3)">
+      <div class="step-num">3</div> Preguntas
+    </div>
+    <div class="step-item" id="step-4-btn" onclick="goStep(4)">
+      <div class="step-num">4</div> Publicar
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="section visible" id="section-1">
+    <div class="section-header">
+      <div class="section-icon"><i class="ti ti-file-description"></i></div>
+      <div>
+        <h2>Información básica</h2>
+        <p>Nombre, descripción, precio y duración de tu servicio</p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Título del servicio <span class="req">*</span></label>
+      <input type="text" id="titulo" placeholder="Ej: Instalación de grifería y llaves de paso" maxlength="80">
+      <div class="char-count"><span id="titulo-count">0</span> / 80</div>
+      <div class="field-error" id="err-titulo">El título es obligatorio.</div>
+    </div>
+
+    <div class="field">
+      <label>Descripción <span class="req">*</span> <span class="hint">Mín. 30 caracteres</span></label>
+      <textarea id="descripcion" placeholder="Describe qué realizas: materiales que usas, procedimientos, experiencia, garantía, etc." maxlength="800" rows="5"></textarea>
+      <div class="char-count"><span id="desc-count">0</span> / 800</div>
+      <div class="field-error" id="err-descripcion">La descripción debe tener al menos 30 caracteres.</div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Precio del servicio <span class="req">*</span></label>
+        <div class="input-prefix">
+          <span class="prefix-sym">$</span>
+          <input type="number" id="precio" placeholder="0" min="0">
+        </div>
+        <div class="field-error" id="err-precio">Ingresa un precio válido mayor a 0.</div>
+      </div>
+      <div class="field">
+        <label>Duración aprox. <span class="req">*</span> <span class="hint">en horas</span></label>
+        <div class="input-prefix">
+          <span class="prefix-sym"><i class="ti ti-clock" style="font-size:13px;vertical-align:-1px"></i></span>
+          <input type="number" id="duracion" placeholder="0" min="0.5" step="0.5">
+        </div>
+        <div class="field-error" id="err-duracion">Ingresa una duración válida.</div>
+      </div>
+    </div>
+
+    <div class="nav-buttons" style="justify-content:flex-end">
+      <button class="btn-primary" onclick="nextStep(1)">Siguiente <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="section" id="section-2">
+    <div class="section-header">
+      <div class="section-icon"><i class="ti ti-list-check"></i></div>
+      <div>
+        <h2>Alcance del servicio</h2>
+        <p>Define qué incluye y qué NO incluye — mínimo 3 ítems en cada lista</p>
+      </div>
+    </div>
+
+    <div class="list-grid">
+      <div>
+        <div class="list-label">
+          <div class="dot" style="background:var(--c-deep-moss)"></div>
+          Qué incluye <span class="req" style="color:var(--c-mahogany);margin-left:2px">*</span>
+        </div>
+        <div class="list-builder">
+          <div class="list-items" id="include-items"></div>
+          <div class="list-error" id="err-include">Se requieren al menos 3 ítems.</div>
+          <div class="list-counter"><span id="include-count">0</span> ítem(s) — mínimo 3</div>
+          <div class="list-add-row">
+            <input type="text" id="include-input" placeholder="Agregar ítem..." maxlength="100" onkeydown="handleListKey(event,'include')">
+            <button class="btn-add-item" onclick="addItem('include')"><i class="ti ti-plus"></i> Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="list-label">
+          <div class="dot" style="background:var(--c-mahogany)"></div>
+          Qué NO incluye <span class="req" style="color:var(--c-mahogany);margin-left:2px">*</span>
+        </div>
+        <div class="list-builder">
+          <div class="list-items" id="exclude-items"></div>
+          <div class="list-error" id="err-exclude">Se requieren al menos 3 ítems.</div>
+          <div class="list-counter"><span id="exclude-count">0</span> ítem(s) — mínimo 3</div>
+          <div class="list-add-row">
+            <input type="text" id="exclude-input" placeholder="Agregar ítem..." maxlength="100" onkeydown="handleListKey(event,'exclude')">
+            <button class="btn-add-item" onclick="addItem('exclude')"><i class="ti ti-plus"></i> Agregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-secondary" onclick="prevStep(2)"><i class="ti ti-arrow-left"></i> Anterior</button>
+      <button class="btn-primary" onclick="nextStep(2)">Siguiente <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="section" id="section-3">
+    <div class="section-header">
+      <div class="section-icon"><i class="ti ti-message-question"></i></div>
+      <div>
+        <h2>Formulario al cliente</h2>
+        <p>Preguntas que el cliente responderá al contratar — puedes dejarlo vacío</p>
+      </div>
+    </div>
+
+    <div id="questions-container"></div>
+
+    <button class="btn-add-question" onclick="addQuestion()">
+      <i class="ti ti-plus"></i> Agregar pregunta
+    </button>
+
+    <div class="nav-buttons">
+      <button class="btn-secondary" onclick="prevStep(3)"><i class="ti ti-arrow-left"></i> Anterior</button>
+      <button class="btn-primary" onclick="nextStep(3)">Revisar publicación <i class="ti ti-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="section" id="section-4">
+    <div class="section-header">
+      <div class="section-icon"><i class="ti ti-eye"></i></div>
+      <div>
+        <h2>Revisar y publicar</h2>
+        <p>Así verán tu servicio los clientes en Rukano — revisa antes de publicar</p>
+      </div>
+    </div>
+
+    <div id="preview-content"></div>
+
+    <div class="nav-buttons">
+      <button class="btn-secondary" onclick="prevStep(4)"><i class="ti ti-arrow-left"></i> Editar</button>
+      <button class="btn-primary" onclick="publishService()" style="font-size:13px;padding:15px 36px;">
+        <i class="ti ti-rocket"></i> Publicar servicio
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="success-screen">
+    <div class="success-icon"><i class="ti ti-circle-check"></i></div>
+    <h2>¡Publicado!</h2>
+    <p>Tu servicio ya está visible en Rukano. Te avisaremos cuando un cliente quiera contratarte.</p>
+    <button class="btn-primary" onclick="resetForm()" style="margin:0 auto;">
+      <i class="ti ti-plus"></i> Publicar otro servicio
+    </button>
+  </div>
+
+</div>
+
+<script>
+let currentStep = 1;
+const includeItems = [];
+const excludeItems = [];
+const questions = [];
+let questionCounter = 0;
+
+document.getElementById('titulo').addEventListener('input', function() {
+  document.getElementById('titulo-count').textContent = this.value.length;
+});
+document.getElementById('descripcion').addEventListener('input', function() {
+  document.getElementById('desc-count').textContent = this.value.length;
+});
+
+function goStep(n) {
+  if (n >= currentStep) return;
+  showStep(n);
+}
+
+function nextStep(from) {
+  if (!validateStep(from)) return;
+  showStep(from + 1);
+}
+
+function prevStep(from) {
+  showStep(from - 1);
+}
+
+function showStep(n) {
+  currentStep = n;
+  for (let i = 1; i <= 4; i++) {
+    const sec = document.getElementById('section-' + i);
+    if (sec) sec.classList.toggle('visible', i === n);
+    const btn = document.getElementById('step-' + i + '-btn');
+    if (btn) {
+      btn.classList.remove('active', 'done');
+      if (i === n) btn.classList.add('active');
+      else if (i < n) btn.classList.add('done');
+    }
+  }
+  if (n === 4) buildPreview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function validateStep(step) {
+  let ok = true;
+  if (step === 1) {
+    const titulo = document.getElementById('titulo').value.trim();
+    const desc = document.getElementById('descripcion').value.trim();
+    const precio = parseFloat(document.getElementById('precio').value);
+    const duracion = parseFloat(document.getElementById('duracion').value);
+    setErr('titulo', !titulo);
+    setErr('descripcion', desc.length < 30);
+    setErr('precio', !precio || precio <= 0);
+    setErr('duracion', !duracion || duracion <= 0);
+    if (!titulo || desc.length < 30 || !precio || precio <= 0 || !duracion || duracion <= 0) ok = false;
+  }
+  if (step === 2) {
+    const incOk = includeItems.length >= 3;
+    const exOk = excludeItems.length >= 3;
+    document.getElementById('err-include').classList.toggle('show', !incOk);
+    document.getElementById('err-exclude').classList.toggle('show', !exOk);
+    if (!incOk || !exOk) ok = false;
+  }
+  return ok;
+}
+
+function setErr(id, show) {
+  const el = document.getElementById('err-' + id);
+  const inp = document.getElementById(id);
+  if (el) el.classList.toggle('show', show);
+  if (inp) inp.classList.toggle('error', show);
+}
+
+function addItem(type) {
+  const input = document.getElementById(type + '-input');
+  const val = input.value.trim();
+  if (!val) return;
+  const arr = type === 'include' ? includeItems : excludeItems;
+  arr.push(val);
+  renderItems(type);
+  input.value = '';
+  input.focus();
+  if (arr.length >= 3) document.getElementById('err-' + type).classList.remove('show');
+}
+
+function handleListKey(e, type) {
+  if (e.key === 'Enter') { e.preventDefault(); addItem(type); }
+}
+
+function removeItem(type, idx) {
+  const arr = type === 'include' ? includeItems : excludeItems;
+  arr.splice(idx, 1);
+  renderItems(type);
+}
+
+function renderItems(type) {
+  const arr = type === 'include' ? includeItems : excludeItems;
+  const container = document.getElementById(type + '-items');
+  document.getElementById(type + '-count').textContent = arr.length;
+  container.innerHTML = arr.map((item, i) => `
+    <div class="list-item-row">
+      <div class="list-bullet ${type}"></div>
+      <span>${escHtml(item)}</span>
+      <button class="btn-icon" onclick="removeItem('${type}',${i})" title="Eliminar">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+function addQuestion() {
+  questionCounter++;
+  const id = questionCounter;
+  questions.push({ id, text: '', type: 'text', required: false });
+  renderQuestions();
+  setTimeout(() => { const inp = document.getElementById('q-text-' + id); if (inp) inp.focus(); }, 50);
+}
+
+function removeQuestion(id) {
+  const idx = questions.findIndex(q => q.id === id);
+  if (idx !== -1) questions.splice(idx, 1);
+  renderQuestions();
+}
+
+function setQType(id, type) {
+  const q = questions.find(q => q.id === id);
+  if (q) { q.type = type; renderQuestions(); }
+}
+
+function toggleRequired(id) {
+  const q = questions.find(q => q.id === id);
+  if (q) { q.required = !q.required; renderQuestions(); }
+}
+
+function updateQText(id, val) {
+  const q = questions.find(q => q.id === id);
+  if (q) q.text = val;
+}
+
+function renderQuestions() {
+  const c = document.getElementById('questions-container');
+  if (questions.length === 0) {
+    c.innerHTML = `<div class="empty-questions">
+      <i class="ti ti-message-off"></i>
+      <p>Sin preguntas — el formulario estará vacío para el cliente</p>
+    </div>`;
+    return;
+  }
+  c.innerHTML = questions.map((q, idx) => `
+    <div class="question-card" id="qcard-${q.id}">
+      <div class="question-header">
+        <div class="question-num">${idx + 1}</div>
+        <input type="text" id="q-text-${q.id}" value="${escHtml(q.text)}"
+          placeholder="Escribe la pregunta aquí..."
+          oninput="updateQText(${q.id}, this.value)">
+        <button class="btn-icon" onclick="removeQuestion(${q.id})" title="Eliminar">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
+      <div class="question-options">
+        <span class="q-type-label">Tipo:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn ${q.type === 'text' ? 'active-text' : ''}" onclick="setQType(${q.id},'text')">
+            <i class="ti ti-text-size" style="font-size:13px"></i> Texto
+          </button>
+          <button class="toggle-btn ${q.type === 'bool' ? 'active-bool' : ''}" onclick="setQType(${q.id},'bool')">
+            <i class="ti ti-toggle-right" style="font-size:13px"></i> Sí / No
+          </button>
+        </div>
+        <label class="required-toggle" onclick="toggleRequired(${q.id})">
+          <div class="toggle-switch ${q.required ? 'on' : ''}"></div>
+          Obligatoria
+        </label>
+      </div>
+    </div>
+  `).join('');
+}
+
+function buildPreview() {
+  const titulo = document.getElementById('titulo').value.trim();
+  const desc = document.getElementById('descripcion').value.trim();
+  const precio = parseFloat(document.getElementById('precio').value);
+  const duracion = parseFloat(document.getElementById('duracion').value);
+
+  const incHtml = includeItems.map(i => `<li>${escHtml(i)}</li>`).join('');
+  const exHtml = excludeItems.map(i => `<li>${escHtml(i)}</li>`).join('');
+
+  const qHtml = questions.length === 0
+    ? `<p style="font-size:12px;color:var(--c-text-muted);font-weight:900;text-transform:uppercase;letter-spacing:0.5px">Sin preguntas adicionales.</p>`
+    : questions.map((q, idx) => `
+      <div class="preview-question-item">
+        <span style="color:var(--c-text-muted);font-size:11px;font-weight:900;font-family:'Arial Black',sans-serif;min-width:20px;">${idx + 1}.</span>
+        <span style="flex:1;font-size:14px">${escHtml(q.text) || '<em style="color:var(--c-text-muted)">Sin texto</em>'}</span>
+        <span class="q-type ${q.type}">${q.type === 'text' ? 'Texto' : 'Sí / No'}</span>
+        ${q.required ? '<span class="q-required-badge">Obligatoria</span>' : ''}
+      </div>
+    `).join('');
+
+  document.getElementById('preview-content').innerHTML = `
+    <div class="preview-title">${escHtml(titulo)}</div>
+    <div class="preview-meta">
+      <div class="preview-badge"><i class="ti ti-coin"></i> $${precio.toLocaleString('es-CL')}</div>
+      <div class="preview-badge"><i class="ti ti-clock"></i> ${duracion} hora${duracion !== 1 ? 's' : ''} aprox.</div>
+    </div>
+    <div class="preview-desc">${escHtml(desc)}</div>
+    <div class="preview-lists">
+      <div class="preview-list-box include">
+        <div class="preview-list-title">✓ Incluye</div>
+        <ul>${incHtml}</ul>
+      </div>
+      <div class="preview-list-box exclude">
+        <div class="preview-list-title">✗ No incluye</div>
+        <ul>${exHtml}</ul>
+      </div>
+    </div>
+    ${questions.length > 0 ? `<div class="preview-questions"><h3>Preguntas al contratar</h3>${qHtml}</div>` : ''}
+  `;
+}
+
+function publishService() {
+  document.getElementById('section-4').classList.remove('visible');
+  document.getElementById('success-screen').classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() {
+  ['titulo','descripcion','precio','duracion'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('titulo-count').textContent = '0';
+  document.getElementById('desc-count').textContent = '0';
+  includeItems.length = 0; excludeItems.length = 0; questions.length = 0; questionCounter = 0;
+  renderItems('include'); renderItems('exclude'); renderQuestions();
+  document.getElementById('success-screen').classList.remove('visible');
+  showStep(1);
+  document.getElementById('section-1').classList.add('visible');
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+renderItems('include'); renderItems('exclude'); renderQuestions();
+</script>
+</body>
+</html>

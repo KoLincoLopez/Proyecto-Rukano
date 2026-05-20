@@ -3,10 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime, timezone
 import uuid
 import re 
-try:
-    from ..core.firebase_config import db
-except ImportError:
-    from core.firebase_config import db
+from core.firebase_config import db
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 router = APIRouter()
@@ -75,8 +72,12 @@ async def crear_servicio(datos: Servicio):
             "keyWords": palabras_clave,
             "que_incluye": datos.que_incluye,
             "que_no_incluye": datos.que_no_incluye,
+
             "disponibilidad": [d.dict() for d in datos.disponibilidad],
             "esquema_formulario": [p.dict() for p in datos.esquema_formulario], 
+
+            "esquema_formulario": [p.model_dump() for p in datos.esquema_formulario],
+
             "estado": "activo",
             "createdAt": ahora
         }
