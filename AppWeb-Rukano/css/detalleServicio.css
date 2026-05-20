@@ -1222,3 +1222,12 @@
 .fq-bool-btn.selected i {
     color: var(--c-blanco) !important;
 }
+
+/* Estilo unificado para los selectores nativos de fecha y hora */
+input[type="date"].fq-input,
+input[type="time"].fq-input {
+    min-height: 45px;
+    font-family: inherit;
+    padding: 10px 14px;
+    box-sizing: border-box;
+}

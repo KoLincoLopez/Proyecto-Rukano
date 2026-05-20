@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import uuid
 from core.firebase_config import db
 from google.cloud import firestore # Para transacciones de concurrencia
+from google.cloud.firestore import FieldFilter
 
 router = APIRouter()
 
@@ -94,14 +95,35 @@ Ejemplo de payload para reservar una cita con el formulario respondido:
 # --- OBTENER CITAS DEL TÉCNICO (AGUDA VIRTUAL) ---
 @router.get("/agenda/{tecnico_id}")
 async def obtener_agenda(tecnico_id: str):
-    # RF 4: El técnico puede visualizar sus compromisos de forma ordenada [8]
-    docs = db.collection("citas").where("idTecnico", "==", tecnico_id).stream()
+    # RF 4: El técnico puede visualizar sus compromisos de forma ordenada
+    docs = db.collection("citas").where(filter=FieldFilter("idTecnico", "==", tecnico_id)).stream()
     agenda = [doc.to_dict() for doc in docs]
     return sorted(agenda, key=lambda x: (x['fecha'], x['hora']))
+
+# ── NUEVO: horas ocupadas por técnico y fecha (para el calendario del frontend) ──
+@router.get("/horas_ocupadas/{tecnico_id}/{fecha}")
+async def obtener_horas_ocupadas(tecnico_id: str, fecha: str):
+    """
+    Devuelve las horas ya reservadas para un técnico en una fecha específica.
+    El frontend usa esto para deshabilitar esos slots en el selector de horario.
+    Formato fecha esperado: YYYY-MM-DD
+    """
+    try:
+        docs = (
+            db.collection("citas")
+            .where(filter=FieldFilter("idTecnico", "==", tecnico_id))
+            .where(filter=FieldFilter("fecha", "==", fecha))
+            .stream()
+        )
+        horas_ocupadas = [doc.to_dict().get("hora") for doc in docs]
+        horas_ocupadas = [h for h in horas_ocupadas if h]  # filtramos None
+        return {"status": "success", "fecha": fecha, "horas_ocupadas": horas_ocupadas}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al consultar agenda: {str(e)}")
 
 @router.get("/agenda/cliente/{cliente_id}")
 async def obtener_citas_cliente(cliente_id: str):
     # Devuelve las citas asociadas a un cliente (idCliente)
-    docs = db.collection("citas").where("idCliente", "==", cliente_id).stream()
+    docs = db.collection("citas").where(filter=FieldFilter("idCliente", "==", cliente_id)).stream()
     citas = [doc.to_dict() for doc in docs]
     return sorted(citas, key=lambda x: (x['fecha'], x['hora']))

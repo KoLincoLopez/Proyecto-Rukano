@@ -6,6 +6,91 @@
 <title>Gasfitería completa — Rukano</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link rel="stylesheet" href="css/detalleServicio.css">
+<style>
+/* ── SECCIONES DE PASOS ── */
+.schedule-section { margin-bottom: 24px; }
+.schedule-title {
+  font-size: 13px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: #0f172a;
+  display: flex; align-items: center; gap: 7px; margin-bottom: 6px;
+}
+.schedule-note { font-size: 13px; color: #64748b; margin-bottom: 14px; }
+
+/* ── CABECERA DEL CALENDARIO ── */
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.cal-mes-label { font-size: 15px; font-weight: 700; color: #0f172a; }
+.cal-nav-btn {
+  background: none; border: 1px solid #e2e8f0; border-radius: 7px;
+  width: 32px; height: 32px; cursor: pointer; color: #334155;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.cal-nav-btn:hover { background: #f1f5f9; }
+
+/* ── NOMBRES DE DÍAS ── */
+.cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  text-align: center; font-size: 11px; font-weight: 600;
+  color: #94a3b8; margin-bottom: 6px; letter-spacing: .04em;
+}
+
+/* ── GRILLA DE DÍAS ── */
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
+}
+.cal-cell {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: background .12s, color .12s;
+  user-select: none;
+}
+.cal-cell.empty    { visibility: hidden; }
+.cal-cell.disabled { color: #cbd5e1; cursor: not-allowed; }
+.cal-cell.available:hover { background: #eff6ff; color: #2563eb; }
+.cal-cell.today    { border: 2px solid #2563eb; color: #2563eb; font-weight: 700; }
+.cal-cell.selected { background: #2563eb; color: #fff !important; font-weight: 700; }
+
+/* ── RESUMEN FECHA ELEGIDA ── */
+.cal-selected-summary {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: #16a34a; font-weight: 600;
+  background: #f0fdf4; border: 1px solid #bbf7d0;
+  border-radius: 8px; padding: 8px 12px; margin-top: 10px;
+}
+
+/* ── SLOTS DE HORA ── */
+.timeslot-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  margin-top: 10px;
+}
+.timeslot-btn {
+  padding: 9px 4px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1.5px solid #e2e8f0; background: #fff;
+  color: #334155; transition: all .15s; text-align: center;
+}
+.timeslot-btn.libre:hover    { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+.timeslot-btn.seleccionado   { background: #2563eb; color: #fff; border-color: #2563eb; }
+.timeslot-btn.ocupado        {
+  background: #f8fafc; color: #cbd5e1; border-color: #f1f5f9;
+  cursor: not-allowed; text-decoration: line-through;
+}
+.slot-loading {
+  grid-column: 1 / -1; text-align: center; padding: 20px;
+  color: #94a3b8; font-size: 13px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { display: inline-block; animation: spin .8s linear infinite; }
+
+/* ── WARNING BOOKING ── */
+.schedule-warning {
+  background: #fff7ed; border: 1px solid #fed7aa;
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 13px; color: #c2410c; font-weight: 500; margin-top: 12px;
+}
+</style>
 
 </head>
 <body>
@@ -190,7 +275,7 @@
         <!-- GUEST: muestra login wall -->
         <div class="login-wall only-guest">
           <p>Para contratar este servicio debes <strong>iniciar sesión</strong> en tu cuenta Rukano.</p>
-          <a href="#" class="btn-login-wall" onclick="simulateLogin(event)">
+          <a href="login.html" class="btn-login-wall">
             <i class="ti ti-login icon-btn"></i> Iniciar sesión
           </a>
         </div>
@@ -200,7 +285,7 @@
           <i class="ti ti-calendar-check icon-md"></i>
           Contratar servicio
         </button>
-        <button class="btn-report" onclick="openReportModal()" disabled aria-disabled="true">
+        <button class="btn-report" onclick="openReportModal()" id="btn-report">
           <i class="ti ti-alert-circle icon-md"></i>
           Reportar servicio
         </button>
@@ -229,80 +314,75 @@
     <!-- FORM CONTENT -->
     <div class="modal-form-content" id="modal-form-content">
       <div class="modal-body">
+
+        <!-- INFO DEL SERVICIO -->
         <div class="modal-service-info">
-          <div class="msvc-title" id="servicio-nombre">Instalación completa de grifería y llaves de paso</div>
-          <div class="msvc-price">$<span id="final-precio">45.000</span> · <span id="final-nombre">Juan Rojas</span> · <span id="side-tecnico-comuna">Providencia</span></div>
+          <div class="msvc-title" id="modal-servicio-titulo">Nombre del servicio</div>
+          <div class="msvc-price">$<span id="final-precio">0</span> · <span id="final-nombre">Técnico</span> · <span id="side-tecnico-comuna">Comuna</span></div>
         </div>
 
-        <div class="schedule-section">
-          <div class="schedule-title">Elige fecha y hora</div>
-          <div class="schedule-note">Los días y horarios ocupados no están disponibles. Selecciona un día libre y luego el horario.</div>
-          <div class="schedule-calendar" id="schedule-calendar"></div>
-          <div class="schedule-summary">Fecha seleccionada: <strong id="selected-date-label">Ninguna</strong></div>
-          <div class="timeslot-label">Horarios disponibles</div>
+        <!-- ── PASO 1: CALENDARIO ── -->
+        <div class="schedule-section" id="schedule-section">
+          <div class="schedule-title">
+            <i class="ti ti-calendar-event"></i> Paso 1 — Elige una fecha
+          </div>
+          <div class="schedule-note">Navega el mes y selecciona el día que prefieres para la visita.</div>
+
+          <!-- Cabecera del mes con flechas de navegación -->
+          <div class="cal-header">
+            <button type="button" class="cal-nav-btn" onclick="calNavMes(-1)">
+              <i class="ti ti-chevron-left"></i>
+            </button>
+            <span class="cal-mes-label" id="cal-mes-label">Mayo 2025</span>
+            <button type="button" class="cal-nav-btn" onclick="calNavMes(1)">
+              <i class="ti ti-chevron-right"></i>
+            </button>
+          </div>
+
+          <!-- Nombres de días -->
+          <div class="cal-weekdays">
+            <span>Lu</span><span>Ma</span><span>Mi</span><span>Ju</span>
+            <span>Vi</span><span>Sá</span><span>Do</span>
+          </div>
+
+          <!-- Grilla de días (generada por JS) -->
+          <div class="cal-grid" id="cal-grid"></div>
+
+          <!-- Resumen fecha seleccionada -->
+          <div class="cal-selected-summary" id="cal-selected-summary" style="display:none;">
+            <i class="ti ti-check icon-inline"></i>
+            Fecha seleccionada: <strong id="selected-date-label">—</strong>
+          </div>
+        </div>
+
+        <!-- ── PASO 2: SLOTS DE HORA ── -->
+        <div class="schedule-section" id="timeslot-section" style="display:none;">
+          <div class="schedule-title">
+            <i class="ti ti-clock"></i> Paso 2 — Elige un horario
+          </div>
+          <div class="schedule-note" id="timeslot-note">Cargando horarios disponibles...</div>
           <div class="timeslot-grid" id="timeslot-grid"></div>
-          <div class="schedule-warning" id="schedule-warning">Elige fecha y hora antes de enviar la solicitud.</div>
-          <input type="hidden" id="selectedDate" value="">
-          <input type="hidden" id="selectedTime" value="">
         </div>
 
-        <div class="modal-q-label">Responde las preguntas del técnico</div>
-        
-        <!-- Pregunta 1: texto, obligatoria 
-        <div class="form-question">
-          <div class="fq-label">
-            ¿Qué tipo de grifería tienes para instalar?
-            <span class="fq-req">Obligatoria</span>
+        <!-- ── PASO 3: PREGUNTAS DEL TÉCNICO ── -->
+        <div class="schedule-section" id="form-section" style="display:none;">
+          <div class="schedule-title">
+            <i class="ti ti-message-question"></i> Paso 3 — Responde al técnico
           </div>
-          <textarea class="fq-input" id="q1" placeholder="Ej: Monomando de cocina marca Corona, modelo X..." rows="3"></textarea>
+          <form id="formulario-dinamico" class="contenedor-preguntas-dinamicas"></form>
         </div>
 
-        Pregunta 2: Sí/No, obligatoria 
-        <div class="form-question">
-          <div class="fq-label">
-            ¿Ya cuentas con la grifería comprada?
-            <span class="fq-req">Obligatoria</span>
-          </div>
-          <div class="fq-bool" id="q2-bool">
-            <button class="fq-bool-btn" onclick="selectBool('q2','si',this)">
-              <i class="ti ti-check icon-inline"></i> Sí
-            </button>
-            <button class="fq-bool-btn" onclick="selectBool('q2','no',this)">
-              <i class="ti ti-x icon-inline"></i> No
-            </button>
-          </div>
-          <input type="hidden" id="q2" value="">
-        </div>
+        <!-- Warning global del modal -->
+        <div class="schedule-warning" id="booking-warning" style="display:none;"></div>
 
-        Pregunta 3: texto, opcional 
-        <div class="form-question">
-          <div class="fq-label">¿Tienes alguna observación adicional?</div>
-          <textarea class="fq-input" id="q3" placeholder="Cualquier detalle relevante (acceso al inmueble, materiales adicionales, etc.)" rows="3"></textarea>
-        </div>
-
-         Pregunta 4: Sí/No, opcional 
-        <div class="form-question">
-          <div class="fq-label">¿Necesitas boleta o factura por el servicio?</div>
-          <div class="fq-bool" id="q4-bool">
-            <button class="fq-bool-btn" onclick="selectBool('q4','si',this)">
-              <i class="ti ti-check icon-inline"></i> Sí
-            </button>
-            <button class="fq-bool-btn" onclick="selectBool('q4','no',this)">
-              <i class="ti ti-x icon-inline"></i> No
-            </button>
-          </div>
-          <input type="hidden" id="q4" value="">
-        </div>
-      </div>
-      -->
-
-      <form id="formulario-dinamico" class="contenedor-preguntas-dinamicas">
-      </form>
+        <!-- Inputs ocultos que guardan la selección final -->
+        <input type="hidden" id="selectedDate" value="">
+        <input type="hidden" id="selectedTime" value="">
 
       </div>
       <div class="modal-footer">
         <button class="btn-cancelar" onclick="closeModal()">Cancelar</button>
-        <button class="btn-enviar" onclick="procesarContratacion()">
+        <button class="btn-enviar" id="btn-enviar-solicitud" onclick="procesarContratacion()">
           <i class="ti ti-send icon-btn"></i> Enviar solicitud
         </button>
       </div>
@@ -380,15 +460,7 @@
   </div>
 </div>
 
-<!-- DEMO BAR -->
-<div class="demo-bar">
-  <div class="demo-label">Demo — Estado de sesión</div>
-  <div class="demo-toggle" onclick="toggleLogin()">
-    <div class="demo-toggle-track" id="demo-track"></div>
-    <span class="demo-toggle-label" id="demo-label">Sin sesión</span>
-  </div>
-</div>
+<!-- Demo bar eliminada: la sesión la maneja Firebase Auth -->
 
-<script src="js/detalleServicio.js"></script>
-</body>
+<script type="module" src="js/detalleServicio.js"></script>
 </html>
