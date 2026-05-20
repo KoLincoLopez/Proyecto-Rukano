@@ -257,6 +257,7 @@ function crearCardServicio(servicio) {
     const categoria = servicio.categoria || "Servicio";
     const comuna = servicio.comuna || "Comuna no especificada";
     const precio = servicio.precio ? Math.round(servicio.precio) : 0;
+    const idServicio = servicio.idServicio; 
     
     // CONTROL DE SINGULAR / PLURAL AUTOMÁTICO
     const tiempo = servicio.tiempoEstimado 
@@ -325,7 +326,7 @@ function crearCardServicio(servicio) {
                     </div>
                 </div>
 
-                <a href="detalleServicio.html?id=${encodeURIComponent(servicio.id)}" class="enlace-perfil">
+                <a href="detalleServicio.html?id=${encodeURIComponent(idServicio)}" class="enlace-perfil">
                     <span class="btn-outlined-pro">
                         VER SERVICIO
                     </span>
