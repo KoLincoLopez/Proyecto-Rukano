@@ -28,9 +28,9 @@
 <div class="breadcrumb">
   <a href="#">Inicio</a>
   <span class="sep">/</span>
-  <a href="#">Categoria</a>
+  <a href="#" id="bread-categoria">Categoria</a>
   <span class="sep">/</span>
-  <span class="current">cargando nombre...</span>
+  <span class="current" id="bread-nombre">cargando nombre...</span>
 </div>
 
 <!-- HERO -->
@@ -231,7 +231,7 @@
       <div class="modal-body">
         <div class="modal-service-info">
           <div class="msvc-title" id="servicio-nombre">Instalación completa de grifería y llaves de paso</div>
-          <div class="msvc-price">$<span id="servicio-precio">45.000</span> · <span id="tecnico-nombre">Juan Rojas</span> · <span id="side-tecnico-comuna">Providencia</span></div>
+          <div class="msvc-price">$<span id="final-precio">45.000</span> · <span id="final-nombre">Juan Rojas</span> · <span id="side-tecnico-comuna">Providencia</span></div>
         </div>
 
         <div class="schedule-section">
@@ -296,13 +296,13 @@
       </div>
       -->
 
-      <div id="formulario-dinamico" class="contenedor-preguntas-dinamicas">
-          </div>
+      <form id="formulario-dinamico" class="contenedor-preguntas-dinamicas">
+      </form>
 
       </div>
       <div class="modal-footer">
         <button class="btn-cancelar" onclick="closeModal()">Cancelar</button>
-        <button class="btn-enviar" onclick="submitForm()">
+        <button class="btn-enviar" onclick="procesarContratacion()">
           <i class="ti ti-send icon-btn"></i> Enviar solicitud
         </button>
       </div>
@@ -312,7 +312,7 @@
     <div class="modal-success" id="modal-success">
       <div class="ms-icon"><i class="ti ti-circle-check"></i></div>
       <div class="ms-title">¡Solicitud enviada!</div>
-      <div class="ms-desc"><span id="tecnico-nombre">Nombre Tecnico</span> recibirá tu solicitud y te contactará para confirmar la fecha y hora del servicio.</div>
+      <div class="ms-desc"><span id="final-nombre-2">Nombre Tecnico</span> recibirá tu solicitud y te contactará para confirmar la fecha y hora del servicio.</div>
       <button class="btn-contratar btn-center" onclick="closeModal()">
         Volver al servicio
       </button>

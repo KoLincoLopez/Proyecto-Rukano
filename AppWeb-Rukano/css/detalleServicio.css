@@ -1207,3 +1207,18 @@
 .review-user { font-size: 12px; font-weight: 900; color: var(--c-licorice); margin-bottom: 4px; }
 .review-body { font-size: 13px; color: #333; line-height:1.4; }
 .reviews-empty { font-size: 12px; color: var(--c-text-muted); }
+
+/* ─── ESTADO ACTIVO PARA BOTONES SÍ/NO ─── */
+.fq-bool-btn.active,
+.fq-bool-btn.selected {
+    background-color: var(--c-licorice) !important;
+    color: var(--c-blanco) !important;
+    border-color: var(--c-licorice) !important;
+    font-weight: bold;
+}
+
+/* Para asegurarnos de que el ícono (check/x) también se ponga blanco */
+.fq-bool-btn.active i,
+.fq-bool-btn.selected i {
+    color: var(--c-blanco) !important;
+}
