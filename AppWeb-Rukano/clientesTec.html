@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/clientesTec.css">
+
+    <title>Clientes | RUKANO</title>
+</head>
+
+<body>
+
+<section>
+
+    <!-- ================= NAVBAR ================= -->
+    <nav class="navbar-integrada">
+
+        <a href="#" class="bloque-logo">RUKANO</a>
+
+        <div class="bloque-menu">
+
+            <div class="nav-izquierda">
+                <a href="#">Servicios</a>
+                <a href="#">Beneficios</a>
+                <a href="#">¿Cómo funciona?</a>
+                <a href="#">Reseñas</a>
+            </div>
+
+            <div class="nav-derecha">
+
+                <a href="inicioSesion.html" class="link-sesion">
+                    Iniciar sesión
+                </a>
+
+                <a href="registro.html" class="btn-registro-nav">
+                    Registrarse
+                </a>
+
+                <!-- FOTO PERFIL = BOTON MENU -->
+                <div class="perfil-usuario toggle">
+                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png"
+                        alt="">
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+    <!-- ================= FIN NAVBAR ================= -->
+
+
+    <!-- ================= MENU ================= -->
+    <div class="nav">
+
+        <ul>
+
+            <li>
+                <a href="dashboard.html">
+                    <span class="icono">
+                        <ion-icon name="home-outline"></ion-icon>
+                    </span>
+
+                    <span class="titulo">
+                        Dashboard
+                    </span>
+                </a>
+            </li>
+
+            <li class="active">
+                <a href="clientesTec.html">
+                    <span class="icono">
+                        <ion-icon name="people-outline"></ion-icon>
+                    </span>
+
+                    <span class="titulo">
+                        Clientes
+                    </span>
+                </a>
+            </li>
+
+            <li>
+                <a href="agendaTec.html">
+                    <span class="icono">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                    </span>
+
+                    <span class="titulo">
+                        Agenda
+                    </span>
+                </a>
+            </li>
+
+            <li>
+                <a href="miperfilTec.html">
+                    <span class="icono">
+                        <ion-icon name="person-circle-outline"></ion-icon>
+                    </span>
+
+                    <span class="titulo">
+                        Mi Perfil
+                    </span>
+                </a>
+            </li>
+
+            <li>
+                <a href="configuracionTec.html">
+                    <span class="icono">
+                        <ion-icon name="settings-outline"></ion-icon>
+                    </span>
+
+                    <span class="titulo">
+                        Configuración
+                    </span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="cerrar-sesion">
+
+                    <span class="icono">
+                        <ion-icon name="log-out-outline"></ion-icon>
+                    </span>
+
+                    <span class="titulo">
+                        Cerrar Sesión
+                    </span>
+
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+    <!-- ================= FIN MENU ================= -->
+
+
+    <!-- ================= CONTENIDO ================= -->
+    <div class="container">
+
+        <div class="detalles">
+
+            <div class="ordenes-recientes">
+
+                <!-- HEADER -->
+                <div class="header-clientes">
+
+                    <div>
+                        <h2>Clientes</h2>
+                        <p>Listado de clientes registrados</p>
+                    </div>
+
+                </div>
+                <!-- FIN HEADER -->
+
+
+                <!-- BUSCADOR -->
+                <div class="buscador-clientes">
+
+                    <ion-icon name="search-outline"></ion-icon>
+
+                    <input 
+                        type="text"
+                        placeholder="Buscar cliente..."
+                    >
+
+                </div>
+                <!-- FIN BUSCADOR -->
+
+
+                <!-- TABLA -->
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Servicio</th>
+                            <th>Estado</th>
+                            <th>Contacto</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+
+                            <td>John Doe</td>
+
+                            <td>Instalación eléctrica</td>
+
+                            <td>
+                                <span class="estatus entregado">
+                                    Completado
+                                </span>
+                            </td>
+
+                            <td>
+                                john@email.com
+                            </td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>Olivia Anderson</td>
+
+                            <td>Cambio de enchufe</td>
+
+                            <td>
+                                <span class="estatus pendiente">
+                                    Pendiente
+                                </span>
+                            </td>
+
+                            <td>
+                                olivia@email.com
+                            </td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>Scarlett Godoy</td>
+
+                            <td>Revisión tablero</td>
+
+                            <td>
+                                <span class="estatus en-progreso">
+                                    En progreso
+                                </span>
+                            </td>
+
+                            <td>
+                                scarlett@email.com
+                            </td>
+
+                        </tr>
+
+                        <tr>
+
+                            <td>Benjamín Ahumada</td>
+
+                            <td>Reparación circuito</td>
+
+                            <td>
+                                <span class="estatus entregado">
+                                    Completado
+                                </span>
+                            </td>
+
+                            <td>
+                                benjamin@email.com
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+                <!-- FIN TABLA -->
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- ================= FIN CONTENIDO ================= -->
+
+</section>
+
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer-rukano">
+
+    <div class="footer-grid">
+
+        <div class="footer-col-marca">
+
+            <h2 class="logo-footer">
+                RUKANO
+            </h2>
+
+            <p class="slogan-footer">
+                Transformando la forma en que cuidas tu hogar.
+            </p>
+
+            <div class="redes-sociales">
+                <a href="#">INSTAGRAM</a>
+                <a href="#">FACEBOOK</a>
+                <a href="#">LINKEDIN</a>
+            </div>
+
+        </div>
+
+        <div class="footer-col">
+
+            <span class="footer-label">
+                AYUDA
+            </span>
+
+            <nav class="footer-links">
+                <a href="#">Centro de ayuda</a>
+                <a href="#">Seguridad</a>
+                <a href="#">Cómo pagar</a>
+            </nav>
+
+        </div>
+
+        <div class="footer-col">
+
+            <span class="footer-label">
+                COMPAÑÍA
+            </span>
+
+            <nav class="footer-links">
+                <a href="#">Sobre nosotros</a>
+                <a href="#">Términos y condiciones</a>
+                <a href="#">Privacidad</a>
+            </nav>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+        <p>
+            © 2026 RUKANO. HECHO CON PASIÓN POR EQUIPO TAP
+        </p>
+
+        <p>
+            CHILE / SANTIAGO
+        </p>
+
+    </div>
+
+</footer>
+<!-- ================= FIN FOOTER ================= -->
+
+
+<!-- ================= IONICONS ================= -->
+<script 
+    type="module" 
+    src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js">
+</script>
+
+<script 
+    nomodule 
+    src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js">
+</script>
+
+
+<!-- ================= JS ================= -->
+<script src="js/clientesTec.js"></script>
+
+</body>
+</html>
