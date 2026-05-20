@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil Técnico</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/perfilTec.css">
+</head>
+
+<body>
+
+<div class="split-pantalla">
+
+    <div class="split-imagen">
+        <a href="#" class="logo-flotante">RUKANO</a>
+        <div class="texto-imagen">
+            <h1>Tu talento, <br>listo para destacar.</h1>
+        </div>
+    </div>
+
+    <div class="split-formulario">
+
+        <div class="formulario-caja scroll-custom">
+
+            <h2 class="titulo-form">PERFIL TÉCNICO</h2>
+            <p class="subtitulo-form">Completa tu información profesional</p>
+
+            <form id="tecnicoForm">
+
+                <div class="grupo-input">
+                    <input type="text" id="nombre" placeholder="Nombre completo" required>
+                </div>
+
+                <div class="grid-inputs">
+                    <div class="grupo-input">
+                        <input type="number" id="edad" placeholder="Edad" min="18" max="80" required>
+                    </div>
+                    <div class="grupo-input">
+                        <input type="text" id="rut" placeholder="RUT (12345678-9)" required>
+                        <small id="rutError" style="color: red; display: none;">
+                            RUT no válido
+                        </small>
+                    </div>
+                </div>
+
+                <div class="grupo-input">
+                    <input type="text" id="direccion" placeholder="Dirección" required>
+                </div>
+
+                <div class="grupo-input">
+                    <select id="especialidad" required>
+                        <option value="">Selecciona tu especialidad</option>
+                        <option>Electricidad</option>
+                        <option>Gasfitería</option>
+                        <option>Carpintería</option>
+                        <option>Climatización</option>
+                        <option>Pintura</option>
+                        <option>Electrodomésticos</option>
+                        <option>Limpieza</option>
+                        <option>Jardinería</option>
+                    </select>
+                </div>
+
+                <div class="grupo-input">
+                    <input type="number" id="experiencia" placeholder="Años de experiencia">
+                </div>
+
+                <div class="grupo-input">
+                    <textarea id="descripcion" placeholder="Describe tu experiencia profesional" required></textarea>
+                </div>
+
+                <div class="grupo-input">
+                    <input type="file" id="archivo" required>
+                </div>
+
+                <div class="estado-box">
+                    <span id="estadoBadge">No verificado</span>
+                </div>
+
+                <button id="btnGuardar" class="btn-primario" disabled>
+                    GUARDAR PERFIL
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script type="module" src="js/perfilTec.js"></script>
+
+</body>
+</html>
