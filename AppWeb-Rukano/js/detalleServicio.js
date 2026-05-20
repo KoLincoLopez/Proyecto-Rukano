@@ -208,6 +208,10 @@ async function cargarDetalleServicio(idServicio) {
             await cargarDatosTecnico(servicio.idTecnico);
         }
 
+        // 4. Llenar listas
+        renderLista("servicio-incluye", servicio.que_incluye);
+        renderLista("servicio-no-incluye", servicio.que_no_incluye);
+
         // Precargar el formulario dinámico (las preguntas del técnico)
         renderFormularioDinamico(servicio.esquema_formulario);
         renderLista("servicio-no-incluye", servicio.que_no_incluye);
