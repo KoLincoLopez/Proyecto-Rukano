@@ -1,34 +1,53 @@
-import firebase_admin
-from firebase_admin import credentials, firestore
+import json
 import os
-from dotenv import load_dotenv
 
-"""
-para hacer correctamente la conexion con Firebase, es importante seguir los siguientes pasos:
-1. descargar el archivo JSON de las credenciales de Firebase desde la consola de Firebase.
-2. guardar ese archivo en un lugar seguro dentro de tu proyecto (por ejemplo, en una carpeta llamada "config" o "secrets").
-3. agregar la ruta a ese archivo JSON en key.env, por ejemplo: FIREBASE_KEY_PATH=config/firebase_key.json
-"""
-# Cargar variables de entorno del archivo .env
+import firebase_admin
+from dotenv import load_dotenv
+from firebase_admin import credentials, firestore
+
+
 load_dotenv()
+
 
 def initialize_firebase():
     """
-    Inicializa el SDK de Firebase utilizando las credenciales seguras.
-    Esto soporta la arquitectura Serverless del proyecto [6].
-    """
-    # Verificamos si la app ya fue inicializada para evitar errores de duplicidad
-    if not firebase_admin._apps:
-        # Obtenemos la ruta o el contenido del JSON desde la variable de entorno
-        cert_path = os.getenv("FIREBASE_KEY_PATH")
-        
-        if cert_path:
-            cred = credentials.Certificate(cert_path)
-            firebase_admin.initialize_app(cred)
-        else:
-            raise Exception("Error: No se encontrÃ³ la variable FIREBASE_KEY_PATH")
+    Inicializa Firebase Admin usando credenciales desde variables de entorno.
 
+    Prioridad:
+    1. FIREBASE_CREDENTIALS_JSON: JSON completo del service account.
+    2. FIREBASE_KEY_PATH: ruta local al archivo JSON de credenciales.
+    """
+    if firebase_admin._apps:
+        return firestore.client()
+
+    credentials_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+    key_path = os.getenv("FIREBASE_KEY_PATH")
+
+    if credentials_json:
+        try:
+            service_account_info = json.loads(credentials_json)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(
+                "FIREBASE_CREDENTIALS_JSON contiene JSON invalido. "
+                "Verifica que el JSON completo este en una sola variable de entorno."
+            ) from exc
+
+        cred = credentials.Certificate(service_account_info)
+    elif key_path:
+        if not os.path.exists(key_path):
+            raise RuntimeError(
+                f"FIREBASE_KEY_PATH apunta a un archivo inexistente: {key_path}"
+            )
+
+        cred = credentials.Certificate(key_path)
+    else:
+        raise RuntimeError(
+            "No se encontraron credenciales de Firebase. Configura "
+            "FIREBASE_CREDENTIALS_JSON en produccion o FIREBASE_KEY_PATH en local."
+        )
+
+    firebase_admin.initialize_app(cred)
     return firestore.client()
 
-# Exportamos el cliente de la base de datos para usarlo en los routers (MVC) [8]
+
 db = initialize_firebase()

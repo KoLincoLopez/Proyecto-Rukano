@@ -460,7 +460,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         if (!lista) return;
 
-        lista.innerHTML = "<p>Cargando citas...</p>";
+        lista.innerHTML = "<p>Cargando tus citas...</p>";
 
         try {
             const consulta = query(
@@ -471,7 +471,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const resultado = await getDocs(consulta);
 
             if (resultado.empty) {
-                lista.innerHTML = "<p>No tienes citas registradas.</p>";
+                lista.innerHTML = "<p>AÃºn no tienes citas registradas.</p>";
                 return;
             }
 
@@ -479,6 +479,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
             resultado.forEach((docCita) => {
                 const cita = docCita.data();
+                const citaId = docCita.id;
+                const servicioId = cita.idServicio || "";
+                const tecnicoId = cita.idTecnico || "";
+                const faltanDatosResena = !citaId || !servicioId || !tecnicoId;
+
+                if (faltanDatosResena) {
+                    console.warn("Cita sin datos suficientes para valorar servicio", {
+                        citaId,
+                        servicioId,
+                        tecnicoId,
+                        cita
+                    });
+                }
+
+                const urlResena = faltanDatosResena
+                    ? "#"
+                    : `resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}&tecnicoId=${encodeURIComponent(tecnicoId)}`;
 
                 const card = document.createElement("div");
                 card.className = "dato";
@@ -491,6 +508,9 @@ window.addEventListener("DOMContentLoaded", () => {
                     <p>Horario: ${cita.horaInicio} - ${cita.horaFin}</p>
                     <p>Precio: $${cita.precio}</p>
                     <p>Estado: ${cita.estado}</p>
+                    <a href="${urlResena}" class="btn-link btn-reservar" ${faltanDatosResena ? 'aria-disabled="true"' : ""}>
+                        Valorar servicio
+                    </a>
                 `;
 
                 lista.appendChild(card);
@@ -498,7 +518,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             console.log("Error al cargar citas:", error);
-            lista.innerHTML = "<p>Error al cargar tus citas.</p>";
+            lista.innerHTML = "<p>No se pudieron cargar tus citas. Intenta nuevamente.</p>";
         }
     }
 

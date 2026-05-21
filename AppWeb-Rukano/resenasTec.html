@@ -3,70 +3,80 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Evaluar Técnico</title>
+  <title>Rukano - Evaluar servicio</title>
 
   <link rel="stylesheet" href="css/resenasTec.css">
 </head>
 
 <body>
+  <header class="resena-header">
+    <a href="index.html" class="bloque-logo">RUKANO</a>
+  </header>
 
-<div class="split-pantalla">
+  <main class="resena-page">
+    <section class="resena-card">
+      <div class="resena-intro">
+        <span class="resena-etiqueta">Valoración de servicio</span>
+        <h1>Evalúa tu experiencia</h1>
+      </div>
 
-    <div class="split-imagen">
-        <a href="#" class="logo-flotante">RUKANO</a>
-        <div class="texto-imagen">
-            <h1>Tu opinión<br>marca la diferencia.</h1>
-        </div>
-    </div>
+      <form id="formResena" class="resena-form">
+        <div class="grupo-input">
+          <label class="label-rol">Calificación</label>
 
-    <div class="split-formulario">
+          <div class="stars" aria-label="Selecciona una calificación">
+            <input type="radio" name="rating" value="5" id="s5">
+            <label for="s5">★</label>
 
-        <div class="formulario-caja">
+            <input type="radio" name="rating" value="4" id="s4">
+            <label for="s4">★</label>
 
-            <h2 class="titulo-form">EVALUAR SERVICIO</h2>
-            <p class="subtitulo-form">Cuéntanos tu experiencia con el técnico</p>
+            <input type="radio" name="rating" value="3" id="s3">
+            <label for="s3">★</label>
 
-            <form id="formResena">
+            <input type="radio" name="rating" value="2" id="s2">
+            <label for="s2">★</label>
 
-                <div class="grupo-input">
-                    <label class="label-rol">Calificación</label>
-
-                    <div class="stars">
-                        <input type="radio" name="rating" value="5" id="s5">
-                        <label for="s5">★</label>
-
-                        <input type="radio" name="rating" value="4" id="s4">
-                        <label for="s4">★</label>
-
-                        <input type="radio" name="rating" value="3" id="s3">
-                        <label for="s3">★</label>
-
-                        <input type="radio" name="rating" value="2" id="s2">
-                        <label for="s2">★</label>
-
-                        <input type="radio" name="rating" value="1" id="s1">
-                        <label for="s1">★</label>
-                    </div>
-
-                <div class="grupo-input">
-                    <textarea id="comentario" placeholder="Escribe tu experiencia..." required></textarea>
-                </div>
-
-                <button id="btnEnviar" class="btn-primario">
-                    ENVIAR RESEÑA
-                </button>
-
-            </form>
-
-            <div id="mensajeEstado" class="mensaje-estado"></div>
-
+            <input type="radio" name="rating" value="1" id="s1">
+            <label for="s1">★</label>
+          </div>
         </div>
 
+        <div class="grupo-input">
+          <label class="label-rol" for="comentario">Comentario</label>
+          <textarea id="comentario" placeholder="Cuéntanos cómo fue el servicio..." required></textarea>
+        </div>
+
+        <div class="acciones-resena">
+          <a href="panelCliente.html" id="btnVolverPanel" class="btn-secundario">Volver al panel</a>
+          <button id="btnEnviar" class="btn-primario">
+            Enviar reseña
+          </button>
+        </div>
+      </form>
+
+      <div id="mensajeEstado" class="mensaje-estado"></div>
+    </section>
+  </main>
+
+  <div id="modalExitoResena" class="modal-exito-resena" aria-hidden="true">
+    <div class="modal-exito-panel" role="dialog" aria-modal="true" aria-labelledby="tituloExitoResena">
+      <div class="modal-exito-icono">✓</div>
+      <h2 id="tituloExitoResena">¡Gracias por tu valoración!</h2>
+      <p>
+        Tu opinión ayuda a otros clientes y mejora la calidad del servicio.
+      </p>
+      <span>Volviendo a tu panel...</span>
+      <button type="button" id="btnVolverAhora" class="btn-modal-volver">Volver ahora</button>
     </div>
+  </div>
 
-</div>
-
-<script type="module" src="resenasTec.js"></script>
-
+  <script type="module" src="js/resenasTec.js"></script>
+  <script>
+    const btnVolverPanel = document.getElementById("btnVolverPanel");
+    if (btnVolverPanel) {
+      btnVolverPanel.href = document.referrer || "panelCliente.html";
+    }
+  </script>
 </body>
 </html>
