@@ -1,0 +1,383 @@
+:root {
+    --c-licorice: #1E0D0A;
+    --c-rosewood: #550006;
+    --c-mahogany: #BF353B;
+    --c-froly: #EE666A;
+    --c-blanco: #FFFFFF;
+    --c-arena: #F5EFEA;
+    --pad-lateral: 80px;
+}
+
+#navbar-root {
+    position: relative;
+    z-index: 2000;
+}
+
+.navbar-integrada {
+    align-items: center;
+    background-color: transparent;
+    display: flex;
+    left: 0;
+    padding-top: 30px;
+    position: fixed;
+    top: 0;
+    transition: background-color 0.4s ease, box-shadow 0.4s ease, padding 0.4s ease;
+    width: 100%;
+    z-index: 2000;
+}
+
+.navbar-integrada.scrolled {
+    background-color: rgba(30, 13, 10, 0.98);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+.navbar-integrada.scrolled .bloque-menu {
+    background-color: transparent;
+}
+
+.bloque-logo {
+    color: var(--c-arena) !important;
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 50px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+    padding: 0 0 5px var(--pad-lateral);
+    text-decoration: none !important;
+    transition: opacity 0.3s ease;
+}
+
+.bloque-logo:hover {
+    color: var(--c-arena) !important;
+    opacity: 0.8;
+}
+
+.bloque-menu {
+    align-items: center;
+    background-color: var(--c-licorice);
+    border-radius: 40px 0 0 40px;
+    display: flex;
+    flex-grow: 1;
+    height: 60px;
+    justify-content: space-between;
+    margin-left: 80px;
+    padding: 0 40px 0 50px;
+}
+
+.nav-izquierda,
+.nav-derecha,
+#auth-container {
+    align-items: center;
+    display: flex;
+}
+
+.nav-izquierda {
+    gap: 30px;
+}
+
+.nav-derecha,
+#auth-container {
+    gap: 25px;
+}
+
+.navbar-auth-loading {
+    min-height: 38px;
+    min-width: 170px;
+}
+
+.nav-izquierda a {
+    color: var(--c-arena);
+    font-size: 15px;
+    font-weight: 700;
+    opacity: 0.8;
+    text-decoration: none;
+    transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-izquierda a:hover,
+.nav-izquierda a.activo {
+    color: var(--c-froly);
+    opacity: 1;
+}
+
+.navbar-public-actions {
+    align-items: center;
+    display: flex;
+    gap: 18px;
+}
+
+.navbar-login-link,
+.navbar-register-link {
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-decoration: none !important;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+    white-space: nowrap;
+}
+
+.navbar-login-link {
+    color: var(--c-arena);
+    opacity: 0.78;
+}
+
+.navbar-login-link:hover {
+    color: var(--c-blanco);
+    opacity: 1;
+}
+
+.navbar-register-link {
+    background-color: var(--c-mahogany);
+    border: 1px solid var(--c-mahogany);
+    border-radius: 999px;
+    color: var(--c-blanco);
+    padding: 10px 24px;
+}
+
+.navbar-register-link:hover {
+    background-color: var(--c-froly);
+    border-color: var(--c-froly);
+    color: var(--c-blanco);
+    transform: translateY(-1px);
+}
+
+.rukano-user-menu {
+    position: relative;
+}
+
+.rukano-user-trigger {
+    align-items: center;
+    background: rgba(245, 239, 234, 0.08);
+    border: 1px solid rgba(245, 239, 234, 0.22);
+    border-radius: 999px;
+    color: var(--c-arena);
+    cursor: pointer;
+    display: inline-flex;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 900;
+    gap: 9px;
+    min-height: 38px;
+    letter-spacing: 1px;
+    opacity: 1;
+    padding: 8px 14px 8px 10px;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.rukano-user-trigger:hover,
+.rukano-user-menu:focus-within .rukano-user-trigger,
+.rukano-user-menu.open .rukano-user-trigger {
+    background: rgba(245, 239, 234, 0.16);
+    border-color: rgba(245, 239, 234, 0.46);
+    color: var(--c-blanco);
+    transform: translateY(-1px);
+}
+
+.navbar-profile-icon {
+    align-items: center;
+    background: var(--c-arena);
+    border-radius: 50%;
+    color: var(--c-licorice);
+    display: inline-flex;
+    flex-shrink: 0;
+    height: 24px;
+    justify-content: center;
+    width: 24px;
+}
+
+.navbar-profile-icon svg {
+    display: block;
+    height: 15px;
+    width: 15px;
+}
+
+.navbar-profile-name {
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.navbar-profile-chevron {
+    font-size: 11px;
+    line-height: 1;
+    margin-left: 1px;
+    opacity: 0.78;
+    transition: transform 0.22s ease;
+}
+
+.rukano-user-menu.open .navbar-profile-chevron {
+    transform: rotate(180deg);
+}
+
+.rukano-user-dropdown {
+    background: var(--c-blanco);
+    border: 2px solid var(--c-licorice);
+    box-shadow: 8px 8px 0 var(--c-licorice);
+    min-width: 240px;
+    opacity: 0;
+    padding: 16px;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 18px);
+    transform: translateY(-8px);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    z-index: 2500;
+}
+
+.rukano-user-menu.open .rukano-user-dropdown {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.rukano-user-dropdown a,
+.rukano-user-dropdown button {
+    background: transparent;
+    border: 0;
+    color: var(--c-licorice);
+    cursor: pointer;
+    display: block;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    padding: 10px 8px;
+    text-align: left;
+    text-decoration: none;
+    text-transform: uppercase;
+    width: 100%;
+}
+
+.rukano-user-dropdown a:hover,
+.rukano-user-dropdown button:hover {
+    background-color: var(--c-arena);
+    color: var(--c-mahogany);
+}
+
+.hamburguesa {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    :root {
+        --pad-lateral: 40px;
+    }
+
+    .bloque-logo {
+        font-size: 40px;
+    }
+
+    .nav-izquierda,
+    .nav-derecha {
+        display: none !important;
+    }
+
+    .bloque-menu {
+        background-color: transparent !important;
+        justify-content: flex-end;
+        margin-left: auto;
+        padding: 0;
+    }
+
+    .navbar-integrada.menu-open {
+        background-color: rgba(30, 13, 10, 0.98);
+        padding-bottom: 18px;
+    }
+
+    .navbar-integrada.menu-open .bloque-menu {
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 18px;
+        height: auto;
+        padding-right: var(--pad-lateral);
+    }
+
+    .navbar-integrada.menu-open .nav-izquierda,
+    .navbar-integrada.menu-open .nav-derecha {
+        align-items: flex-end;
+        display: flex !important;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .navbar-integrada.menu-open #auth-container {
+        align-items: flex-end;
+        flex-direction: column;
+    }
+
+    .navbar-integrada.menu-open .navbar-public-actions {
+        align-items: flex-end;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .navbar-integrada.menu-open .rukano-user-dropdown {
+        max-width: calc(100vw - 40px);
+        right: 0;
+    }
+
+    .hamburguesa {
+        align-items: center;
+        background-color: transparent;
+        border: 2px solid var(--c-arena);
+        border-radius: 50%;
+        color: var(--c-arena);
+        cursor: pointer;
+        display: flex;
+        font-size: 24px;
+        height: 45px;
+        justify-content: center;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+        width: 45px;
+    }
+
+    .hamburguesa:hover {
+        background-color: var(--c-arena);
+        color: var(--c-licorice);
+        transform: scale(1.05);
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --pad-lateral: 20px;
+    }
+
+    .navbar-integrada {
+        padding-top: 24px;
+    }
+
+    .bloque-logo {
+        font-size: 30px;
+    }
+
+    .bloque-menu {
+        min-height: 54px;
+    }
+
+    .rukano-user-menu {
+        max-width: 58vw;
+    }
+
+    .rukano-user-trigger {
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .navbar-profile-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .rukano-user-dropdown {
+        box-shadow: 5px 5px 0 var(--c-licorice);
+        max-width: calc(100vw - 40px);
+        min-width: 0;
+        width: calc(100vw - 40px);
+    }
+}

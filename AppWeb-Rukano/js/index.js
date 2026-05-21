@@ -10,12 +10,10 @@ let cantidadVisible = 6;
 let comunaUsuario = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-    const navbar = document.querySelector(".navbar-integrada");
     const inputBusqueda = document.querySelector(".input-invisible");
     const lupaBusqueda = document.querySelector(".lupa-profesional");
     const botonesCategoria = document.querySelectorAll(".boton-ovalado[data-categoria]");
     const grillaServicios = document.querySelector("#servicios");
-    const authContainer = document.getElementById("auth-container");
 
     let usuarioLogueado = null;
     let comunaUsuario = null;
@@ -33,17 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (userSnap.exists()) {
                     const data = userSnap.data();
                     comunaUsuario = data.comuna; 
-                    
-                    // Renderizado Editorial del Navbar
-                    authContainer.innerHTML = `
-                        <div class="perfil-nav-container">
-                            <div class="usuario-badge">
-                                <span class="usuario-inicial">${escapeHtml(data.nombre.charAt(0).toUpperCase())}</span>
-                                <span class="usuario-nombre">${escapeHtml(data.nombre.toUpperCase())}</span>
-                            </div>
-                            <a href="panelCliente.html" class="btn-perfil-nav">MI PERFIL</a>
-                        </div>
-                    `;
 
                     // 1. CARGA INICIAL CORRECTA Y FILTRADA:
                     // Usamos tu buscador general para que traiga "todos" los servicios de su comuna.
@@ -62,29 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             usuarioLogueado = null;
             comunaUsuario = null;
-            authContainer.innerHTML = `<a href="login.html" class="boton-inicio">Iniciar Sesión</a>`;
-            
-            // 2. BLOQUEO AUTOMÁTICO DE SEGURIDAD
+// 2. BLOQUEO AUTOMÁTICO DE SEGURIDAD
             // Pasamos un string vacío porque la función abortará inmediatamente
             // en su primera línea mostrando el cartel de "ACCESO RESTRINGIDO".
             ejecutarBusqueda("");
         }
     });
     
-
-    const actualizarNavbar = () => {
-        if (!navbar) return;
-
-        if (window.scrollY > 50) {
-            navbar.classList.add("scrolled");
-        } else {
-            navbar.classList.remove("scrolled");
-        }
-    };
-
-    actualizarNavbar();
-    window.addEventListener("scroll", actualizarNavbar);
-
 
 // --- FUNCIÓN NÚCLEO DE BÚSQUEDA REFINADA E INTELIGENTE ---
 async function ejecutarBusqueda(url) {
@@ -354,4 +325,10 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+function obtenerTexto(...valores) {
+    const fallback = valores.pop();
+    const valor = valores.find((item) => item !== undefined && item !== null && String(item).trim() !== "");
+    return valor !== undefined ? String(valor).trim() : fallback;
 }
