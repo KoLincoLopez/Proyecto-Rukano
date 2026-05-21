@@ -259,6 +259,8 @@ async function cargarDatosTecnico(idTecnico) {
 
             const avatar = document.getElementById("tecnico-avatar");
             if (avatar && tecnico.foto_perfil) avatar.src = tecnico.foto_perfil;
+
+            cargarResenasTecnico(idTecnico);
         }
     } catch (error) {
         console.error("Error cargando técnico:", error);
@@ -890,6 +892,82 @@ async function submitReport() {
             btnEnviar.disabled    = false;
             btnEnviar.innerHTML   = `<i class="ti ti-send icon-btn"></i> Enviar reporte`;
         }
+    }
+}
+
+// ─── CARGA DE RESEÑAS DEL TÉCNICO ───
+async function cargarResenasTecnico(idTecnico) {
+    const contenedor = document.getElementById("tech-reviews-list");
+    if (!contenedor) return;
+
+    try {
+        // ⚠️ Asegúrate de que el prefijo '/resenas' coincida con cómo montaste el router en tu FastAPI (main.py)
+        const response = await fetch(`${API_URL}/reviews/resenas_tecnico/${idTecnico}`);
+        
+        if (!response.ok) throw new Error("Error al obtener reseñas del servidor.");
+        
+        const resultado = await response.json();
+
+        if (resultado.status === "success" && resultado.data && resultado.data.length > 0) {
+            contenedor.innerHTML = ""; // Limpiar el estado de "Cargando..."
+
+            resultado.data.forEach(resena => {
+                // 1. Calcular estrellas doradas vs grises
+                let estrellasHTML = "";
+                const puntos = Math.round(Number(resena.puntuacion || 0));
+                for(let i = 1; i <= 5; i++) {
+                    if (i <= puntos) {
+                        estrellasHTML += `<i class="ti ti-star-filled" style="color: #F59E0B;"></i>`; // Estrella dorada
+                    } else {
+                        estrellasHTML += `<i class="ti ti-star" style="color: var(--c-border);"></i>`; // Estrella vacía
+                    }
+                }
+
+                // 2. Formatear la fecha si existe
+                let fechaTexto = "Recientemente";
+                if (resena.fecha_creacion) {
+                    const fechaObj = new Date(resena.fecha_creacion);
+                    fechaTexto = fechaObj.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+                }
+
+                // 3. Crear el elemento de la tarjeta
+                const card = document.createElement("div");
+                card.className = "review-card";
+                card.innerHTML = `
+                    <div class="review-header">
+                        <div class="review-avatar">
+                            <i class="ti ti-user"></i>
+                        </div>
+                        <div class="review-meta">
+                            <div class="review-author">Cliente Rukano</div>
+                            <div class="review-date">${fechaTexto}</div>
+                        </div>
+                        <div class="review-stars">
+                            ${estrellasHTML}
+                        </div>
+                    </div>
+                    <div class="review-body">
+                        ${escapeHtml(resena.comentario || "El cliente no dejó ningún comentario escrito.")}
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            });
+        } else {
+            // Si el backend responde éxito pero el array está vacío
+            contenedor.innerHTML = `
+                <div class="review-empty">
+                    Este profesional aún no tiene reseñas. ¡Sé el primero en calificarlo al terminar tu servicio!
+                </div>
+            `;
+        }
+
+    } catch (error) {
+        console.error("Error cargando reseñas:", error);
+        contenedor.innerHTML = `
+            <div class="review-empty" style="color: var(--c-mahogany);">
+                No pudimos cargar las reseñas en este momento.
+            </div>
+        `;
     }
 }
 

@@ -6,91 +6,6 @@
 <title>Gasfitería completa — Rukano</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link rel="stylesheet" href="css/detalleServicio.css">
-<style>
-/* ── SECCIONES DE PASOS ── */
-.schedule-section { margin-bottom: 24px; }
-.schedule-title {
-  font-size: 13px; font-weight: 700; letter-spacing: .06em;
-  text-transform: uppercase; color: #0f172a;
-  display: flex; align-items: center; gap: 7px; margin-bottom: 6px;
-}
-.schedule-note { font-size: 13px; color: #64748b; margin-bottom: 14px; }
-
-/* ── CABECERA DEL CALENDARIO ── */
-.cal-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px;
-}
-.cal-mes-label { font-size: 15px; font-weight: 700; color: #0f172a; }
-.cal-nav-btn {
-  background: none; border: 1px solid #e2e8f0; border-radius: 7px;
-  width: 32px; height: 32px; cursor: pointer; color: #334155;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s;
-}
-.cal-nav-btn:hover { background: #f1f5f9; }
-
-/* ── NOMBRES DE DÍAS ── */
-.cal-weekdays {
-  display: grid; grid-template-columns: repeat(7, 1fr);
-  text-align: center; font-size: 11px; font-weight: 600;
-  color: #94a3b8; margin-bottom: 6px; letter-spacing: .04em;
-}
-
-/* ── GRILLA DE DÍAS ── */
-.cal-grid {
-  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px;
-}
-.cal-cell {
-  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
-  transition: background .12s, color .12s;
-  user-select: none;
-}
-.cal-cell.empty    { visibility: hidden; }
-.cal-cell.disabled { color: #cbd5e1; cursor: not-allowed; }
-.cal-cell.available:hover { background: #eff6ff; color: #2563eb; }
-.cal-cell.today    { border: 2px solid #2563eb; color: #2563eb; font-weight: 700; }
-.cal-cell.selected { background: #2563eb; color: #fff !important; font-weight: 700; }
-
-/* ── RESUMEN FECHA ELEGIDA ── */
-.cal-selected-summary {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 13px; color: #16a34a; font-weight: 600;
-  background: #f0fdf4; border: 1px solid #bbf7d0;
-  border-radius: 8px; padding: 8px 12px; margin-top: 10px;
-}
-
-/* ── SLOTS DE HORA ── */
-.timeslot-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-  margin-top: 10px;
-}
-.timeslot-btn {
-  padding: 9px 4px; border-radius: 8px; font-size: 13px; font-weight: 600;
-  cursor: pointer; border: 1.5px solid #e2e8f0; background: #fff;
-  color: #334155; transition: all .15s; text-align: center;
-}
-.timeslot-btn.libre:hover    { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
-.timeslot-btn.seleccionado   { background: #2563eb; color: #fff; border-color: #2563eb; }
-.timeslot-btn.ocupado        {
-  background: #f8fafc; color: #cbd5e1; border-color: #f1f5f9;
-  cursor: not-allowed; text-decoration: line-through;
-}
-.slot-loading {
-  grid-column: 1 / -1; text-align: center; padding: 20px;
-  color: #94a3b8; font-size: 13px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.spin { display: inline-block; animation: spin .8s linear infinite; }
-
-/* ── WARNING BOOKING ── */
-.schedule-warning {
-  background: #fff7ed; border: 1px solid #fed7aa;
-  border-radius: 8px; padding: 10px 14px;
-  font-size: 13px; color: #c2410c; font-weight: 500; margin-top: 12px;
-}
-</style>
 
 </head>
 <body>
@@ -99,9 +14,9 @@
 <nav>
   <a class="logo" href="index.html">rukano</a>
   <div class="nav-right">
-    <a href="#" class="nav-link">Explorar</a>
+    <a href="index.html" class="nav-link">Explorar</a>
     <a href="index.html#como-funciona" class="nav-link">Cómo funciona</a>
-    <a href="#" class="btn-nav-sesion">Iniciar sesión</a>
+    <a href="inicioSesion.html" class="btn-nav-sesion">Iniciar sesión</a>
     <div class="user-chip">
       <div class="user-avatar-sm">M</div>
       <span>Martín</span>
@@ -111,9 +26,9 @@
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
-  <a href="#">Inicio</a>
+  <a href="index.html">Inicio</a>
   <span class="sep">/</span>
-  <a href="#" id="bread-categoria">Categoria</a>
+  <a href="index.html" id="bread-categoria">Categoria</a>
   <span class="sep">/</span>
   <span class="current" id="bread-nombre">cargando nombre...</span>
 </div>
@@ -130,10 +45,6 @@
     <div class="hero-meta-item">
       <div class="stars">
         <i class="ti ti-star-filled star filled"></i>
-        <i class="ti ti-star-filled star filled"></i>
-        <i class="ti ti-star-filled star filled"></i>
-        <i class="ti ti-star-filled star filled"></i>
-        <i class="ti ti-star-half-filled star half"></i>
       </div>
       <span class="val stars-label" id="tecnico-calificacion">4.5 (38 reseñas)</span>
     </div>
@@ -202,10 +113,6 @@
           <div class="tech-stars-row">
             <div class="tech-stars stars">
               <i class="ti ti-star-filled star filled"></i>
-              <i class="ti ti-star-filled star filled"></i>
-              <i class="ti ti-star-filled star filled"></i>
-              <i class="ti ti-star-filled star filled"></i>
-              <i class="ti ti-star-half-filled star half"></i>
             </div>
             <span class="tech-rating-num" id="side-calificacion-2">4.5</span>
             <span class="tech-reviews" id="tecnico-reviews">38 reseñas</span>
@@ -226,7 +133,9 @@
     <div class="block" id="tech-reviews-block">
       <div class="block-label">Reseñas</div>
       <div class="reviews-large" id="tech-reviews-list">
-        <!-- Reseñas se renderizan aquí -->
+        <div class="review-empty">
+           <i class="ti ti-loader"></i> Cargando reseñas del técnico...
+        </div>
       </div>
     </div>
 
@@ -256,10 +165,6 @@
           <div class="rating-row">
             <div class="side-stars stars">
               <i class="ti ti-star-filled star filled"></i>
-              <i class="ti ti-star-filled star filled"></i>
-              <i class="ti ti-star-filled star filled"></i>
-              <i class="ti ti-star-filled star filled"></i>
-              <i class="ti ti-star-half-filled star half"></i>
             </div>
             <span class="side-detail-val" id="side-calificacion">4.5</span>
           </div>
@@ -275,7 +180,7 @@
         <!-- GUEST: muestra login wall -->
         <div class="login-wall only-guest">
           <p>Para contratar este servicio debes <strong>iniciar sesión</strong> en tu cuenta Rukano.</p>
-          <a href="login.html" class="btn-login-wall">
+          <a href="inicioSesion.html" class="btn-login-wall">
             <i class="ti ti-login icon-btn"></i> Iniciar sesión
           </a>
         </div>
@@ -296,7 +201,7 @@
     </div>
 
     <div class="terms-note">
-      Al contratar aceptas los <a href="#" class="terms-link">términos de Rukano</a>.
+      Al contratar aceptas los <a href="terminos.html" target="_blank" class="terms-link">términos de Rukano</a>.
     </div>
   </div>
 

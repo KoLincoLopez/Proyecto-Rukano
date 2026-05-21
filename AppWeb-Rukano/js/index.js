@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             usuarioLogueado = null;
             comunaUsuario = null;
-            authContainer.innerHTML = `<a href="login.html" class="boton-inicio">Iniciar Sesión</a>`;
+            authContainer.innerHTML = `<a href="inicioSesion.html" class="boton-inicio">Iniciar Sesión</a>`;
             
             // 2. BLOQUEO AUTOMÁTICO DE SEGURIDAD
             // Pasamos un string vacío porque la función abortará inmediatamente
@@ -97,7 +97,7 @@ async function ejecutarBusqueda(url) {
             <div class="editorial-alerta alerta-restringido">
                 <h2 class="alerta-titulo">ACCESO RESTRINGIDO</h2>
                 <p class="alerta-texto">Debes iniciar sesión en la plataforma para buscar servicios y profesionales en tu zona.</p>
-                <a href="login.html" class="btn-outlined-pro">IR AL LOGIN</a>
+                <a href="inicioSesion.html" class="btn-outlined-pro">IR AL LOGIN</a>
             </div>`;
         return;
     }
@@ -208,8 +208,7 @@ async function ejecutarBusqueda(url) {
         if (e.key === "Enter") realizarBusquedaGeneral();
     });
     
-    cargarServiciosFirestore();
-});
+    });
 
     // --- FUNCIÓN UNIFICADA DE RENDERIZADO EDITORIAL ---
     function pintarServicios(listaDeServicios) {
