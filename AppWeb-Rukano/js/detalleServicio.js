@@ -236,7 +236,8 @@ async function cargarDatosTecnico(idTecnico) {
             setTxt("tecnico-comuna",       tecnico.comuna);
             setTxt("tecnico-calificacion", Number(tecnico.calificacion_promedio || 0).toFixed(1));
             setTxt("tecnico-reviews",      `${tecnico.cantidad_reseñas || 0} reseñas`);
-
+            
+                                
             const sideNombre = document.getElementById("side-nombre");
             if (sideNombre) sideNombre.textContent = `${tecnico.nombre} ${tecnico.apellido}`;
 
