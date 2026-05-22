@@ -8,6 +8,59 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
         integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" href="css/index.css" />
+    <style>
+        /* ── SKELETON LOADING ── */
+        @keyframes skeleton-shimmer {
+            0%   { background-position: -400px 0; }
+            100% { background-position:  400px 0; }
+        }
+
+        .skeleton-line,
+        .card-skeleton .avatar-circular.skeleton-box {
+            background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+            background-size: 800px 100%;
+            animation: skeleton-shimmer 1.4s infinite linear;
+            border-radius: 4px;
+            display: block;
+        }
+
+        .card-skeleton .avatar-circular.skeleton-box {
+            border-radius: 50%;
+            border: none;
+        }
+
+        .card-skeleton .nota-badge,
+        .card-skeleton .nombre-masivo,
+        .card-skeleton .tag-especialidad,
+        .card-skeleton .texto-resumen {
+            display: none;
+        }
+
+        /* ── SKELETON NAVBAR (auth-container) ── */
+        .auth-skeleton {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .auth-skeleton-badge {
+            width: 120px;
+            height: 34px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.15) 25%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.15) 75%);
+            background-size: 400px 100%;
+            animation: skeleton-shimmer 1.4s infinite linear;
+        }
+
+        .auth-skeleton-btn {
+            width: 90px;
+            height: 34px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.1) 75%);
+            background-size: 400px 100%;
+            animation: skeleton-shimmer 1.4s infinite linear;
+        }
+    </style>
 </head>
 
 <body>
@@ -25,8 +78,11 @@
 
                 <div class="nav-derecha">
                     <div id="auth-container">
-                        <a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
-                        <a href="registro.html" class="btn-registro-nav">Registrarse</a>
+                        <!-- Skeleton visible mientras Firebase verifica la sesión -->
+                        <div class="auth-skeleton" id="auth-skeleton">
+                            <div class="auth-skeleton-badge"></div>
+                            <div class="auth-skeleton-btn"></div>
+                        </div>
                     </div>
                 </div>
                 <button class="hamburguesa" onclick="openNav()" style="display: none;">☰</button>
@@ -63,110 +119,111 @@
     <div class="contenedor-simetrico">
         
         <div class="grilla-servicios" id="servicios">
-            <article class="card-editorial">
+            <!-- SKELETON CARDS — visibles solo mientras Firebase/API cargan -->
+            <article class="card-editorial card-skeleton">
                 <div class="card-header-pro">
-                    <div class="avatar-circular">
-                        <img src="https://cdn-icons-png.flaticon.com/512/4792/4792929.png" alt="Técnico"
-                            style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
-                    </div>
+                    <div class="avatar-circular skeleton-box"></div>
                     <div class="info-titulos">
-                        <span class="nota-badge">5.0</span>
-                        <h3 class="nombre-masivo">PEDRO PÉREZ</h3>
-                        <p class="tag-especialidad">ELECTRICISTA DOMICILIARIO</p>
+                        <span class="skeleton-line" style="width:40px; height:18px;"></span>
+                        <div class="skeleton-line" style="width:80%; height:22px; margin-top:8px;"></div>
+                        <div class="skeleton-line" style="width:60%; height:16px; margin-top:6px;"></div>
                     </div>
                 </div>
-
                 <div class="card-body-pro">
-                    <p class="texto-resumen">Instalaciones industriales, domiciliarias y comerciales. Certificado SEC al día.</p>
-                    <a href="perfiltecnico.html?tecnico=pedro" class="btn-outlined-pro enlace-perfil">VER PERFIL COMPLETO</a>
-                </div>
-            </article>
-            
-            <article class="card-editorial">
-                <div class="card-header-pro">
-                    <div class="avatar-circular">
-                       <img src="https://cdn-icons-png.flaticon.com/512/3077/3077018.png" alt="Técnico"
-                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
-                    </div>
-                    <div class="info-titulos">
-                        <span class="nota-badge">4.8</span>
-                        <h3 class="nombre-masivo">CARLOS MUÑOZ</h3>
-                        <p class="tag-especialidad">GASFITER CERTIFICADO</p>
-                    </div>
-                </div>
-
-                <div class="card-body-pro">
-                    <p class="texto-resumen">
-                        Reparación de fugas, mantención de baños, cañerías y emergencias domiciliarias.
-                    </p>
-                    <a href="perfiltecnico.html?tecnico=carlos" class="btn-outlined-pro enlace-perfil">   VER PERFIL COMPLETO</a>
+                    <div class="skeleton-line" style="width:100%; height:14px;"></div>
+                    <div class="skeleton-line" style="width:85%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line" style="width:70%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line skeleton-btn" style="width:160px; height:38px; margin-top:20px; border-radius:4px;"></div>
                 </div>
             </article>
 
-            <article class="card-editorial">
+            <article class="card-editorial card-skeleton">
                 <div class="card-header-pro">
-                    <div class="avatar-circular">
-                       <img src="https://cdn-icons-png.flaticon.com/512/1995/1995574.png" alt="Técnico"
-                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
-                    </div>
+                    <div class="avatar-circular skeleton-box"></div>
                     <div class="info-titulos">
-                        <span class="nota-badge">4.9</span>
-                        <h3 class="nombre-masivo">ANA ROJAS</h3>
-                        <p class="tag-especialidad">SERVICIO DE LIMPIEZA</p>
+                        <span class="skeleton-line" style="width:40px; height:18px;"></span>
+                        <div class="skeleton-line" style="width:75%; height:22px; margin-top:8px;"></div>
+                        <div class="skeleton-line" style="width:55%; height:16px; margin-top:6px;"></div>
                     </div>
                 </div>
-
                 <div class="card-body-pro">
-                    <p class="texto-resumen">
-                        Limpieza profunda de hogares, oficinas y departamentos con atención personalizada.
-                    </p>
-                    <a href="perfiltecnico.html?tecnico=ana" class="btn-outlined-pro enlace-perfil">VER PERFIL COMPLETO</a>
+                    <div class="skeleton-line" style="width:100%; height:14px;"></div>
+                    <div class="skeleton-line" style="width:90%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line" style="width:65%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line skeleton-btn" style="width:160px; height:38px; margin-top:20px; border-radius:4px;"></div>
                 </div>
             </article>
 
-            <article class="card-editorial">
+            <article class="card-editorial card-skeleton">
                 <div class="card-header-pro">
-                    <div class="avatar-circular">
-                       <img src="https://cdn-icons-png.flaticon.com/512/1518/1518914.png" alt="Técnico"
-                          style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
-                    </div>
+                    <div class="avatar-circular skeleton-box"></div>
                     <div class="info-titulos">
-                        <span class="nota-badge">4.7</span>
-                        <h3 class="nombre-masivo">LUIS HERRERA</h3>
-                        <p class="tag-especialidad">JARDINERÍA Y PODA</p>
+                        <span class="skeleton-line" style="width:40px; height:18px;"></span>
+                        <div class="skeleton-line" style="width:70%; height:22px; margin-top:8px;"></div>
+                        <div class="skeleton-line" style="width:50%; height:16px; margin-top:6px;"></div>
                     </div>
                 </div>
-
                 <div class="card-body-pro">
-                    <p class="texto-resumen">
-                        Mantención de jardines, corte de pasto, limpieza exterior y poda de árboles.
-                    </p>
-                    <a href="perfiltecnico.html?tecnico=luis" class="btn-outlined-pro enlace-perfil">VER PERFIL COMPLETO</a>
+                    <div class="skeleton-line" style="width:100%; height:14px;"></div>
+                    <div class="skeleton-line" style="width:80%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line" style="width:75%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line skeleton-btn" style="width:160px; height:38px; margin-top:20px; border-radius:4px;"></div>
                 </div>
             </article>
 
-            <article class="card-editorial">
+            <article class="card-editorial card-skeleton">
                 <div class="card-header-pro">
-                    <div class="avatar-circular">
-                        <img src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" alt="Técnico"
-                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
-                    </div>
+                    <div class="avatar-circular skeleton-box"></div>
                     <div class="info-titulos">
-                        <span class="nota-badge">4.6</span>
-                        <h3 class="nombre-masivo">MARIO SILVA</h3>
-                        <p class="tag-especialidad">CERRAJERÍA</p>
+                        <span class="skeleton-line" style="width:40px; height:18px;"></span>
+                        <div class="skeleton-line" style="width:85%; height:22px; margin-top:8px;"></div>
+                        <div class="skeleton-line" style="width:65%; height:16px; margin-top:6px;"></div>
                     </div>
                 </div>
-
                 <div class="card-body-pro">
-                    <p class="texto-resumen">
-                        Apertura de puertas, cambio de chapas e instalación de cerraduras de seguridad.
-                    </p>
-                    <a href="perfiltecnico.html?tecnico=mario" class="btn-outlined-pro enlace-perfil">VER PERFIL COMPLETO</a>
+                    <div class="skeleton-line" style="width:100%; height:14px;"></div>
+                    <div class="skeleton-line" style="width:88%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line" style="width:60%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line skeleton-btn" style="width:160px; height:38px; margin-top:20px; border-radius:4px;"></div>
                 </div>
             </article>
 
-            <article class="card-editorial">
+            <article class="card-editorial card-skeleton">
+                <div class="card-header-pro">
+                    <div class="avatar-circular skeleton-box"></div>
+                    <div class="info-titulos">
+                        <span class="skeleton-line" style="width:40px; height:18px;"></span>
+                        <div class="skeleton-line" style="width:72%; height:22px; margin-top:8px;"></div>
+                        <div class="skeleton-line" style="width:58%; height:16px; margin-top:6px;"></div>
+                    </div>
+                </div>
+                <div class="card-body-pro">
+                    <div class="skeleton-line" style="width:100%; height:14px;"></div>
+                    <div class="skeleton-line" style="width:82%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line" style="width:68%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line skeleton-btn" style="width:160px; height:38px; margin-top:20px; border-radius:4px;"></div>
+                </div>
+            </article>
+
+            <article class="card-editorial card-skeleton">
+                <div class="card-header-pro">
+                    <div class="avatar-circular skeleton-box"></div>
+                    <div class="info-titulos">
+                        <span class="skeleton-line" style="width:40px; height:18px;"></span>
+                        <div class="skeleton-line" style="width:78%; height:22px; margin-top:8px;"></div>
+                        <div class="skeleton-line" style="width:52%; height:16px; margin-top:6px;"></div>
+                    </div>
+                </div>
+                <div class="card-body-pro">
+                    <div class="skeleton-line" style="width:100%; height:14px;"></div>
+                    <div class="skeleton-line" style="width:76%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line" style="width:83%; height:14px; margin-top:6px;"></div>
+                    <div class="skeleton-line skeleton-btn" style="width:160px; height:38px; margin-top:20px; border-radius:4px;"></div>
+                </div>
+            </article>
+
+            <!-- CARD FANTASMA (oculta) — mantenida solo para que el CSS existente no se rompa -->
+            <article class="card-editorial" style="display:none;" aria-hidden="true">
                 <div class="card-header-pro">
                     <div class="avatar-circular">
                         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Técnico"

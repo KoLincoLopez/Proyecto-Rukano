@@ -100,6 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         `;
                     }
 
+                    // ── OCULTAR SKELETON NAV Y MOSTRAR ESTADO REAL ──
+                    const navAuthArea = document.getElementById("nav-auth-area");
+                    if (navAuthArea) navAuthArea.classList.add("hidden");
+
                     // ── ACTUALIZAR EL user-chip DEL NAV (el que ya existe en el HTML) ──
                     const userChip = document.querySelector('.user-chip');
                     if (userChip) {
@@ -130,6 +134,9 @@ document.addEventListener("DOMContentLoaded", () => {
             datosUsuario    = null;
 
             // Restaurar nav a estado "sin sesión"
+            const navAuthArea = document.getElementById("nav-auth-area");
+            if (navAuthArea) navAuthArea.classList.add("hidden");
+
             const userChip = document.querySelector('.user-chip');
             if (userChip) userChip.style.display = 'none';
 
@@ -259,7 +266,32 @@ async function cargarDatosTecnico(idTecnico) {
             if (sideComunaTecnico) sideComunaTecnico.textContent = tecnico.comuna;
 
             const avatar = document.getElementById("tecnico-avatar");
-            if (avatar && tecnico.foto_perfil) avatar.src = tecnico.foto_perfil;
+            if (avatar) {
+                // Quitar clase skeleton
+                avatar.classList.remove("sk-avatar");
+                if (tecnico.foto_perfil) {
+                    // Si tiene foto, convertir a <img>
+                    avatar.innerHTML = `<img src="${tecnico.foto_perfil}" alt="${escapeHtml(tecnico.nombre)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                } else {
+                    // Iniciales como fallback
+                    avatar.textContent = (tecnico.nombre || "T").charAt(0).toUpperCase();
+                }
+                // Restaurar badges con datos reales
+                const badgesEl = avatar.closest('.tech-card')?.querySelector('.tech-badges');
+                if (badgesEl) {
+                    badgesEl.innerHTML = `
+                        <span class="tech-badge"><i class="ti ti-shield-check"></i> Identidad verificada</span>
+                        <span class="tech-badge"><i class="ti ti-certificate"></i> ${escapeHtml(tecnico.especialidad || "Certificado")}</span>
+                        <span class="tech-badge"><i class="ti ti-map-pin"></i> <span id="tecnico-comuna">${escapeHtml(tecnico.comuna || "")}</span></span>
+                    `;
+                }
+                // Restaurar enlace al perfil
+                const btnPerfil = avatar.closest('.tech-card')?.querySelector('.btn-ver-perfil');
+                if (btnPerfil) {
+                    btnPerfil.style.opacity = '';
+                    btnPerfil.style.pointerEvents = '';
+                }
+            }
 
             cargarResenasTecnico(idTecnico);
         }

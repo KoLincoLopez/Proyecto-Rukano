@@ -62,7 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             usuarioLogueado = null;
             comunaUsuario = null;
-            authContainer.innerHTML = `<a href="inicioSesion.html" class="boton-inicio">Iniciar Sesión</a>`;
+            authContainer.innerHTML = `<a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
+                        <a href="registro.html" class="btn-registro-nav">Registrarse</a>`;
             
             // 2. BLOQUEO AUTOMÁTICO DE SEGURIDAD
             // Pasamos un string vacío porque la función abortará inmediatamente
