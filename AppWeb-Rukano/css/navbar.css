@@ -76,6 +76,14 @@
     padding: 0 40px 0 50px;
 }
 
+.bloque-menu .nav-derecha {
+    align-self: stretch;
+    background-color: var(--c-licorice);
+    margin-right: -40px;
+    padding-left: 24px;
+    padding-right: 40px;
+}
+
 .nav-izquierda,
 .nav-derecha,
 #auth-container {
@@ -90,6 +98,7 @@
 .nav-derecha,
 #auth-container {
     gap: 25px;
+    justify-content: flex-end;
 }
 
 .navbar-auth-loading {
@@ -291,6 +300,14 @@
         justify-content: flex-end;
         margin-left: auto;
         padding: 0;
+    }
+
+    .bloque-menu .nav-derecha {
+        align-self: auto;
+        background-color: transparent;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .navbar-integrada.menu-open {
