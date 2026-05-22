@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (userSnap.exists()) {
                 const datosUsuario = userSnap.data();
                 
-                if (datosUsuario.rol !== "tecnico") {
+                if (datosUsuario.rol !== "tecnico" && datosUsuario.rol !== "técnico") {
                     window.location.href = "index.html";
                     return;
                 }
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // === 3. CARGAR CITAS REALES DESDE FIRESTORE ===
+    // === 3. CARGAR CITAS REALES DESDE FIRESTORE (CORREGIDO) ===
     async function cargarDatosDashboard(idTecnico) {
         const tablaOrdenes = document.querySelector(".ordenes-recientes table tbody");
         const tablaClientes = document.querySelector(".nuevos-clientes table");
@@ -81,30 +81,62 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            // 1. Almacenar citas en un array temporal y capturar IDs de clientes únicos
+            const listaCitas = [];
+            const idClientesUnicos = new Set();
+
+            querySnapshot.forEach((documento) => {
+                const cita = documento.data();
+                listaCitas.push(cita);
+                if (cita.idCliente) {
+                    idClientesUnicos.add(cita.idCliente);
+                }
+            });
+
+            // 2. Buscar en paralelo la información de todos los clientes únicos detectados
+            const mapaClientes = {}; // Diccionario para mapear idCliente -> { nombre, foto }
+            
+            const promesasClientes = Array.from(idClientesUnicos).map(async (idCliente) => {
+                try {
+                    const userRef = doc(db, "usuarios", idCliente);
+                    const userSnap = await getDoc(userRef);
+                    
+                    if (userSnap.exists()) {
+                        const datos = userSnap.data();
+                        mapaClientes[idCliente] = {
+                            nombreCompleto: `${datos.nombre} ${datos.apellido}`,
+                            fotoPerfil: datos.foto_perfil || null
+                        };
+                    } else {
+                        mapaClientes[idCliente] = { nombreCompleto: "Usuario Desconocido", fotoPerfil: null };
+                    }
+                } catch (err) {
+                    console.error(`Error al traer datos del cliente ${idCliente}:`, err);
+                    mapaClientes[idCliente] = { nombreCompleto: "Error al cargar nombre", fotoPerfil: null };
+                }
+            });
+
+            // Esperamos que terminen todas las consultas de usuarios antes de renderizar
+            await Promise.all(promesasClientes);
+
             let htmlOrdenes = "";
             let htmlClientes = "";
             const clientesRegistrados = new Set();
 
-            querySnapshot.forEach((documento) => {
-                const cita = documento.data();
+            // 3. Construir e inyectar el HTML con los datos reales unidos
+            listaCitas.forEach((cita) => {
+                // Obtener datos del cliente desde nuestro mapa de caché interno
+                const infoCliente = mapaClientes[cita.idCliente] || { nombreCompleto: "Anónimo", fotoPerfil: null };
                 
-                // Mapear campos de tu base de datos real
                 const claseEstatus = cita.estado ? cita.estado.toLowerCase() : "pendiente";
                 const textoEstatus = cita.estado ? cita.estado.toUpperCase() : "PENDIENTE";
-                
-                // Evaluar booleano pagoRetenido
                 const textoPago = cita.pagoRetenido ? "Retenido" : "Liberado";
-
-                // Unir fecha y hora
                 const fechaHora = (cita.fecha && cita.hora) ? `${cita.fecha} a las ${cita.hora}` : "No definida";
 
-                // Acortar idCliente para que no rompa el diseño del HTML
-                const idClienteCorto = cita.idCliente ? `${cita.idCliente.substring(0, 8)}...` : "Anónimo";
-
-                // --- A) INYECTAR EN TABLA DE ÓRDENES ---
+                // --- A) INYECTAR EN TABLA DE ÓRDENES (Citas Agendadas) ---
                 htmlOrdenes += `
                     <tr>
-                        <td title="${cita.idCliente || ''}">${idClienteCorto}</td>
+                        <td title="ID: ${cita.idCliente || ''}">${infoCliente.nombreCompleto}</td>
                         <td>${cita.tituloServicio || "Servicio Técnico"}</td>
                         <td>${fechaHora}</td>
                         <td>${textoPago}</td>
@@ -112,19 +144,22 @@ document.addEventListener("DOMContentLoaded", () => {
                     </tr>
                 `;
 
-                // --- B) INYECTAR EN TABLA DE CLIENTES ÚNICOS (DERECHA) ---
+                // --- B) INYECTAR EN TABLA DE CLIENTES ÚNICOS (Panel Derecho) ---
                 if (cita.idCliente && !clientesRegistrados.has(cita.idCliente)) {
                     clientesRegistrados.add(cita.idCliente);
+                    
+                    // Si el cliente tiene foto guardada en Firebase la usa, si no, usa el placeholder por defecto
+                    const urlFoto = infoCliente.fotoPerfil || "https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png";
 
                     htmlClientes += `
                         <tr>
                             <td>
                                 <div class="imgBox">
-                                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="Usuario">
+                                    <img src="${urlFoto}" alt="Usuario">
                                 </div>
                             </td>
                             <td>
-                                <h4>Cliente <br><span>ID: ${cita.idCliente.substring(0, 6)}...</span></h4>
+                                <h4>${infoCliente.nombreCompleto} <br><span>Cliente</span></h4>
                             </td>
                             <td>
                                 <a href="#" style="opacity:0.5; cursor:default;" title="ID completo: ${cita.idCliente}"><ion-icon name="person-outline"></ion-icon></a>
