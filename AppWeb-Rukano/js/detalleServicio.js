@@ -100,6 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
                         `;
                     }
 
+                    // ── OCULTAR SKELETON NAV Y MOSTRAR ESTADO REAL ──
+                    const navAuthArea = document.getElementById("nav-auth-area");
+                    if (navAuthArea) navAuthArea.classList.add("hidden");
+
                     // ── ACTUALIZAR EL user-chip DEL NAV (el que ya existe en el HTML) ──
                     const userChip = document.querySelector('.user-chip');
                     if (userChip) {
@@ -130,6 +134,9 @@ document.addEventListener("DOMContentLoaded", () => {
             datosUsuario    = null;
 
             // Restaurar nav a estado "sin sesión"
+            const navAuthArea = document.getElementById("nav-auth-area");
+            if (navAuthArea) navAuthArea.classList.add("hidden");
+
             const userChip = document.querySelector('.user-chip');
             if (userChip) userChip.style.display = 'none';
 
@@ -236,7 +243,8 @@ async function cargarDatosTecnico(idTecnico) {
             setTxt("tecnico-comuna",       tecnico.comuna);
             setTxt("tecnico-calificacion", Number(tecnico.calificacion_promedio || 0).toFixed(1));
             setTxt("tecnico-reviews",      `${tecnico.cantidad_reseñas || 0} reseñas`);
-
+            
+                                
             const sideNombre = document.getElementById("side-nombre");
             if (sideNombre) sideNombre.textContent = `${tecnico.nombre} ${tecnico.apellido}`;
 
@@ -258,7 +266,34 @@ async function cargarDatosTecnico(idTecnico) {
             if (sideComunaTecnico) sideComunaTecnico.textContent = tecnico.comuna;
 
             const avatar = document.getElementById("tecnico-avatar");
-            if (avatar && tecnico.foto_perfil) avatar.src = tecnico.foto_perfil;
+            if (avatar) {
+                // Quitar clase skeleton
+                avatar.classList.remove("sk-avatar");
+                if (tecnico.foto_perfil) {
+                    // Si tiene foto, convertir a <img>
+                    avatar.innerHTML = `<img src="${tecnico.foto_perfil}" alt="${escapeHtml(tecnico.nombre)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                } else {
+                    // Iniciales como fallback
+                    avatar.textContent = (tecnico.nombre || "T").charAt(0).toUpperCase();
+                }
+                // Restaurar badges con datos reales
+                const badgesEl = avatar.closest('.tech-card')?.querySelector('.tech-badges');
+                if (badgesEl) {
+                    badgesEl.innerHTML = `
+                        <span class="tech-badge"><i class="ti ti-shield-check"></i> Identidad verificada</span>
+                        <span class="tech-badge"><i class="ti ti-certificate"></i> ${escapeHtml(tecnico.especialidad || "Certificado")}</span>
+                        <span class="tech-badge"><i class="ti ti-map-pin"></i> <span id="tecnico-comuna">${escapeHtml(tecnico.comuna || "")}</span></span>
+                    `;
+                }
+                // Restaurar enlace al perfil
+                const btnPerfil = avatar.closest('.tech-card')?.querySelector('.btn-ver-perfil');
+                if (btnPerfil) {
+                    btnPerfil.style.opacity = '';
+                    btnPerfil.style.pointerEvents = '';
+                }
+            }
+
+            cargarResenasTecnico(idTecnico);
         }
     } catch (error) {
         console.error("Error cargando técnico:", error);
@@ -890,6 +925,82 @@ async function submitReport() {
             btnEnviar.disabled    = false;
             btnEnviar.innerHTML   = `<i class="ti ti-send icon-btn"></i> Enviar reporte`;
         }
+    }
+}
+
+// ─── CARGA DE RESEÑAS DEL TÉCNICO ───
+async function cargarResenasTecnico(idTecnico) {
+    const contenedor = document.getElementById("tech-reviews-list");
+    if (!contenedor) return;
+
+    try {
+        // ⚠️ Asegúrate de que el prefijo '/resenas' coincida con cómo montaste el router en tu FastAPI (main.py)
+        const response = await fetch(`${API_URL}/reviews/resenas_tecnico/${idTecnico}`);
+        
+        if (!response.ok) throw new Error("Error al obtener reseñas del servidor.");
+        
+        const resultado = await response.json();
+
+        if (resultado.status === "success" && resultado.data && resultado.data.length > 0) {
+            contenedor.innerHTML = ""; // Limpiar el estado de "Cargando..."
+
+            resultado.data.forEach(resena => {
+                // 1. Calcular estrellas doradas vs grises
+                let estrellasHTML = "";
+                const puntos = Math.round(Number(resena.puntuacion || 0));
+                for(let i = 1; i <= 5; i++) {
+                    if (i <= puntos) {
+                        estrellasHTML += `<i class="ti ti-star-filled" style="color: #F59E0B;"></i>`; // Estrella dorada
+                    } else {
+                        estrellasHTML += `<i class="ti ti-star" style="color: var(--c-border);"></i>`; // Estrella vacía
+                    }
+                }
+
+                // 2. Formatear la fecha si existe
+                let fechaTexto = "Recientemente";
+                if (resena.fecha_creacion) {
+                    const fechaObj = new Date(resena.fecha_creacion);
+                    fechaTexto = fechaObj.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+                }
+
+                // 3. Crear el elemento de la tarjeta
+                const card = document.createElement("div");
+                card.className = "review-card";
+                card.innerHTML = `
+                    <div class="review-header">
+                        <div class="review-avatar">
+                            <i class="ti ti-user"></i>
+                        </div>
+                        <div class="review-meta">
+                            <div class="review-author">Cliente Rukano</div>
+                            <div class="review-date">${fechaTexto}</div>
+                        </div>
+                        <div class="review-stars">
+                            ${estrellasHTML}
+                        </div>
+                    </div>
+                    <div class="review-body">
+                        ${escapeHtml(resena.comentario || "El cliente no dejó ningún comentario escrito.")}
+                    </div>
+                `;
+                contenedor.appendChild(card);
+            });
+        } else {
+            // Si el backend responde éxito pero el array está vacío
+            contenedor.innerHTML = `
+                <div class="review-empty">
+                    Este profesional aún no tiene reseñas. ¡Sé el primero en calificarlo al terminar tu servicio!
+                </div>
+            `;
+        }
+
+    } catch (error) {
+        console.error("Error cargando reseñas:", error);
+        contenedor.innerHTML = `
+            <div class="review-empty" style="color: var(--c-mahogany);">
+                No pudimos cargar las reseñas en este momento.
+            </div>
+        `;
     }
 }
 

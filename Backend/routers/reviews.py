@@ -43,11 +43,25 @@ async def publicar_reseña(datos: dict):
 
         db.collection("resenas").add(nueva_reseña)
 
-        return {
-            "status": "success",
-            "message": "Reseña vinculada a la cita con éxito",
-            "idResena": nueva_reseña["idResena"]
-        }
+        # ... (tu código actual que guarda la nueva reseña) ...
+
+        # 1. Buscar todas las reseñas actualizadas de este técnico
+        id_tecnico = cita_data.get("idTecnico")
+        todas_las_resenas = db.collection("resenas").where("idTecnico", "==", id_tecnico).stream()
+
+        lista_puntuaciones = [float(doc.to_dict().get("puntuacion", 0)) for doc in todas_las_resenas]
+
+        # 2. Calcular el nuevo total y el promedio real
+        total_resenas = len(lista_puntuaciones)
+        nuevo_promedio = sum(lista_puntuaciones) / total_resenas if total_resenas > 0 else 0
+
+        # 3. Actualizar el perfil del técnico con los datos auténticos
+        db.collection("usuarios").document(id_tecnico).update({
+            "cantidad_reseñas": total_resenas,
+            "calificacion_promedio": round(nuevo_promedio, 1)
+        })
+
+        return {"status": "success", "message": "Reseña guardada y promedio actualizado"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al procesar: {str(e)}")

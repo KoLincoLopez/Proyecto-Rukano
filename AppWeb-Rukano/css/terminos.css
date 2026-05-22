@@ -1,0 +1,143 @@
+/* ─── NAVBAR FIJA (SIGUE AL USUARIO SIN ENCOGERSE) ─── */
+.navbar-integrada {
+    position: fixed !important; 
+    top: 0 !important;
+    left: 0;
+    width: 100%;
+    /* Fondo oscuro fijo para que sea legible al hacer scroll sobre los cuadros */
+    background-color: var(--c-licorice, #1E0D0A) !important;
+    /* Mantenemos las proporciones grandes */
+    padding-top: 30px !important; 
+    padding-bottom: 30px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important;
+    z-index: 2000;
+    /* Anulamos cualquier transición de JavaScript */
+    transition: none !important; 
+}
+
+/* ─── ESTILOS ESPECÍFICOS DE LA PÁGINA ─── */
+body {
+    background-color: var(--c-arena, #F5EFEA);
+}
+
+.seccion-terminos {
+    /* Aumentamos el padding superior a 180px para que el navbar grande no tape el título inicial */
+    padding: 180px 20px 80px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.header-terminos {
+    margin-bottom: 70px;
+    text-align: center;
+}
+
+.header-terminos h1 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 3.5rem;
+    color: var(--c-licorice, #1E0D0A);
+    text-transform: uppercase;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+}
+
+.header-terminos p {
+    font-size: 1.25rem;
+    color: var(--c-licorice, #1E0D0A);
+    font-weight: 600;
+}
+
+.linea-decorativa {
+    width: 120px;
+    height: 6px;
+    background-color: var(--c-mahogany, #BF353B);
+    margin: 0 auto 30px auto;
+}
+
+/* DISEÑO DE CUADROS DE CONTENIDO (Neo-Brutalistas) */
+.cuadro-terminos {
+    background-color: var(--c-blanco, #FFFFFF);
+    border: 4px solid var(--c-licorice, #1E0D0A);
+    box-shadow: 10px 10px 0px var(--c-licorice, #1E0D0A);
+    padding: 45px 40px;
+    margin-bottom: 60px;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.cuadro-terminos:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 13px 13px 0px var(--c-licorice, #1E0D0A);
+}
+
+.cuadro-numero {
+    background-color: var(--c-licorice, #1E0D0A);
+    color: var(--c-blanco, #FFFFFF);
+    font-family: 'Arial Black', sans-serif;
+    font-size: 1.8rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid var(--c-licorice, #1E0D0A);
+    position: absolute;
+    top: -30px;
+    left: -4px;
+}
+
+.cuadro-terminos h2 {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 1.8rem;
+    color: var(--c-licorice, #1E0D0A);
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+}
+
+.cuadro-terminos p, .cuadro-terminos ul {
+    font-size: 1.15rem;
+    color: var(--c-licorice, #1E0D0A);
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.cuadro-terminos ul {
+    padding-left: 25px;
+}
+
+.cuadro-terminos li {
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+/* Variaciones de color para romper la monotonía visual */
+.c-rojo { 
+    border-color: var(--c-mahogany, #BF353B); 
+    box-shadow: 10px 10px 0px var(--c-mahogany, #BF353B); 
+}
+.c-rojo .cuadro-numero { 
+    background-color: var(--c-mahogany, #BF353B); 
+    border-color: var(--c-mahogany, #BF353B); 
+}
+.c-rojo h2 { color: var(--c-mahogany, #BF353B); }
+
+.c-verde { 
+    border-color: var(--c-deep-moss, #3D4421); 
+    box-shadow: 10px 10px 0px var(--c-deep-moss, #3D4421); 
+}
+.c-verde .cuadro-numero { 
+    background-color: var(--c-deep-moss, #3D4421); 
+    border-color: var(--c-deep-moss, #3D4421); 
+}
+.c-verde h2 { color: var(--c-deep-moss, #3D4421); }
+
+.ultima-actualizacion {
+    text-align: right;
+    font-family: 'Arial Black', sans-serif;
+    color: var(--c-licorice, #1E0D0A);
+    border-top: 4px solid var(--c-licorice, #1E0D0A);
+    padding-top: 20px;
+    margin-top: 60px;
+    text-transform: uppercase;
+}
