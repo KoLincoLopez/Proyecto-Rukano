@@ -87,6 +87,7 @@
         return {
             index: crearHref(appRoot, "index.html"),
             panelCliente: crearHref(appRoot, "panelCliente.html"),
+            panelTecnico: crearHref(appRoot, "panelTecnico.html"),
             inicioSesion: crearHref(appRoot, "inicioSesion.html"),
             registro: crearHref(appRoot, "registro.html"),
             servicios: crearHref(appRoot, "index.html#servicios"),
@@ -148,7 +149,7 @@
                     console.warn("No se pudo cargar el nombre del usuario para el navbar:", error);
                 }
 
-                renderNavbarUsuario(authContainer, rutas, obtenerNombreNavbar(datosUsuario, user));
+                renderNavbarUsuario(authContainer, rutas, obtenerNombreNavbar(datosUsuario, user), datosUsuario);
             });
         } catch (error) {
             console.warn("No se pudo inicializar el usuario del navbar:", error);
@@ -167,7 +168,9 @@
         `;
     }
 
-    function renderNavbarUsuario(authContainer, rutas, nombreUsuario) {
+    function renderNavbarUsuario(authContainer, rutas, nombreUsuario, datosUsuario = {}) {
+        const panelDestino = obtenerDestinoPanel(datosUsuario, rutas);
+
         authContainer.classList.remove("navbar-auth-loading");
         authContainer.innerHTML = `
             <div class="rukano-user-menu" data-navbar-user>
@@ -181,10 +184,34 @@
                     <span class="navbar-profile-chevron" aria-hidden="true">&#9662;</span>
                 </button>
                 <div class="rukano-user-dropdown">
-                    <a href="${rutas.panelCliente}">Panel cliente</a>
+                    <a href="${panelDestino.href}">${panelDestino.label}</a>
                 </div>
             </div>
         `;
+    }
+
+    function obtenerDestinoPanel(datosUsuario = {}, rutas) {
+        const rol = normalizarRol(datosUsuario.rol);
+
+        if (rol === "tecnico") {
+            return {
+                href: rutas.panelTecnico,
+                label: "Panel t&eacute;cnico"
+            };
+        }
+
+        return {
+            href: rutas.panelCliente,
+            label: "Panel cliente"
+        };
+    }
+
+    function normalizarRol(rol) {
+        return String(rol || "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
     }
 
     function obtenerNombreNavbar(datosUsuario = {}, user = null) {

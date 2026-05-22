@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- CSS -->
+    <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/agendaTec.css">
 
     <title>Agenda | RUKANO</title>
@@ -13,42 +14,7 @@
 
 <section>
 
-    <!-- ================= NAVBAR ================= -->
-    <nav class="navbar-integrada">
-
-        <a href="#" class="bloque-logo">RUKANO</a>
-
-        <div class="bloque-menu">
-
-            <div class="nav-izquierda">
-                <a href="#servicios">Servicios</a>
-                <a href="#beneficios">Beneficios</a>
-                <a href="#como-funciona">¿Cómo Funciona?</a>
-                <a href="#testimonios">Reseñas</a>
-            </div>
-
-            <div class="nav-derecha">
-
-                <a href="inicioSesion.html" class="link-sesion">
-                    Iniciar sesión
-                </a>
-
-                <a href="registro.html" class="btn-registro-nav">
-                    Registrarse
-                </a>
-
-                <!-- FOTO PERFIL = BOTON MENU -->
-                <div class="perfil-usuario toggle">
-                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
-                </div>
-
-            </div>
-
-        </div>
-
-    </nav>
-    <!-- ================= FIN NAVBAR ================= -->
-
+    <div id="navbar-root"></div>
 
     <!-- ================= MENU ================= -->
     <div class="nav">
@@ -124,6 +90,12 @@
     <!-- ================= CONTENIDO ================= -->
     <div class="container">
 
+        <div class="agenda-toolbar">
+            <button class="agenda-menu-toggle toggle" type="button" aria-label="Abrir menú técnico">
+                <ion-icon name="menu-outline"></ion-icon>
+            </button>
+        </div>
+
         <!-- ================= DETALLES ================= -->
         <div class="detalles">
 
@@ -131,35 +103,10 @@
             <div class="calendario-box">
 
                 <div class="header">
-                    <h2>Calendario</h2>
+                    <h2 id="tituloCalendario">Calendario</h2>
                 </div>
 
                 <div class="calendario">
-
-                    <div class="dia nombre">L</div>
-                    <div class="dia nombre">M</div>
-                    <div class="dia nombre">M</div>
-                    <div class="dia nombre">J</div>
-                    <div class="dia nombre">V</div>
-                    <div class="dia nombre">S</div>
-                    <div class="dia nombre">D</div>
-
-                    <div class="dia">1</div>
-                    <div class="dia">2</div>
-                    <div class="dia">3</div>
-                    <div class="dia servicio">4</div>
-                    <div class="dia">5</div>
-                    <div class="dia hoy">6</div>
-                    <div class="dia">7</div>
-
-                    <div class="dia">8</div>
-                    <div class="dia servicio">9</div>
-                    <div class="dia">10</div>
-                    <div class="dia">11</div>
-                    <div class="dia servicio">12</div>
-                    <div class="dia">13</div>
-                    <div class="dia">14</div>
-
                 </div>
 
             </div>
@@ -184,6 +131,19 @@
 
         </div>
         <!-- ================= FIN DETALLES ================= -->
+
+        <div class="servicios-box agenda-citas-box">
+            <div class="header">
+                <h2>Citas agendadas</h2>
+                <button id="btnVerTodasCitas" class="btn-ver-todas-citas" type="button">
+                    Ver todas las citas
+                </button>
+            </div>
+
+            <div id="listaCitasTecnico" class="lista-citas-tecnico">
+                <p>Cargando tus citas...</p>
+            </div>
+        </div>
 
     </div>
     <!-- ================= FIN CONTENIDO ================= -->
@@ -252,7 +212,8 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 <!-- ================= JS ================= -->
-<script src="js/agendaTec.js"></script>
+<script src="js/navbar.js" defer></script>
+<script type="module" src="js/agendaTec.js"></script>
 
 </body>
 </html>
