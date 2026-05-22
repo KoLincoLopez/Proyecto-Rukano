@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/agendaTec.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/tecnicoNav.css">
 
     <title>Agenda | RUKANO</title>
 </head>
@@ -17,7 +19,7 @@
     <div id="navbar-root"></div>
 
     <!-- ================= MENU ================= -->
-    <div class="nav">
+    <nav class="tech-nav" aria-label="Navegacion tecnica">
 
         <ul>
 
@@ -32,6 +34,16 @@
             </li>
 
             <li>
+                <a href="panelTecnico.html">
+                    <span class="icono">
+                        <ion-icon name="briefcase-outline"></ion-icon>
+                    </span>
+
+                    <span class="titulo">Panel tecnico</span>
+                </a>
+            </li>
+
+            <li>
                 <a href="clientesTec.html">
                     <span class="icono">
                         <ion-icon name="people-outline"></ion-icon>
@@ -41,7 +53,7 @@
                 </a>
             </li>
 
-            <li>
+            <li class="active">
                 <a href="agendaTec.html">
                     <span class="icono">
                         <ion-icon name="calendar-outline"></ion-icon>
@@ -71,30 +83,14 @@
                 </a>
             </li>
 
-            <li>
-                <a href="#" class="cerrar-sesion">
-                    <span class="icono">
-                        <ion-icon name="log-out-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Cerrar Sesión</span>
-                </a>
-            </li>
-
         </ul>
 
-    </div>
+    </nav>
     <!-- ================= FIN MENU ================= -->
 
 
     <!-- ================= CONTENIDO ================= -->
     <div class="container">
-
-        <div class="agenda-toolbar">
-            <button class="agenda-menu-toggle toggle" type="button" aria-label="Abrir menú técnico">
-                <ion-icon name="menu-outline"></ion-icon>
-            </button>
-        </div>
 
         <!-- ================= DETALLES ================= -->
         <div class="detalles">

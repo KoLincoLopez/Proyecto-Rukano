@@ -6,55 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- CSS -->
+    <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/clientesTec.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/tecnicoNav.css">
 
     <title>Clientes | RUKANO</title>
 </head>
 
 <body>
 
+<div id="navbar-root"></div>
+
 <section>
-
-    <!-- ================= NAVBAR ================= -->
-    <nav class="navbar-integrada">
-
-        <a href="#" class="bloque-logo">RUKANO</a>
-
-        <div class="bloque-menu">
-
-            <div class="nav-izquierda">
-                <a href="#">Servicios</a>
-                <a href="#">Beneficios</a>
-                <a href="#">¿Cómo funciona?</a>
-                <a href="#">Reseñas</a>
-            </div>
-
-            <div class="nav-derecha">
-
-                <a href="inicioSesion.html" class="link-sesion">
-                    Iniciar sesión
-                </a>
-
-                <a href="registro.html" class="btn-registro-nav">
-                    Registrarse
-                </a>
-
-                <!-- FOTO PERFIL = BOTON MENU -->
-                <div class="perfil-usuario toggle">
-                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png"
-                        alt="">
-                </div>
-
-            </div>
-
-        </div>
-
-    </nav>
-    <!-- ================= FIN NAVBAR ================= -->
 
 
     <!-- ================= MENU ================= -->
-    <div class="nav">
+    <nav class="tech-nav" aria-label="Navegacion tecnica">
 
         <ul>
 
@@ -66,6 +34,18 @@
 
                     <span class="titulo">
                         Dashboard
+                    </span>
+                </a>
+            </li>
+
+            <li>
+                <a href="panelTecnico.html">
+                    <span class="icono">
+                        <ion-icon name="briefcase-outline"></ion-icon>
+                    </span>
+
+                    <span class="titulo">
+                        Panel técnico
                     </span>
                 </a>
             </li>
@@ -118,23 +98,9 @@
                 </a>
             </li>
 
-            <li>
-                <a href="#" class="cerrar-sesion">
-
-                    <span class="icono">
-                        <ion-icon name="log-out-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">
-                        Cerrar Sesión
-                    </span>
-
-                </a>
-            </li>
-
         </ul>
 
-    </div>
+    </nav>
     <!-- ================= FIN MENU ================= -->
 
 
@@ -185,80 +151,12 @@
 
                     </thead>
 
-                    <tbody>
-
+                    <tbody id="tablaClientesTecnico">
                         <tr>
-
-                            <td>John Doe</td>
-
-                            <td>Instalación eléctrica</td>
-
-                            <td>
-                                <span class="estatus entregado">
-                                    Completado
-                                </span>
+                            <td colspan="4" class="clientes-estado">
+                                Cargando clientes...
                             </td>
-
-                            <td>
-                                john@email.com
-                            </td>
-
                         </tr>
-
-                        <tr>
-
-                            <td>Olivia Anderson</td>
-
-                            <td>Cambio de enchufe</td>
-
-                            <td>
-                                <span class="estatus pendiente">
-                                    Pendiente
-                                </span>
-                            </td>
-
-                            <td>
-                                olivia@email.com
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>Scarlett Godoy</td>
-
-                            <td>Revisión tablero</td>
-
-                            <td>
-                                <span class="estatus en-progreso">
-                                    En progreso
-                                </span>
-                            </td>
-
-                            <td>
-                                scarlett@email.com
-                            </td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>Benjamín Ahumada</td>
-
-                            <td>Reparación circuito</td>
-
-                            <td>
-                                <span class="estatus entregado">
-                                    Completado
-                                </span>
-                            </td>
-
-                            <td>
-                                benjamin@email.com
-                            </td>
-
-                        </tr>
-
                     </tbody>
 
                 </table>
@@ -357,7 +255,8 @@
 
 
 <!-- ================= JS ================= -->
-<script src="js/clientesTec.js"></script>
+<script src="js/navbar.js" defer></script>
+<script type="module" src="js/clientesTec.js"></script>
 
 </body>
 </html>

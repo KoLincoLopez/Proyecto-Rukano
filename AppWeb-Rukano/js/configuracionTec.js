@@ -3,9 +3,11 @@
 let toggle = document.querySelector('.toggle');
 let nav = document.querySelector('.nav');
 
-toggle.onclick = function () {
-    nav.classList.toggle('active');
-};
+if (toggle && nav) {
+    toggle.onclick = function () {
+        nav.classList.toggle('active');
+    };
+}
 
 
 // ==================== NOTIFICACIONES ====================
@@ -87,7 +89,8 @@ btnEliminar.addEventListener('click', () => {
 
 const cerrarSesion = document.querySelector('.cerrar-sesion');
 
-cerrarSesion.addEventListener('click', (e) => {
+if (cerrarSesion) {
+    cerrarSesion.addEventListener('click', (e) => {
 
     e.preventDefault();
 
@@ -97,4 +100,5 @@ cerrarSesion.addEventListener('click', (e) => {
         window.location.href = 'inicioSesion.html';
     }
 
-});
+    });
+}

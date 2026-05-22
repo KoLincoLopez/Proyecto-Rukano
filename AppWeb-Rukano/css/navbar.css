@@ -38,7 +38,7 @@
 }
 
 .bloque-logo {
-    color: var(--c-arena) !important;
+    color: var(--c-licorice) !important;
     font-family: "Arial Black", Arial, sans-serif;
     font-size: 50px;
     font-weight: 900;
@@ -46,12 +46,22 @@
     line-height: 1;
     padding: 0 0 5px var(--pad-lateral);
     text-decoration: none !important;
-    transition: opacity 0.3s ease;
+    transition: color 0.3s ease, opacity 0.3s ease;
 }
 
 .bloque-logo:hover {
-    color: var(--c-arena) !important;
+    color: var(--c-rosewood) !important;
     opacity: 0.8;
+}
+
+.navbar-integrada.scrolled .bloque-logo,
+.navbar-integrada.menu-open .bloque-logo {
+    color: var(--c-arena) !important;
+}
+
+.navbar-integrada.scrolled .bloque-logo:hover,
+.navbar-integrada.menu-open .bloque-logo:hover {
+    color: var(--c-arena) !important;
 }
 
 .bloque-menu {

@@ -4,75 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--estilo css-->
+    <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/tecnicoNav.css">
     <title>Dashboard tecnico | RUKANO</title>
 </head>
 <body>
-        <!--navbar-->
-        <nav class="navbar-integrada">
-            <a href="#" class="bloque-logo">RUKANO</a>
-
-            <div class="bloque-menu">
-                <div class="nav-izquierda">
-                    <a href="#servicios">Servicios</a>
-                    <a href="#beneficios">Beneficios</a>
-                    <a href="#como-funciona">¿Cómo Funciona?</a>
-                    <a href="#testimonios">Reseñas</a>
-                </div>
-
-                <div class="nav-derecha">
-                    <a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
-                    <a href="registro.html" class="btn-registro-nav">Registrarse</a>
-                    <div class="perfil-usuario toggle">
-                        <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <!--fin navbar-->
-        
-        <!--Menu-->
-        <div class="nav">
+        <div id="navbar-root"></div>
+        <nav class="tech-nav" aria-label="Navegacion tecnica">
             <ul>
-                <li>
-                    <a href="dashboard.html">
-                        <span class="icono"><ion-icon name="home-outline"></ion-icon></span>
-                        <span class="titulo">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="clientesTec.html">
-                        <span class="icono"><ion-icon name="people-outline"></ion-icon></span>
-                        <span class="titulo">Clientes</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="agendaTec.html">
-                        <span class="icono"><ion-icon name="calendar-outline"></ion-icon></span>
-                        <span class="titulo">Agenda</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="miperfilTec.html">
-                        <span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span>
-                        <span class="titulo">Mi Perfil</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="configuracionTec.html">
-                        <span class="icono"><ion-icon name="settings-outline"></ion-icon></span>
-                        <span class="titulo">Configuracion</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="cerrar-sesion">
-                        <span class="icono"><ion-icon name="log-out-outline"></ion-icon></span>
-                        <span class="titulo">Cerrar Sesion</span>
-                    </a>
-                </li>
+                <li class="active"><a href="dashboard.html"><span class="icono"><ion-icon name="home-outline"></ion-icon></span><span class="titulo">Dashboard</span></a></li>
+                <li><a href="panelTecnico.html"><span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span><span class="titulo">Panel tecnico</span></a></li>
+                <li><a href="clientesTec.html"><span class="icono"><ion-icon name="people-outline"></ion-icon></span><span class="titulo">Clientes</span></a></li>
+                <li><a href="agendaTec.html"><span class="icono"><ion-icon name="calendar-outline"></ion-icon></span><span class="titulo">Agenda</span></a></li>
+                <li><a href="miperfilTec.html"><span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span><span class="titulo">Mi perfil</span></a></li>
+                <li><a href="configuracionTec.html"><span class="icono"><ion-icon name="settings-outline"></ion-icon></span><span class="titulo">Configuracion</span></a></li>
             </ul>
-        </div>
+        </nav>
         <!--Fin menu-->
 
         <!--dashboard-->
@@ -312,6 +261,7 @@
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     
     <!--script index.js-->
+    <script src="js/navbar.js" defer></script>
     <script src="js/dashboard.js"></script>
     
 </body>

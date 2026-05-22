@@ -29,7 +29,6 @@ window.addEventListener("DOMContentLoaded", () => {
             const docSnap = await getDoc(docRef);
 
             if (!docSnap.exists()) {
-                alert("Error: usuario sin datos");
                 await signOut(auth);
                 window.location.href = "inicioSesion.html";
                 return;
@@ -37,7 +36,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             datosUsuarioActual = docSnap.data();
 
-            const rol = datosUsuarioActual.rol;
+            const rol = normalizarRol(datosUsuarioActual.rol);
             const paginaActual = window.location.href;
 
             if (rol === "cliente" && paginaActual.includes("panelTecnico.html")) {
@@ -51,7 +50,7 @@ window.addEventListener("DOMContentLoaded", () => {
             }
 
             if (rol === "tecnico" && paginaActual.includes("panelTecnico.html")) {
-                cargarMisServicios(user.uid);
+                await cargarMisServicios(user.uid);
             }
 
             if (rol === "cliente" && paginaActual.includes("panelCliente.html")) {
@@ -60,10 +59,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
         } catch (error) {
             console.log("Error al obtener rol:", error);
+            window.location.href = "inicioSesion.html";
         }
     });
 
+    function normalizarRol(rol) {
+        return String(rol || "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
     const btnLogout = document.getElementById("btnLogout");
+    const modalPanel = configurarModalPanelTecnico();
 
     if (btnLogout) {
         btnLogout.addEventListener("click", async () => {
@@ -131,8 +140,11 @@ window.addEventListener("DOMContentLoaded", () => {
                     categoria: categoria,
                     comuna: comuna,
                     descripcion: descripcion,
+                    descripcionTecnico: descripcionTecnico,
+                    experiencia: experiencia,
                     precio: Number(precio),
                     tiempoEstimado: tiempo,
+                    disponibilidad: disponibilidad,
                     que_incluye: textoALista(incluye),
                     que_no_incluye: textoALista(noIncluye),
                     esquema_formulario: [
@@ -167,7 +179,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 formServicio.reset();
                 limpiarDisponibilidadFormulario();
 
-                cargarMisServicios(user.uid);
+                await cargarMisServicios(user.uid, "Actualizando tus servicios...");
 
             } catch (error) {
                 console.log(error);
@@ -218,12 +230,134 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    async function cargarMisServicios(uidTecnico) {
+    function configurarModalPanelTecnico() {
+        const overlay = document.getElementById("panelModalOverlay");
+        const modal = overlay?.querySelector(".panel-modal");
+        const titulo = document.getElementById("panelModalTitle");
+        const texto = document.getElementById("panelModalText");
+        const inputGroup = document.getElementById("panelModalInputGroup");
+        const input = document.getElementById("panelModalInput");
+        const error = document.getElementById("panelModalError");
+        const btnCerrar = document.getElementById("panelModalClose");
+        const btnCancelar = document.getElementById("panelModalCancel");
+        const btnConfirmar = document.getElementById("panelModalConfirm");
+        const toast = document.getElementById("panelToast");
+        let estadoModal = null;
+        let toastTimer = null;
+
+        if (!overlay || !modal || !titulo || !texto || !inputGroup || !input || !error || !btnCerrar || !btnCancelar || !btnConfirmar) {
+            return null;
+        }
+
+        function abrir(configuracion) {
+            return new Promise((resolve) => {
+                estadoModal = {
+                    tipo: configuracion.tipo,
+                    resolve
+                };
+
+                titulo.textContent = configuracion.titulo;
+                texto.textContent = configuracion.texto;
+                btnConfirmar.textContent = configuracion.confirmar;
+                error.textContent = "";
+                input.value = configuracion.valorInicial || "";
+                inputGroup.hidden = configuracion.tipo !== "editar";
+                overlay.hidden = false;
+                document.body.classList.add("panel-modal-abierto");
+
+                if (configuracion.tipo === "editar") {
+                    input.focus();
+                    input.select();
+                } else {
+                    btnConfirmar.focus();
+                }
+            });
+        }
+
+        function cerrar(resultado = null) {
+            if (!estadoModal) return;
+
+            const resolver = estadoModal.resolve;
+            estadoModal = null;
+            overlay.hidden = true;
+            document.body.classList.remove("panel-modal-abierto");
+            error.textContent = "";
+            resolver(resultado);
+        }
+
+        function confirmar() {
+            if (!estadoModal) return;
+
+            if (estadoModal.tipo === "editar") {
+                const valor = input.value.trim();
+
+                if (!valor) {
+                    error.textContent = "Ingresa un nombre para el servicio.";
+                    input.focus();
+                    return;
+                }
+
+                cerrar(valor);
+                return;
+            }
+
+            cerrar(true);
+        }
+
+        function notificar(mensaje, tipo = "exito") {
+            if (!toast) return;
+
+            window.clearTimeout(toastTimer);
+            toast.textContent = mensaje;
+            toast.className = `panel-toast visible ${tipo === "error" ? "error" : "exito"}`;
+
+            toastTimer = window.setTimeout(() => {
+                toast.className = "panel-toast";
+                toast.textContent = "";
+            }, 3200);
+        }
+
+        btnConfirmar.addEventListener("click", confirmar);
+        btnCancelar.addEventListener("click", () => cerrar(null));
+        btnCerrar.addEventListener("click", () => cerrar(null));
+        overlay.addEventListener("click", (event) => {
+            if (event.target === overlay) cerrar(null);
+        });
+        input.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") confirmar();
+        });
+        document.addEventListener("keydown", (event) => {
+            if (!overlay.hidden && event.key === "Escape") cerrar(null);
+        });
+
+        return {
+            confirmarEliminacion() {
+                return abrir({
+                    tipo: "eliminar",
+                    titulo: "¿Eliminar servicio?",
+                    texto: "Esta acción quitará el servicio de tu listado. Puedes volver a publicarlo más adelante si lo necesitas.",
+                    confirmar: "Confirmar eliminación"
+                });
+            },
+            editarTitulo(valorActual) {
+                return abrir({
+                    tipo: "editar",
+                    titulo: "Editar servicio",
+                    texto: "Actualiza el nombre visible de tu servicio.",
+                    confirmar: "Guardar cambios",
+                    valorInicial: valorActual || ""
+                });
+            },
+            notificar
+        };
+    }
+
+    async function cargarMisServicios(uidTecnico, mensajeCarga = "Cargando tus servicios...") {
         const lista = document.getElementById("listaMisServicios");
 
         if (!lista) return;
 
-        lista.innerHTML = "<p>Cargando servicios...</p>";
+        lista.innerHTML = `<p class="servicios-estado">${mensajeCarga}</p>`;
 
         try {
             const consulta = query(
@@ -234,7 +368,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const resultado = await getDocs(consulta);
 
             if (resultado.empty) {
-                lista.innerHTML = "<p>Aún no has publicado servicios.</p>";
+                lista.innerHTML = '<p class="servicios-estado">Aún no has publicado servicios.</p>';
                 return;
             }
 
@@ -248,8 +382,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     : "Sin disponibilidad";
 
                 const card = document.createElement("div");
-                card.className = "dato";
-                card.style.marginTop = "15px";
+                card.className = "dato servicio-tecnico-card";
 
                 card.innerHTML = `
                     <strong>${servicio.nombre || servicio.titulo || "Servicio"}</strong>
@@ -260,7 +393,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     <p>Disponibilidad: ${disponibilidad}</p>
                     <p>Estado: ${servicio.estado || "activo"}</p>
 
-                    <div style="margin-top:15px; display:flex; gap:10px;">
+                    <div class="servicio-tecnico-acciones">
                         <button class="btnEditar" data-id="${docServicio.id}">
                             Editar título
                         </button>
@@ -276,23 +409,25 @@ window.addEventListener("DOMContentLoaded", () => {
                 const btnEliminar = card.querySelector(".btnEliminar");
 
                 btnEliminar.addEventListener("click", async () => {
-                    const confirmar = confirm("¿Eliminar este servicio?");
+                    const confirmar = await modalPanel?.confirmarEliminacion();
 
                     if (!confirmar) return;
 
                     try {
                         await deleteDoc(doc(db, "servicios", docServicio.id));
-                        cargarMisServicios(uidTecnico);
+                        await cargarMisServicios(uidTecnico, "Actualizando tus servicios...");
+                        modalPanel?.notificar("Servicio eliminado correctamente.");
                     } catch (error) {
                         console.log(error);
-                        alert("Error al eliminar servicio");
+                        modalPanel?.notificar("No se pudo eliminar el servicio. Intenta nuevamente.", "error");
+                        await cargarMisServicios(uidTecnico);
                     }
                 });
 
                 const btnEditar = card.querySelector(".btnEditar");
 
                 btnEditar.addEventListener("click", async () => {
-                    const nuevoTitulo = prompt("Nuevo título:", servicio.nombre || servicio.titulo);
+                    const nuevoTitulo = await modalPanel?.editarTitulo(servicio.nombre || servicio.titulo);
 
                     if (!nuevoTitulo) return;
 
@@ -302,18 +437,20 @@ window.addEventListener("DOMContentLoaded", () => {
                             titulo: nuevoTitulo
                         });
 
-                        cargarMisServicios(uidTecnico);
+                        await cargarMisServicios(uidTecnico, "Actualizando tus servicios...");
+                        modalPanel?.notificar("Servicio actualizado correctamente.");
 
                     } catch (error) {
                         console.log(error);
-                        alert("Error al editar servicio");
+                        modalPanel?.notificar("No se pudo actualizar el servicio. Intenta nuevamente.", "error");
+                        await cargarMisServicios(uidTecnico);
                     }
                 });
             });
 
         } catch (error) {
             console.log("Error al cargar servicios:", error);
-            lista.innerHTML = "<p>Error al cargar tus servicios.</p>";
+            lista.innerHTML = '<p class="servicios-estado error">No se pudieron cargar tus servicios. Intenta nuevamente.</p>';
         }
     }
 

@@ -6,6 +6,19 @@ body {
     overflow-x: hidden;
 }
 
+#navbar-root .navbar-integrada:not(.scrolled):not(.menu-open) {
+    background: var(--c-arena);
+    padding-bottom: 15px;
+}
+
+#navbar-root .navbar-integrada:not(.scrolled):not(.menu-open) .bloque-logo {
+    color: var(--c-licorice) !important;
+}
+
+#navbar-root .navbar-integrada:not(.scrolled):not(.menu-open) .bloque-logo:hover {
+    color: var(--c-rosewood) !important;
+}
+
 
 .box {
     padding: 0 var(--pad-lateral) 0;

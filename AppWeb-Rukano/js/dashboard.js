@@ -14,8 +14,10 @@ var toggle = document.querySelector('.perfil-usuario');
 var nav = document.querySelector('.nav');
 var container = document.querySelector('.container');
 
-toggle.onclick = function() {
-    nav.classList.toggle('active');
+if (toggle && nav) {
+    toggle.onclick = function() {
+        nav.classList.toggle('active');
+    }
 }
 // ================= CERRAR SESION =================
 const cerrarSesion = document.querySelector(".cerrar-sesion");

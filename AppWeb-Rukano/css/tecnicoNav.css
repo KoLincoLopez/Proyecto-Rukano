@@ -1,0 +1,111 @@
+/* Navegacion interna para modulos tecnicos */
+.tech-nav{
+    width:100%;
+    margin:126px 0 0;
+    padding-left:var(--pad-lateral);
+    padding-right:var(--pad-lateral);
+}
+
+.tech-nav__list,
+.tech-nav ul{
+    align-items:stretch;
+    background:var(--c-licorice);
+    border-bottom:6px solid var(--c-mahogany);
+    border-radius:8px;
+    display:grid;
+    gap:8px;
+    grid-template-columns:repeat(6, minmax(0, 1fr));
+    list-style:none;
+    margin:0;
+    padding:10px;
+    width:100%;
+}
+
+.tech-nav li{
+    list-style:none;
+    min-width:0;
+}
+
+.tech-nav + .container{
+    max-width:none;
+    padding:24px var(--pad-lateral) 60px !important;
+}
+
+.tech-nav + .panel-tecnico{
+    margin-top:32px;
+}
+
+.tech-nav__link,
+.tech-nav a{
+    align-items:center;
+    border:1px solid rgba(245,239,234,0.14);
+    border-radius:999px;
+    color:var(--c-arena);
+    display:flex;
+    gap:8px;
+    justify-content:center;
+    min-height:48px;
+    padding:0 12px;
+    text-decoration:none;
+    transition:0.3s;
+    width:100%;
+}
+
+.tech-nav__link:hover,
+.tech-nav__link--active,
+.tech-nav li.active a,
+.tech-nav a:hover{
+    background:var(--c-mahogany);
+    color:var(--c-blanco);
+    transform:translateY(-2px);
+}
+
+.tech-nav__icon,
+.tech-nav .icono{
+    align-items:center;
+    display:inline-flex;
+    flex:0 0 auto;
+    font-size:1.25rem;
+    justify-content:center;
+}
+
+.tech-nav__title,
+.tech-nav .titulo{
+    font-family:Arial, sans-serif;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:0.5px;
+    line-height:1.1;
+    text-transform:uppercase;
+    white-space:nowrap;
+}
+
+@media(max-width:1024px){
+    .tech-nav__list,
+    .tech-nav ul{
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media(max-width:768px){
+    .tech-nav{
+        margin-top:112px;
+    }
+
+    .tech-nav__list,
+    .tech-nav ul{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .tech-nav__link,
+    .tech-nav a{
+        justify-content:flex-start;
+    }
+}
+
+@media(max-width:480px){
+    .tech-nav__list,
+    .tech-nav ul{
+        grid-template-columns:1fr;
+    }
+}
