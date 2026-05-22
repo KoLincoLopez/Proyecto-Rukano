@@ -38,7 +38,8 @@
                     </div>
 
                     <div class="checkbox-moderno">
-                        <input type="checkbox" id="showPasswordLogin">
+                        <input type="checkbox" id="showPasswordLogin"
+                            onchange="document.getElementById('passwordLogin').type = this.checked ? 'text' : 'password'">
                         <label for="showPasswordLogin">Mostrar contraseña</label>
                     </div>
 
