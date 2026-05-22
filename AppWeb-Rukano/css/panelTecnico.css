@@ -1,0 +1,454 @@
+/*======================================================
+  CONFIGURACIÓN GENERAL (Igual a Dashboard)
+======================================================*/
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 100px;
+}
+
+html,
+body {
+    max-width: 100vw;
+    overflow-x: hidden !important;
+}
+
+:root {
+    --c-licorice: #1E0D0A;
+    --c-rosewood: #550006; 
+    --c-mahogany: #BF353B;
+    --c-froly: #EE666A;
+    --c-deep-moss: #3D4421;
+    --c-blanco: #FFFFFF;
+    --c-gris-claro: #f9f9f9;
+    --c-arena: #F5EFEA;
+    --pad-lateral: 80px;
+
+    --nav-width: 280px;
+    --nav-width-collapsed: 90px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--c-arena);
+    overflow-x: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/*================ NAVBAR SUPERIOR ================*/
+.navbar-integrada{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:90px;
+    display:flex;
+    align-items:center;
+    background:var(--c-licorice);
+    padding:0 30px;
+    z-index:5000;
+    box-shadow:0 4px 15px rgba(0,0,0,0.05);
+}
+
+.bloque-logo {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 45px;
+    font-weight: 900;
+    color: var(--c-blanco);
+    text-decoration: none;
+    padding-left: var(--pad-lateral);
+    letter-spacing: -2px;
+}
+
+.bloque-menu {
+    background-color: var(--c-licorice);
+    height: 60px;
+    flex-grow: 1;
+    margin-left: 60px;
+    border-radius: 40px 0 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.nav-izquierda,
+.nav-derecha {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.nav-izquierda a,
+.link-sesion {
+    color: var(--c-arena);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+    opacity: 0.8;
+    transition: 0.3s;
+}
+
+.nav-izquierda a:hover,
+.link-sesion:hover {
+    color: var(--c-froly);
+    opacity: 1;
+}
+
+.btn-registro-nav {
+    background-color: var(--c-mahogany);
+    color: var(--c-blanco);
+    text-decoration: none;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 900;
+    transition: 0.3s;
+}
+
+.btn-registro-nav:hover {
+    background-color: var(--c-froly);
+}
+
+/*================ MENU LATERAL (FLOTANTE) ================*/
+.nav {
+    position: fixed;
+    top: 95px;
+    right: 15px;
+    width: 220px;
+    height: auto;
+    background-color: var(--c-licorice);
+    border-radius: 25px;
+    overflow: hidden;
+    transition: 0.4s ease;
+    z-index: 2000;
+    padding-bottom: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-15px);
+}
+
+.nav.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav ul {
+    width: 100%;
+    padding-top: 20px;
+}
+
+.nav ul li {
+    list-style: none;
+    width: 100%;
+}
+
+.nav ul li a {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--c-arena);
+    transition: 0.3s;
+    border-radius: 30px 0 0 30px;
+}
+
+.nav ul li:hover a {
+    background-color: var(--c-mahogany);
+}
+
+.nav ul li a .icono {
+    min-width: 65px;
+    height: 58px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+}
+
+.nav ul li a .titulo {
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.cerrar-sesion {
+    margin-top: 0px;
+}
+
+/*================ TOPBAR (Toggle de Perfil) ================*/
+.topbar {
+    display: none;
+}
+
+.toggle {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background-color: var(--c-licorice);
+    color: var(--c-blanco);
+    border-radius: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.toggle:hover {
+    background-color: var(--c-mahogany);
+    transform: scale(1.05);
+}
+
+.perfil-usuario {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.3s ease;
+    border: 2px solid transparent;
+    flex-shrink: 0;
+}
+
+.perfil-usuario:hover {
+    transform: scale(1.05);
+    border-color: var(--c-froly);
+}
+
+.perfil-usuario img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/*================ CONTENIDO DEL PANEL TÉCNICO ================*/
+/* Este reemplaza al ".container" de tu dashboard para que encaje perfecto */
+.panel-tecnico {
+    position: relative;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    min-height: auto;
+    padding: 115px 30px 40px; /* Mismos paddings de tu dashboard */
+    transition: 0.4s ease;
+}
+
+.panel-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 25px;
+}
+
+.panel-header h1 {
+    color: var(--c-licorice);
+    font-size: 32px;
+    font-family: 'Arial Black', sans-serif;
+}
+
+.panel-header p {
+    color: var(--c-licorice);
+    opacity: 0.7;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Estas tarjetas reemplazan a ".ordenes-recientes" y ".nuevos-clientes" */
+.panel-card {
+    position: relative;
+    background-color: var(--c-blanco);
+    padding: 30px;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+
+.panel-card h2 {
+    color: var(--c-licorice);
+    font-size: 24px;
+    margin-bottom: 25px;
+}
+
+/* Detalles de los servicios listados */
+#listaMisServicios p {
+    color: var(--c-licorice);
+    opacity: 0.7;
+    font-style: italic;
+}
+
+#listaMisServicios .dato {
+    background-color: var(--c-gris-claro);
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 15px;
+    transition: 0.3s;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+#listaMisServicios .dato:hover {
+    background-color: rgba(191, 53, 59, 0.08); /* Efecto hover del dashboard */
+}
+
+/* Botones igual a los del dashboard (.boton) */
+.btnEditar, .btnEliminar {
+    background-color: var(--c-mahogany);
+    color: var(--c-blanco);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-right: 10px;
+}
+
+.btnEditar {
+    background-color: #2980b9;
+}
+
+.btnEditar:hover {
+    background-color: #1f6694;
+}
+
+.btnEliminar:hover {
+    background-color: var(--c-froly);
+}
+
+/*================ FOOTER ================*/
+.footer-rukano {
+    background-color: var(--c-licorice);
+    color: var(--c-blanco);
+    padding: 80px var(--pad-lateral) 40px;
+    margin-top: 30px;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+}
+
+.logo-footer {
+    font-size: 40px;
+    font-family: 'Arial Black', sans-serif;
+    margin-bottom: 20px;
+}
+
+.slogan-footer {
+    opacity: 0.7;
+    margin-bottom: 25px;
+}
+
+.redes-sociales {
+    display: flex;
+    gap: 20px;
+}
+
+.redes-sociales a,
+.footer-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.redes-sociales a:hover,
+.footer-links a:hover {
+    color: var(--c-froly);
+}
+
+.footer-label {
+    display: block;
+    margin-bottom: 20px;
+    color: var(--c-froly);
+    font-weight: bold;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.footer-bottom p {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+/*================ RESPONSIVE ================*/
+
+@media (max-width: 991px){
+    .navbar-integrada{ padding: 0 20px; }
+    .bloque-logo{ padding-left: 0; font-size: 34px; }
+    .bloque-menu{ margin-left: 20px; padding: 0 20px; }
+    .nav-izquierda{ gap: 15px; }
+    .nav-izquierda a{ font-size: 13px; }
+    .panel-tecnico{ padding: 120px 20px 40px; }
+    .footer-rukano{ padding: 60px 30px 30px; }
+    .footer-grid{ grid-template-columns: 1fr 1fr; gap: 40px; }
+}
+
+@media (max-width:768px){
+    .navbar-integrada{ height: 80px; padding: 0 15px; }
+    .bloque-logo{ font-size: 28px; }
+    .bloque-menu{ margin-left: 10px; padding: 0 15px; height: 50px; }
+    .nav-izquierda{ display: none; }
+    .link-sesion, .btn-registro-nav{ display: none; }
+    .perfil-usuario{ width: 42px; height: 42px; }
+
+    .nav{
+        width: 220px;
+        left: 15px;
+        right: auto;
+        top: 90px;
+        transform: translateX(-20px);
+    }
+    .nav.active{ transform: translateX(0); }
+    
+    .panel-tecnico{ padding: 105px 15px 30px; }
+    .panel-card { padding: 20px; border-radius: 20px; }
+    
+    .footer-rukano{ padding: 50px 20px 25px; }
+    .footer-grid{ grid-template-columns: 1fr; gap: 35px; }
+    .footer-bottom{ flex-direction: column; text-align: center; }
+}
+
+@media (max-width:480px){
+    .navbar-integrada{ height: 75px; }
+    .bloque-logo{ font-size: 24px; }
+    .bloque-menu{ height: 45px; border-radius: 30px; }
+    .perfil-usuario{ width: 38px; height: 38px; }
+
+    .nav{
+        width: calc(100% - 20px);
+        left: 10px;
+        right: auto;
+        top: 85px;
+        transform: translateX(-20px);
+    }
+    .nav.active{ transform: translateX(0); }
+    
+    .panel-tecnico{ padding: 95px 10px 20px; }
+    .panel-card { padding: 15px; }
+    .logo-footer{ font-size: 32px; }
+    .redes-sociales{ flex-direction: column; gap: 10px; }
+}

@@ -3,346 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <title>Rukano - Panel Técnico</title>
-    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/panelTecnico.css">
 
-    <style>
-        body {
-            background-color: var(--c-arena);
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-
-        .panel-tecnico {
-            width: 1000px;
-            max-width: 92%;
-            margin: 70px auto;
-        }
-
-        .panel-header {
-            background-color: var(--c-licorice);
-            color: var(--c-arena);
-            padding: 45px;
-            border-bottom: 8px solid var(--c-mahogany);
-            margin-bottom: 35px;
-        }
-
-        .panel-header h1 {
-            font-family: 'Arial Black', sans-serif;
-            font-size: 48px;
-            line-height: 1;
-            letter-spacing: -2px;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
-
-        .panel-header p {
-            opacity: 0.85;
-            font-weight: bold;
-        }
-
-        .panel-card {
-            background-color: var(--c-blanco);
-            padding: 35px;
-            margin-bottom: 35px;
-            border: 2px solid transparent;
-            border-bottom: 2px solid #E0E0E0;
-            transition: 0.3s;
-        }
-
-        .panel-card:hover {
-            border: 2px solid var(--c-licorice);
-        }
-
-        .panel-card h2 {
-            font-family: 'Arial Black', sans-serif;
-            color: var(--c-licorice);
-            text-transform: uppercase;
-            margin-bottom: 25px;
-            letter-spacing: -1px;
-        }
-
-        .form-servicio label {
-            display: block;
-            margin-top: 15px;
-            margin-bottom: 6px;
-            font-weight: bold;
-            color: var(--c-licorice);
-        }
-
-        .form-servicio input,
-        .form-servicio select,
-        .form-servicio textarea {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 13px;
-            border-radius: 0;
-            border: 2px solid #ddd;
-            font-family: Arial, sans-serif;
-            background: var(--c-gris-claro);
-        }
-
-        .form-servicio textarea {
-            min-height: 90px;
-            resize: vertical;
-        }
-
-        .agenda-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 18px;
-            margin-top: 20px;
-        }
-
-        .agenda-dia {
-            background: var(--c-gris-claro);
-            border: 2px solid #ddd;
-            padding: 18px;
-        }
-
-        .agenda-dia strong {
-            display: block;
-            color: var(--c-licorice);
-            margin-bottom: 10px;
-            font-family: 'Arial Black', sans-serif;
-            text-transform: uppercase;
-        }
-
-        .agenda-dia label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .agenda-dia input[type="time"] {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            border: 1px solid #ccc;
-            margin-top: 6px;
-        }
-
-        .btn-panel,
-        .btn-logout {
-            margin-top: 20px;
-            background-color: var(--c-mahogany);
-            color: var(--c-blanco);
-            border: none;
-            padding: 14px 26px;
-            border-radius: 12px;
-            font-weight: 900;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn-panel:hover {
-            background-color: var(--c-froly);
-            transform: translateY(-2px);
-        }
-
-        #mensajeServicio {
-            margin-top: 15px;
-            font-weight: bold;
-            color: var(--c-mahogany);
-        }
-
-        #listaMisServicios .dato {
-            background: var(--c-gris-claro);
-            padding: 20px;
-            border: 1px solid #ddd;
-            margin-top: 15px;
-        }
-
-        .btnEditar,
-        .btnEliminar {
-            border: none;
-            padding: 10px 16px;
-            border-radius: 12px;
-            cursor: pointer;
-            color: white;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btnEditar {
-            background: #2980b9;
-        }
-
-        .btnEliminar {
-            background: #c0392b;
-        }
-
-        .btnEditar:hover {
-            background: #1f6694;
-        }
-
-        .btnEliminar:hover {
-            background: #962d22;
-        }
-
-        .btn-logout {
-            display: block;
-            margin: 25px auto;
-            background-color: var(--c-licorice);
-        }
-
-        .btn-logout:hover {
-            background-color: var(--c-rosewood);
-        }
-
-        .footer-panel {
-            margin-top: 40px;
-            padding: 25px;
-            text-align: center;
-            color: #777;
-            font-size: 13px;
-        }
-
-        @media (max-width: 700px) {
-            .panel-header h1 {
-                font-size: 34px;
-            }
-
-            .panel-card {
-                padding: 25px;
-            }
-        }
-    </style>
 </head>
 
 <body>
 
-    <main class="panel-tecnico">
+    <!--navbar-->
+    <nav class="navbar-integrada">
+        <a href="#" class="bloque-logo">RUKANO</a>
 
-        <section class="panel-header">
-            <h1>Panel Técnico</h1>
-            <p>Administra tus servicios, perfil profesional y horarios disponibles en Rukano.</p>
-        </section>
-
-        <section class="panel-card">
-            <h2>Publicar servicio</h2>
-
-            <form id="formServicio" class="form-servicio">
-
-                <label for="tituloServicio">Título del servicio</label>
-                <input type="text" id="tituloServicio" placeholder="Ej: Electricista domiciliario">
-
-                <label for="categoriaServicio">Categoría</label>
-                <select id="categoriaServicio">
-                    <option value="">Selecciona una categoría</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Gasfitería">Gasfitería</option>
-                    <option value="Limpieza">Limpieza</option>
-                    <option value="Jardinería">Jardinería</option>
-                    <option value="Cerrajería">Cerrajería</option>
-                    <option value="Pintura">Pintura</option>
-                </select>
-
-                <label for="comunaServicio">Comuna</label>
-                <input type="text" id="comunaServicio" placeholder="Ej: Puente Alto">
-
-                <label for="precioServicio">Precio estimado</label>
-                <input type="number" id="precioServicio" placeholder="Ej: 25000">
-
-                <label for="tiempoServicio">Tiempo estimado</label>
-                <input type="text" id="tiempoServicio" placeholder="Ej: 2 horas">
-
-                <label for="descripcionServicio">Descripción del servicio</label>
-                <textarea id="descripcionServicio" placeholder="Ej: Servicio especializado para reparación e instalación domiciliaria."></textarea>
-
-                <label for="descripcionTecnicoServicio">Descripción del técnico</label>
-                <textarea id="descripcionTecnicoServicio" placeholder="Ej: Técnico con experiencia en reparaciones domiciliarias."></textarea>
-
-                <label for="experienciaTecnicoServicio">Experiencia</label>
-                <input type="text" id="experienciaTecnicoServicio" placeholder="Ej: 3 años de experiencia">
-
-                <label for="incluyeServicio">Qué incluye</label>
-                <textarea id="incluyeServicio" placeholder="Ej: Diagnóstico inicial&#10;Mano de obra básica&#10;Revisión del problema"></textarea>
-
-                <label for="noIncluyeServicio">Qué no incluye</label>
-                <textarea id="noIncluyeServicio" placeholder="Ej: Materiales especiales&#10;Transporte adicional"></textarea>
-
-                <h2 style="margin-top:35px;">Disponibilidad del servicio</h2>
-
-                <div class="agenda-grid">
-                    <div class="agenda-dia">
-                        <strong>Lunes</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Lunes">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-
-                    <div class="agenda-dia">
-                        <strong>Martes</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Martes">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-
-                    <div class="agenda-dia">
-                        <strong>Miércoles</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Miércoles">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-
-                    <div class="agenda-dia">
-                        <strong>Jueves</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Jueves">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-
-                    <div class="agenda-dia">
-                        <strong>Viernes</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Viernes">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
+            <div class="bloque-menu">
+                <div class="nav-izquierda">
+                    <a href="index.html#servicios">Servicios</a>
+                    <a href="index.html#beneficios">Beneficios</a>
+                    <a href="index.html#como-funciona">¿Cómo Funciona?</a>
+                    <a href="index.html#testimonios">Reseñas</a>
                 </div>
 
-                <button type="submit" class="btn-panel">Publicar servicio</button>
+            <div class="nav-derecha">
+                <a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
+                <a href="registro.html" class="btn-registro-nav">Registrarse</a>
+                <div class="perfil-usuario toggle">
+                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
+                </div>
+            </div>
+        </div>
+    </nav>
+        <!--fin navbar-->
 
-                <p id="mensajeServicio"></p>
-            </form>
-        </section>
+        <!--Menu-->
+        <div class="nav">
+            <ul>
+                <li>
+                    <a href="dashboard.html">
+                        <span class="icono"><ion-icon name="home-outline"></ion-icon></span>
+                        <span class="titulo">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="clientesTec.html">
+                        <span class="icono"><ion-icon name="people-outline"></ion-icon></span>
+                        <span class="titulo">Clientes</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="agendaTec.html">
+                        <span class="icono"><ion-icon name="calendar-outline"></ion-icon></span>
+                        <span class="titulo">Agenda</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="miperfilTec.html">
+                        <span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span>
+                        <span class="titulo">Mi Perfil</span>
+                    </a>
+                </li>
 
-        <section class="panel-card">
-            <h2>Mis servicios publicados</h2>
+                <li>
+                    <a href="subirServicio.html">
+                        <span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span>
+                        <span class="titulo">Subir servicio</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="panelTecnico.html">
+                        <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
+                        <span class="titulo">Mis servicios</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="configuracionTec.html">
+                        <span class="icono"><ion-icon name="settings-outline"></ion-icon></span>
+                        <span class="titulo">Configuracion</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="cerrar-sesion">
+                        <span class="icono"><ion-icon name="log-out-outline"></ion-icon></span>
+                        <span class="titulo">Cerrar Sesion</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!--Fin menu-->
+
+        <div class="panel-tecnico">
+            <div class="panel-header">
+                <h1>Mis Servicios Publicados</h1>
+                <p>Administra los servicios que los clientes pueden ver y contratar</p>
+            </div>
 
             <div id="listaMisServicios">
-                <p>Cargando servicios...</p>
-            </div>
-        </section>
+                </div>
+        </div>
 
-        <button id="btnLogout" class="btn-logout">Cerrar sesión</button>
 
     </main>
 
-    <footer class="footer-panel">
-        <p>&copy; 2026 RUKANO - Panel Técnico</p>
-    </footer>
+        <footer class="footer-rukano">
+            <div class="footer-grid">
+                <div class="footer-col-marca">
+                    <h2 class="logo-footer">RUKANO</h2>
+                    <p class="slogan-footer">Transformando la forma en que cuidas tu hogar.</p>
+                    <div class="redes-sociales">
+                        <a href="#">INSTAGRAM</a>
+                        <a href="#">FACEBOOK</a>
+                        <a href="#">LINKEDIN</a>
+                    </div>
+                </div>
 
-    <script type="module" src="js/panel.js"></script>
+                <div class="footer-col">
+                    <span class="footer-label">AYUDA</span>
+                    <nav class="footer-links">
+                        <a href="#">Centro de ayuda</a>
+                        <a href="#">Seguridad</a>
+                        <a href="#">Cómo pagar</a>
+                    </nav>
+                </div>
+
+                <div class="footer-col">
+                    <span class="footer-label">COMPAÑÍA</span>
+                    <nav class="footer-links">
+                        <a href="#">Sobre nosotros</a>
+                        <a href="#">Términos y condiciones</a>
+                        <a href="#">Privacidad</a>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 RUKANO. HECHO CON PASIÓN POR EQUIPO TAP</p>
+                <p class="pais-footer">CHILE / SANTIAGO</p>
+            </div>
+        </footer> 
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>    
+    <script type="module" src="js/panelTec.js"></script>
 
 </body>
 </html>

@@ -21,12 +21,11 @@
         <a href="#" class="bloque-logo">RUKANO</a>
 
         <div class="bloque-menu">
-
             <div class="nav-izquierda">
-                <a href="#servicios">Servicios</a>
-                <a href="#beneficios">Beneficios</a>
-                <a href="#como-funciona">¿Cómo Funciona?</a>
-                <a href="#testimonios">Reseñas</a>
+                <a href="index.html#servicios">Servicios</a>
+                <a href="index.html#beneficios">Beneficios</a>
+                <a href="index.html#como-funciona">¿Cómo Funciona?</a>
+                <a href="index.html#testimonios">Reseñas</a>
             </div>
 
             <div class="nav-derecha">
@@ -97,6 +96,20 @@
                 </a>
             </li>
 
+            <li>
+                <a href="subirServicio.html">
+                    <span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span>
+                    <span class="titulo">Subir servicio</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="panelTecnico.html">
+                    <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
+                    <span class="titulo">Mis servicios</span>
+                </a>
+            </li>
+
             <li class="active">
                 <a href="configuracionTec.html">
                     <span class="icono">
@@ -142,41 +155,11 @@
                     <tbody>
 
                         <tr>
-                            <td>Cambiar contraseña</td>
-
-                            <td>
-                                <button class="boton">
-                                    Editar
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>Notificaciones</td>
-
-                            <td>
-                                <button class="boton">
-                                    Activadas
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
                             <td>Disponibilidad</td>
 
                             <td>
                                 <button class="boton">
                                     Disponible
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>Idioma</td>
-
-                            <td>
-                                <button class="boton">
-                                    Español
                                 </button>
                             </td>
                         </tr>
@@ -209,23 +192,6 @@
 
             </div>
             <!-- ======== FIN AJUSTES ======== -->
-
-
-            <!-- ======== PANEL EXTRA ======== -->
-            <div class="notas-box">
-
-                <div class="header">
-                    <h2>Preferencias</h2>
-                </div>
-
-                <textarea placeholder="Escribe tus preferencias o configuraciones personales..."></textarea>
-
-                <button class="boton">
-                    Guardar Cambios
-                </button>
-
-            </div>
-            <!-- ======== FIN PANEL EXTRA ======== -->
 
         </div>
         <!-- ================= FIN DETALLES ================= -->
@@ -298,7 +264,7 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 <!-- ================= JS ================= -->
-<script src="js/configuracionTec.js"></script>
+<script type="module" src="js/configuracionTec.js"></script>
 
 </body>
 </html>

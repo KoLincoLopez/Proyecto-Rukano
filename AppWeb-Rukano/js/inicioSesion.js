@@ -41,19 +41,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
-            // 4. Redirección por Rol (Caso de Uso [3, 4])
+            // =======================================================
+            // 4. Redirección por Rol (¡AQUÍ ESTÁ EL CAMBIO!)
+            // =======================================================
             const rol = String(data.rol || "").toLowerCase();
+            
             if (rol === "tecnico") {
-                window.location.href = "panelTecnico.html";
+                window.location.href = "dashboard.html"; // <-- Lo enviamos al nuevo Dashboard
             } else if (rol === "cliente") {
-                window.location.href = "panelCliente.html";
+                window.location.href = "index.html";     // <-- Lo enviamos a la página de inicio
             } else {
                 alert("Usuario autenticado pero sin rol asignado.");
+                window.location.href = "index.html";     // Por seguridad lo enviamos al inicio
             }
 
         } catch (error) {
             console.error(error);
-            alert("Fallo en el inicio de sesión: " + error.message);
+            alert("Fallo en el inicio de sesión: " + (error.message || "Credenciales incorrectas"));
             btnLogin.disabled = false;
             btnLogin.innerText = "Iniciar Sesión";
         }
