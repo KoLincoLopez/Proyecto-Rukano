@@ -309,7 +309,7 @@ section{
 
 .detalles{
     display:grid;
-    grid-template-columns:2fr 1fr;
+    grid-template-columns:1fr;
     gap:25px;
 
     margin-bottom:30px;
@@ -378,33 +378,6 @@ table td:last-child{
 
 .boton:hover{
     background:var(--c-mahogany);
-}
-
-/*==================== NOTAS ====================*/
-
-.notas-box{
-    display:flex;
-    flex-direction:column;
-}
-
-.notas-box textarea{
-    width:100%;
-    height:220px;
-
-    border:none;
-    outline:none;
-
-    resize:none;
-
-    padding:15px;
-
-    border-radius:15px;
-
-    background:var(--c-arena);
-
-    margin-bottom:20px;
-
-    font-size:1em;
 }
 
 /*==================== DANGER ZONE ====================*/

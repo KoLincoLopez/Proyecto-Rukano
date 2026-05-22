@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- CSS -->
     <link rel="stylesheet" href="css/agendaTec.css">
 
     <title>Agenda | RUKANO</title>
@@ -13,246 +12,111 @@
 
 <section>
 
-    <!-- ================= NAVBAR ================= -->
     <nav class="navbar-integrada">
-
         <a href="#" class="bloque-logo">RUKANO</a>
-
         <div class="bloque-menu">
-
             <div class="nav-izquierda">
-                <a href="#servicios">Servicios</a>
-                <a href="#beneficios">Beneficios</a>
-                <a href="#como-funciona">¿Cómo Funciona?</a>
-                <a href="#testimonios">Reseñas</a>
+                <a href="index.html#servicios">Servicios</a>
+                <a href="index.html#beneficios">Beneficios</a>
+                <a href="index.html#como-funciona">¿Cómo Funciona?</a>
+                <a href="index.html#testimonios">Reseñas</a>
             </div>
-
             <div class="nav-derecha">
-
-                <a href="inicioSesion.html" class="link-sesion">
-                    Iniciar sesión
-                </a>
-
-                <a href="registro.html" class="btn-registro-nav">
-                    Registrarse
-                </a>
-
-                <!-- FOTO PERFIL = BOTON MENU -->
+                <a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
+                <a href="registro.html" class="btn-registro-nav">Registrarse</a>
                 <div class="perfil-usuario toggle">
                     <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
                 </div>
-
             </div>
-
         </div>
-
     </nav>
-    <!-- ================= FIN NAVBAR ================= -->
-
-
-    <!-- ================= MENU ================= -->
     <div class="nav">
-
         <ul>
-
-            <li>
-                <a href="dashboard.html">
-                    <span class="icono">
-                        <ion-icon name="home-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Dashboard</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="clientesTec.html">
-                    <span class="icono">
-                        <ion-icon name="people-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Clientes</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="agendaTec.html">
-                    <span class="icono">
-                        <ion-icon name="calendar-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Agenda</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="miperfilTec.html">
-                    <span class="icono">
-                        <ion-icon name="person-circle-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Mi Perfil</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="configuracionTec.html">
-                    <span class="icono">
-                        <ion-icon name="settings-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Configuración</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#" class="cerrar-sesion">
-                    <span class="icono">
-                        <ion-icon name="log-out-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Cerrar Sesión</span>
-                </a>
-            </li>
-
+            <li><a href="dashboard.html"><span class="icono"><ion-icon name="home-outline"></ion-icon></span><span class="titulo">Dashboard</span></a></li>
+            <li><a href="clientesTec.html"><span class="icono"><ion-icon name="people-outline"></ion-icon></span><span class="titulo">Clientes</span></a></li>
+            <li class="active"><a href="agendaTec.html"><span class="icono"><ion-icon name="calendar-outline"></ion-icon></span><span class="titulo">Agenda</span></a></li>
+            <li><a href="miperfilTec.html"><span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span><span class="titulo">Mi Perfil</span></a></li>
+            <li><a href="subirServicio.html"><span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span><span class="titulo">Subir servicio</span></a></li>
+            <li><a href="panelTecnico.html"><span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span><span class="titulo">Mis servicios</span></a></li>
+            <li><a href="configuracionTec.html"><span class="icono"><ion-icon name="settings-outline"></ion-icon></span><span class="titulo">Configuración</span></a></li>
+            <li><a href="#" class="cerrar-sesion"><span class="icono"><ion-icon name="log-out-outline"></ion-icon></span><span class="titulo">Cerrar Sesión</span></a></li>
         </ul>
-
     </div>
-    <!-- ================= FIN MENU ================= -->
-
-
-    <!-- ================= CONTENIDO ================= -->
     <div class="container">
 
-        <!-- ================= DETALLES ================= -->
         <div class="detalles">
 
-            <!-- ======== CALENDARIO ======== -->
             <div class="calendario-box">
-
-                <div class="header">
+                <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
                     <h2>Calendario</h2>
+                    <div class="nav-mes-controles" style="display: flex; align-items: center; gap: 15px;">
+                        <button id="btn-prev-mes" style="background:none; border:none; cursor:pointer; font-size: 20px; color: var(--c-rosewood); font-weight: bold;">&lt;</button>
+                        <span id="cal-mes-label" style="font-weight: bold; font-size: 16px; min-width: 120px; text-align: center; display: inline-block;">Mayo 2026</span>
+                        <button id="btn-next-mes" style="background:none; border:none; cursor:pointer; font-size: 20px; color: var(--c-rosewood); font-weight: bold;">&gt;</button>
+                    </div>
                 </div>
 
-                <div class="calendario">
+                <div class="calendario-semana" style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; margin-bottom: 10px; color: #777;">
+                    <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+                </div>
 
-                    <div class="dia nombre">L</div>
-                    <div class="dia nombre">M</div>
-                    <div class="dia nombre">M</div>
-                    <div class="dia nombre">J</div>
-                    <div class="dia nombre">V</div>
-                    <div class="dia nombre">S</div>
-                    <div class="dia nombre">D</div>
+                <div class="calendario" id="cal-grid">
+                    </div>
+            </div>
+            <div class="interaccion-box" style="display: flex; flex-direction: column; gap: 20px;">
+                
+                <div class="notas-box">
+                    <div class="header">
+                        <h2>Notas personales</h2>
+                    </div>
+                    <textarea placeholder="Escribe tus notas aquí..."></textarea>
+                    <button class="boton">Guardar Nota</button>
+                </div>
 
-                    <div class="dia">1</div>
-                    <div class="dia">2</div>
-                    <div class="dia">3</div>
-                    <div class="dia servicio">4</div>
-                    <div class="dia">5</div>
-                    <div class="dia hoy">6</div>
-                    <div class="dia">7</div>
-
-                    <div class="dia">8</div>
-                    <div class="dia servicio">9</div>
-                    <div class="dia">10</div>
-                    <div class="dia">11</div>
-                    <div class="dia servicio">12</div>
-                    <div class="dia">13</div>
-                    <div class="dia">14</div>
-
+                <div class="citas-dia-box" style="background: white; padding: 20px; border-radius: 20px; box-shadow: 0 7px 25px rgba(0,0,0,0.08);">
+                    <div class="header" style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+                        <h2 style="font-size: 18px;">Agenda del Día</h2>
+                        <span id="fecha-seleccionada-label" style="font-size: 13px; color: var(--c-rosewood); font-weight: bold;">Selecciona un día en el calendario</span>
+                    </div>
+                    
+                    <div id="lista-citas-dia">
+                        <p style="color: #999; font-size: 14px; text-align: center; padding: 20px;">Presiona cualquier día resaltado para ver tus compromisos.</p>
+                    </div>
                 </div>
 
             </div>
-            <!-- ======== FIN CALENDARIO ======== -->
-
-
-            <!-- ======== NOTAS ======== -->
-            <div class="notas-box">
-
-                <div class="header">
-                    <h2>Notas</h2>
-                </div>
-
-                <textarea placeholder="Escribe tus notas aquí..."></textarea>
-
-                <button class="boton">
-                    Guardar Nota
-                </button>
-
             </div>
-            <!-- ======== FIN NOTAS ======== -->
-
         </div>
-        <!-- ================= FIN DETALLES ================= -->
+    </section>
 
-    </div>
-    <!-- ================= FIN CONTENIDO ================= -->
-
-</section>
-
-
-<!-- ================= FOOTER ================= -->
 <footer class="footer-rukano">
-
     <div class="footer-grid">
-
         <div class="footer-col-marca">
-
             <h2 class="logo-footer">RUKANO</h2>
-
-            <p class="slogan-footer">
-                Transformando la forma en que cuidas tu hogar.
-            </p>
-
+            <p class="slogan-footer">Transformando la forma en que cuidas tu hogar.</p>
             <div class="redes-sociales">
-                <a href="#">INSTAGRAM</a>
-                <a href="#">FACEBOOK</a>
-                <a href="#">LINKEDIN</a>
+                <a href="#">INSTAGRAM</a><a href="#">FACEBOOK</a><a href="#">LINKEDIN</a>
             </div>
-
         </div>
-
         <div class="footer-col">
-
             <span class="footer-label">AYUDA</span>
-
-            <nav class="footer-links">
-                <a href="#">Centro de ayuda</a>
-                <a href="#">Seguridad</a>
-                <a href="#">Cómo pagar</a>
-            </nav>
-
+            <nav class="footer-links"><a href="#">Centro de ayuda</a><a href="#">Seguridad</a><a href="#">Cómo pagar</a></nav>
         </div>
-
         <div class="footer-col">
-
             <span class="footer-label">COMPAÑÍA</span>
-
-            <nav class="footer-links">
-                <a href="#">Sobre nosotros</a>
-                <a href="#">Términos y condiciones</a>
-                <a href="#">Privacidad</a>
-            </nav>
-
+            <nav class="footer-links"><a href="#">Sobre nosotros</a><a href="#">Términos y condiciones</a><a href="#">Privacidad</a></nav>
         </div>
-
     </div>
-
     <div class="footer-bottom">
         <p>&copy; 2026 RUKANO. HECHO CON PASIÓN POR EQUIPO TAP</p>
         <p class="pais-footer">CHILE / SANTIAGO</p>
     </div>
-
 </footer>
-<!-- ================= FIN FOOTER ================= -->
 
-
-<!-- ================= IONICONS ================= -->
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
-<!-- ================= JS ================= -->
-<script src="js/agendaTec.js"></script>
+<script type="module" src="js/agendaTec.js"></script>
 
 </body>
 </html>

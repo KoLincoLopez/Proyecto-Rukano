@@ -14,10 +14,10 @@
 
             <div class="bloque-menu">
                 <div class="nav-izquierda">
-                    <a href="#servicios">Servicios</a>
-                    <a href="#beneficios">Beneficios</a>
-                    <a href="#como-funciona">¿Cómo Funciona?</a>
-                    <a href="#testimonios">Reseñas</a>
+                    <a href="index.html#servicios">Servicios</a>
+                    <a href="index.html#beneficios">Beneficios</a>
+                    <a href="index.html#como-funciona">¿Cómo Funciona?</a>
+                    <a href="index.html#testimonios">Reseñas</a>
                 </div>
 
                 <div class="nav-derecha">
@@ -59,6 +59,21 @@
                         <span class="titulo">Mi Perfil</span>
                     </a>
                 </li>
+
+                <li>
+                    <a href="subirServicio.html">
+                        <span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span>
+                        <span class="titulo">Subir servicio</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="panelTecnico.html">
+                        <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
+                        <span class="titulo">Mis servicios</span>
+                    </a>
+                </li>
+
                 <li>
                     <a href="configuracionTec.html">
                         <span class="icono"><ion-icon name="settings-outline"></ion-icon></span>
@@ -77,92 +92,36 @@
 
         <!--dashboard-->
         <div class="container">
-
+            
             <!--detalles-->
             <div class="detalles">
 
-                <!--ordenes recientes-->
-                <div class="ordenes-recientes">
+<div class="ordenes-recientes">
 
-                    <div class="header">
-                        <h2>Ordenes</h2>
-                        <a href="#" class="boton">Ver todos</a>
-                    </div>
+    <div class="header">
+        <h2>Citas Agendadas</h2>
+        <a href="agendaTec.html" class="boton">Ver todas</a>
+    </div>
 
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nombre cliente</th>
-                                <th>Nombre</th>
-                                <th>Precio</th>
-                                <th>Pago</th>
-                                <th>Estatus</th>
-                            </tr>
-                        </thead>
+    <table>
+        <thead>
+            <tr>
+                <th>ID Cliente</th>
+                <th>Servicio Solicitado</th>
+                <th>Fecha / Hora</th>
+                <th>Pago</th>
+                <th>Estatus</th>
+            </tr>
+        </thead>
 
-                        <tbody>
+        <tbody>
+            <tr>
+                <td colspan="5" style="text-align:center; padding:20px;">Cargando citas...</td>
+            </tr>
+        </tbody>
+    </table>
 
-                            <tr>
-                                <td>John Doe</td>
-                                <td>Instalación de lámpara</td>
-                                <td>$25.000</td>
-                                <td>Pendiente</td>
-                                <td><span class="estatus pendiente">Pendiente</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Olivia Anderson</td>
-                                <td>Cambio de enchufe doble</td>
-                                <td>$18.000</td>
-                                <td>Pagado</td>
-                                <td><span class="estatus completado">Completado</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Scarlett Godoy</td>
-                                <td>Revisión de tablero eléctrico</td>
-                                <td>$64.000</td>
-                                <td>Pagado</td>
-                                <td><span class="estatus completado">Completado</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Benjamín Ahumada</td>
-                                <td>Reparación de cortocircuito</td>
-                                <td>$50.000</td>
-                                <td>Pendiente</td>
-                                <td><span class="estatus pendiente">Pendiente</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Julieta Riquelme</td>
-                                <td>Instalación de lámpara</td>
-                                <td>$25.000</td>
-                                <td>Pagado</td>
-                                <td><span class="estatus pendiente">Pendiente</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Raul Fernandez</td>
-                                <td>Cambio de inerruptor</td>
-                                <td>$20.000</td>
-                                <td>Pagado</td>
-                                <td><span class="estatus completado">Completado</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Ignacio Alvear</td>
-                                <td>Reparación de enchufe</td>
-                                <td>$13.000</td>
-                                <td>Pagado</td>
-                                <td><span class="estatus pendiente">Pendiente</span></td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+</div>
                 <!--fin ordenes recientes-->
 
                 <!--clientes-->
@@ -312,7 +271,7 @@
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     
     <!--script index.js-->
-    <script src="js/dashboard.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
     
 </body>
 </html>
