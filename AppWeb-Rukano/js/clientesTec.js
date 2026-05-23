@@ -1,203 +1,324 @@
 import { auth, db } from "./Firebase-config.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    where
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-    // === AUTENTICACIÓN Y NAVBAR ===
-    const botonPerfil = document.querySelector(".perfil-usuario");
-    const menuDesplegable = document.querySelector(".nav");
+let interaccionesInicializadas = false;
+let clientesTecnicoActuales = [];
 
-    if (botonPerfil && menuDesplegable) {
-        botonPerfil.addEventListener("click", () => menuDesplegable.classList.toggle("active"));
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "inicioSesion.html";
+        return;
     }
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            try {
-                const userSnap = await getDoc(doc(db, "usuarios", user.uid));
-                if (userSnap.exists()) {
-                    const datosUsuario = userSnap.data();
-                    if (datosUsuario.rol !== "tecnico") return window.location.href = "index.html";
+    try {
+        const usuarioSnap = await getDoc(doc(db, "usuarios", user.uid));
 
-                    const linkSesion = document.querySelector(".link-sesion");
-                    const btnRegistro = document.querySelector(".btn-registro-nav");
-                    if (linkSesion) linkSesion.style.display = "none";
-                    if (btnRegistro) btnRegistro.style.display = "none";
-
-                    const navDerecha = document.querySelector(".nav-derecha");
-                    if (navDerecha && botonPerfil && !document.getElementById("saludoNavbar")) {
-                        const saludoSpan = document.createElement("span");
-                        saludoSpan.id = "saludoNavbar";
-                        saludoSpan.style.cssText = "color: var(--c-arena); font-weight: bold; margin-right: 15px; font-size: 14px; opacity: 0.9;";
-                        saludoSpan.textContent = `¡Hola, ${datosUsuario.nombre.split(" ")[0]} !`;
-                        navDerecha.insertBefore(saludoSpan, botonPerfil);
-                    }
-
-                    if (botonPerfil) {
-                        const img = botonPerfil.querySelector("img");
-                        if (img) {
-                            const span = document.createElement("span");
-                            span.textContent = datosUsuario.nombre.charAt(0).toUpperCase();
-                            span.style.cssText = "color: white; font-size: 20px; font-weight: 900; font-family: 'Arial Black', sans-serif; background-color: var(--c-rosewood); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%;";
-                            img.replaceWith(span);
-                        }
-                    }
-
-                    // Cargar el listado cruzado optimizado
-                    cargarTablaClientes(user.uid);
-                }
-            } catch (error) { console.error("Error en autenticación:", error); }
-        } else {
+        if (!usuarioSnap.exists()) {
             window.location.href = "inicioSesion.html";
+            return;
         }
-    });
 
-    const btnCerrarSesion = document.querySelector(".cerrar-sesion");
-    if (btnCerrarSesion) {
-        btnCerrarSesion.addEventListener("click", async (e) => {
-            e.preventDefault();
-            await signOut(auth);
-        });
-    }
+        const datosUsuario = usuarioSnap.data();
+        const rol = normalizarRol(datosUsuario.rol);
 
-    // === MENÚ SIDEBAR ACTIVE ===
-    const lista = document.querySelectorAll(".nav li");
-    function activarLink() {
-        lista.forEach((item) => item.classList.remove("active"));
-        this.classList.add("active");
-    }
-    lista.forEach((item) => item.addEventListener("click", activarLink));
-
-
-    // === FUNCIÓN CARGAR CLIENTES (CON DOBLE COMPROBACIÓN Y RESPALDOS) ===
-    async function cargarTablaClientes(idTecnico) {
-        const tablaBody = document.querySelector(".ordenes-recientes table tbody");
-        if (!tablaBody) return;
-
-        tablaBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px;'>Cargando historial de clientes...</td></tr>";
-
-        try {
-            const citasRef = collection(db, "citas");
-            const consulta = query(citasRef, where("idTecnico", "==", idTecnico));
-            const querySnapshot = await getDocs(consulta);
-
-            if (querySnapshot.empty) {
-                tablaBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px;'>No posees clientes registrados en tu historial.</td></tr>";
-                return;
-            }
-
-            // Mapeamos las promesas para resolverlas en paralelo de manera ultra veloz
-            const promesasCitas = querySnapshot.docs.map(async (documento) => {
-                const cita = documento.data();
-                
-                // Respaldo de ID si no se encuentra al usuario
-                let identificadorVisualCliente = cita.idCliente || "Sin ID registrado";
-                let contactoCliente = "No registrado";
-                
-                // Respaldo de Nombre de Servicio (Prioriza 'tituloServicio' de la cita, luego busca 'idServicio')
-                let nombreDelServicio = cita.tituloServicio || "Servicio Técnico";
-
-                // 1. BUSQUEDA CRUZADA: Obtener datos del Cliente (usuarios)
-                if (cita.idCliente) {
-                    try {
-                        const clienteRef = doc(db, "usuarios", cita.idCliente);
-                        const clienteSnap = await getDoc(clienteRef);
-                        
-                        if (clienteSnap.exists()) {
-                            const datosCliente = clienteSnap.data();
-                            const nom = datosCliente.nombre || "";
-                            const ape = datosCliente.apellido || "";
-                            
-                            const nombreFormateado = nom.charAt(0).toUpperCase() + nom.slice(1);
-                            const apellidoFormateado = ape.charAt(0).toUpperCase() + ape.slice(1);
-                            const nombreCompleto = `${nombreFormateado} ${apellidoFormateado}`.trim();
-                            
-                            if (nombreCompleto) identificadorVisualCliente = nombreCompleto;
-                            contactoCliente = datosCliente.correo || "Sin correo";
-                        }
-                    } catch (err) {
-                        console.error(`Error al traer cliente ${cita.idCliente}:`, err);
-                    }
-                }
-
-                // 2. BUSQUEDA CRUZADA DE RESPALDO: Si la cita no tiene tituloServicio, lo saca de la colección servicios
-                if (!cita.tituloServicio && cita.idServicio) {
-                    try {
-                        const servicioRef = doc(db, "servicios", cita.idServicio);
-                        const servicioSnap = await getDoc(servicioRef);
-                        if (servicioSnap.exists()) {
-                            const datosServicio = servicioSnap.data();
-                            nombreDelServicio = datosServicio.nombre || "Servicio Técnico";
-                        }
-                    } catch (err) {
-                        console.error(`Error al traer servicio ${cita.idServicio}:`, err);
-                    }
-                }
-
-                return {
-                    ...cita,
-                    identificadorVisualCliente,
-                    contactoCliente,
-                    nombreDelServicio
-                };
-            });
-
-            const listaCitasCompletas = await Promise.all(promesasCitas);
-            let htmlFilas = "";
-
-            listaCitasCompletas.forEach((cita) => {
-                const claseEstatus = cita.estado ? cita.estado.toLowerCase() : "pendiente";
-                
-                let textoEstatus = "PENDIENTE";
-                if (cita.estado === "realizado") textoEstatus = "COMPLETADO";
-                else if (cita.estado) textoEstatus = cita.estado.toUpperCase();
-
-                htmlFilas += `
-                    <tr>
-                        <td style="font-weight: 600; word-break: break-all;">${cita.identificadorVisualCliente}</td>
-                        <td>${cita.nombreDelServicio}</td>
-                        <td>
-                            <span class="estatus ${claseEstatus}">
-                                ${textoEstatus}
-                            </span>
-                        </td>
-                        <td>${cita.contactoCliente}</td>
-                    </tr>
-                `;
-            });
-
-            tablaBody.innerHTML = htmlFilas;
-
-            // Inicializar el buscador con los nuevos elementos inyectados
-            inicializarBuscador();
-
-        } catch (error) {
-            console.error("Error al poblar la vista de clientes:", error);
-            tablaBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px; color:red;'>Error al cargar los datos.</td></tr>";
+        if (rol === "cliente") {
+            window.location.href = "panelCliente.html";
+            return;
         }
-    }
 
-    // === BUSCADOR DINÁMICO ===
-    function inicializarBuscador() {
-        const buscador = document.querySelector(".buscador-clientes input");
-        const filas = document.querySelectorAll(".ordenes-recientes table tbody tr");
-        
-        if (buscador && filas.length > 0) {
-            buscador.onkeyup = () => {
-                let texto = buscador.value.toLowerCase().trim();
-                filas.forEach((fila) => {
-                    if (fila.children.length >= 2) {
-                        let identificador = fila.children[0].textContent.toLowerCase();
-                        let servicio = fila.children[1].textContent.toLowerCase();
-                        
-                        if (identificador.includes(texto) || servicio.includes(texto)) {
-                            fila.style.display = "";
-                        } else {
-                            fila.style.display = "none";
-                        }
-                    }
-                });
-            };
+        if (rol !== "tecnico") {
+            window.location.href = "inicioSesion.html";
+            return;
         }
+
+        inicializarClientesTecnico();
+        cargarClientesTecnico(user.uid);
+    } catch (error) {
+        console.log("Error al validar acceso tecnico:", error);
+        window.location.href = "inicioSesion.html";
     }
 });
+
+function normalizarRol(rol) {
+    return String(rol || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function inicializarClientesTecnico() {
+    if (interaccionesInicializadas) return;
+
+    interaccionesInicializadas = true;
+    inicializarMenuTecnico();
+    inicializarMenuActivo();
+    inicializarBuscadorClientes();
+}
+
+// ================= MENU TOGGLE =================
+
+function inicializarMenuTecnico() {
+    const toggle = document.querySelector(".toggle");
+    const nav = document.querySelector(".nav");
+    const container = document.querySelector(".container");
+
+    if (toggle && nav) {
+        toggle.onclick = function () {
+            nav.classList.toggle("active");
+
+            if (container) {
+                container.classList.toggle("active");
+            }
+        };
+    }
+}
+
+// ================= MENU ACTIVO =================
+
+function inicializarMenuActivo() {
+    const lista = document.querySelectorAll(".nav li");
+
+    function activarLink() {
+        lista.forEach((item) => {
+            item.classList.remove("active");
+        });
+
+        this.classList.add("active");
+    }
+
+    lista.forEach((item) => {
+        item.addEventListener("click", activarLink);
+    });
+}
+
+// ================= BUSCADOR CLIENTES =================
+
+function inicializarBuscadorClientes() {
+    const buscador = document.querySelector(".buscador-clientes input");
+
+    if (buscador) {
+        buscador.addEventListener("keyup", () => {
+            renderizarClientes(clientesTecnicoActuales, buscador.value);
+        });
+    }
+}
+
+// ================= CLIENTES REALES =================
+
+async function cargarClientesTecnico(uidTecnico) {
+    const tabla = document.getElementById("tablaClientesTecnico");
+
+    if (!tabla) return;
+
+    pintarEstadoTabla("Cargando clientes...");
+
+    try {
+        const consulta = query(
+            collection(db, "citas"),
+            where("idTecnico", "==", uidTecnico)
+        );
+        const resultado = await getDocs(consulta);
+
+        if (resultado.empty) {
+            clientesTecnicoActuales = [];
+            pintarEstadoTabla("Aún no tienes clientes asociados a citas.");
+            return;
+        }
+
+        const clientes = await Promise.all(
+            resultado.docs.map(async (docCita) => {
+                const cita = {
+                    id: docCita.id,
+                    ...docCita.data()
+                };
+                const cliente = await obtenerDatosCliente(cita.idCliente);
+
+                return construirFilaCliente(cita, cliente);
+            })
+        );
+
+        clientesTecnicoActuales = clientes;
+        renderizarClientes(clientesTecnicoActuales);
+    } catch (error) {
+        console.log("Error al cargar clientes del tecnico:", error);
+        clientesTecnicoActuales = [];
+        pintarEstadoTabla("No se pudieron cargar tus clientes.", true);
+    }
+}
+
+async function obtenerDatosCliente(idCliente) {
+    if (!idCliente) return null;
+
+    try {
+        const clienteSnap = await getDoc(doc(db, "usuarios", idCliente));
+        return clienteSnap.exists() ? clienteSnap.data() : null;
+    } catch (error) {
+        console.log("Error al cargar cliente:", error);
+        return null;
+    }
+}
+
+function construirFilaCliente(cita, cliente) {
+    const nombre = obtenerNombreCliente(cliente);
+    const contacto = obtenerContactoCliente(cliente);
+    const servicio = obtenerDato(cita.servicio || cita.tituloServicio, "Servicio no especificado");
+    const fecha = obtenerDato(cita.dia, obtenerDato(formatearFecha(cita.fecha), "Fecha no definida"));
+    const horario = obtenerHorario(cita);
+    const estado = obtenerDato(cita.estado, "Estado pendiente");
+
+    return {
+        nombre,
+        contacto,
+        servicio,
+        fecha,
+        horario,
+        estado
+    };
+}
+
+function renderizarClientes(clientes, filtro = "") {
+    const tabla = document.getElementById("tablaClientesTecnico");
+
+    if (!tabla) return;
+
+    const textoFiltro = normalizarTexto(filtro);
+    const clientesFiltrados = clientes.filter((cliente) => {
+        const textoCliente = normalizarTexto(`${cliente.nombre} ${cliente.contacto} ${cliente.servicio} ${cliente.estado}`);
+        return textoCliente.includes(textoFiltro);
+    });
+
+    if (clientes.length === 0) {
+        pintarEstadoTabla("Aún no tienes clientes asociados a citas.");
+        return;
+    }
+
+    if (clientesFiltrados.length === 0) {
+        pintarEstadoTabla("No se encontraron clientes con ese criterio.");
+        return;
+    }
+
+    tabla.innerHTML = "";
+
+    clientesFiltrados.forEach((cliente) => {
+        const fila = document.createElement("tr");
+
+        fila.innerHTML = `
+            <td>
+                <strong>${cliente.nombre}</strong>
+                <span class="cliente-detalle">${cliente.fecha} · ${cliente.horario}</span>
+            </td>
+            <td>${cliente.servicio}</td>
+            <td>
+                <span class="estatus ${obtenerClaseEstado(cliente.estado)}">
+                    ${cliente.estado}
+                </span>
+            </td>
+            <td>${cliente.contacto}</td>
+        `;
+
+        tabla.appendChild(fila);
+    });
+}
+
+function pintarEstadoTabla(mensaje, esError = false) {
+    const tabla = document.getElementById("tablaClientesTecnico");
+
+    if (!tabla) return;
+
+    tabla.innerHTML = `
+        <tr>
+            <td colspan="4" class="clientes-estado ${esError ? "error" : ""}">
+                ${mensaje}
+            </td>
+        </tr>
+    `;
+}
+
+function obtenerNombreCliente(cliente) {
+    if (!cliente) return "Cliente no registrado";
+
+    const nombreCompleto = [cliente.nombre, cliente.apellido]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+
+    return obtenerDato(nombreCompleto || cliente.displayName, "Cliente no registrado");
+}
+
+function obtenerContactoCliente(cliente) {
+    if (!cliente) return "Contacto no disponible";
+
+    return obtenerDato(cliente.correo || cliente.email || cliente.telefono || cliente.phone, "Contacto no disponible");
+}
+
+function obtenerHorario(cita) {
+    const horaInicio = obtenerDato(cita.horaInicio, "");
+    const horaFin = obtenerDato(cita.horaFin, "");
+
+    if (horaInicio && horaFin) {
+        return `${horaInicio} - ${horaFin}`;
+    }
+
+    return obtenerDato(cita.hora, "Horario no definido");
+}
+
+function formatearFecha(valor) {
+    const fecha = convertirFecha(valor);
+
+    if (!fecha) return "";
+
+    return fecha.toLocaleDateString("es-CL", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+}
+
+function convertirFecha(valor) {
+    if (!valor) return null;
+
+    if (typeof valor.toDate === "function") {
+        return valor.toDate();
+    }
+
+    const fecha = new Date(valor);
+    return Number.isNaN(fecha.getTime()) ? null : fecha;
+}
+
+function obtenerClaseEstado(estado) {
+    const estadoNormalizado = normalizarTexto(estado);
+
+    if (estadoNormalizado.includes("complet") || estadoNormalizado.includes("resuelt")) {
+        return "entregado";
+    }
+
+    if (estadoNormalizado.includes("progreso") || estadoNormalizado.includes("revision")) {
+        return "en-progreso";
+    }
+
+    return "pendiente";
+}
+
+function obtenerDato(valor, fallback) {
+    if (valor === undefined || valor === null) return fallback;
+
+    const texto = String(valor).trim();
+    return texto || fallback;
+}
+
+function normalizarTexto(texto) {
+    return String(texto || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}

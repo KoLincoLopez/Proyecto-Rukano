@@ -266,6 +266,11 @@
           <i class="ti ti-calendar-check icon-md"></i>
           Contratar servicio
         </button>
+        <button class="btn-pago only-logged" id="btn-comprar" type="button" disabled>
+          <i class="ti ti-credit-card icon-md"></i>
+          Pagar servicio
+        </button>
+        <p class="pago-mensaje" id="pago-mensaje" aria-live="polite"></p>
         <button class="btn-report" onclick="openReportModal()" id="btn-report">
           <i class="ti ti-alert-circle icon-md"></i>
           Reportar servicio
@@ -444,4 +449,5 @@
 <!-- Demo bar eliminada: la sesión la maneja Firebase Auth -->
 
 <script type="module" src="js/detalleServicio.js"></script>
+<script src="js/pagos.js"></script>
 </html>

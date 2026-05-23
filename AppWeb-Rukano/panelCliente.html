@@ -2,221 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rukano - Panel Cliente</title>
     <link rel="stylesheet" href="css/index.css">
-
-    <style>
-        body {
-        font-family: Arial;
-        background: #f3f0ec;
-        margin: 0;
-        color: #1E0D0A;
-    }
-
-    .navbar-panel {
-        width: 100%;
-        background: white;
-        padding: 18px 40px;
-        box-sizing: border-box;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #e0e0e0;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-
-    .logo-panel {
-        font-size: 28px;
-        font-family: Arial Black;
-        text-decoration: none;
-        color: #1E0D0A;
-    }
-
-    .box {
-        width: 1200px;
-        max-width: 92%;
-        margin: 50px auto;
-    }
-
-    .hero-panel {
-        background: linear-gradient(135deg, #1E0D0A, #550006);
-        color: white;
-        padding: 50px;
-        border-radius: 24px;
-        margin-bottom: 35px;
-    }
-
-    .hero-panel h1 {
-        margin: 0;
-        font-size: 42px;
-        font-family: Arial Black;
-        text-transform: uppercase;
-    }
-
-    .hero-panel p {
-        margin-top: 15px;
-        font-size: 17px;
-        opacity: 0.9;
-    }
-
-    .panel-card {
-        background: white;
-        padding: 35px;
-        border-radius: 22px;
-        margin-bottom: 28px;
-        box-shadow: 0 8px 30px rgba(0,0,0,0.06);
-        border: 1px solid #ececec;
-    }
-
-    .panel-card h2 {
-        margin-top: 0;
-        margin-bottom: 25px;
-        font-size: 28px;
-        font-family: Arial Black;
-        color: #1E0D0A;
-        text-transform: uppercase;
-    }
-
-    .detalle-reserva {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 18px;
-    }
-
-    .dato {
-        background: #faf8f5;
-        padding: 22px;
-        border-radius: 18px;
-        border: 1px solid #ececec;
-        transition: 0.3s ease;
-    }
-
-    .dato:hover {
-        transform: translateY(-3px);
-    }
-
-    .dato strong {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 15px;
-        color: #550006;
-    }
-
-    .btn-link,
-    button {
-        border: none;
-        padding: 14px 22px;
-        border-radius: 12px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 14px;
-    }
-
-    .btn-explorar {
-        background: #1E0D0A;
-        color: white;
-    }
-
-    .btn-explorar:hover {
-        background: #550006;
-    }
-
-    .btn-reservar {
-        background: #c9363f;
-        color: white;
-    }
-
-    .btn-reservar:hover {
-        background: #a92d35;
-    }
-
-    #btnLogout {
-        background: #1E0D0A;
-        color: white;
-        width: 100%;
-        margin-top: 10px;
-    }
-
-    #btnLogout:hover {
-        background: #550006;
-    }
-
-    .historial {
-        margin-top: 30px;
-    }
-
-    #horariosDisponibles {
-        display: grid;
-        gap: 12px;
-        margin-top: 15px;
-    }
-
-    .horario-item {
-        background: #faf8f5;
-        border: 1px solid #ececec;
-        border-radius: 14px;
-        padding: 16px;
-    }
-
-    textarea {
-        width: 100%;
-        height: 110px;
-        box-sizing: border-box;
-        margin-top: 12px;
-        padding: 14px;
-        border-radius: 14px;
-        border: 1px solid #ddd;
-        resize: vertical;
-        font-family: Arial;
-    }
-
-    #mensajeReserva {
-        margin-top: 20px;
-        font-weight: bold;
-        color: #c9363f;
-    }
-
-    .footer-panel {
-        margin-top: 40px;
-        padding: 25px;
-        text-align: center;
-        color: #777;
-        font-size: 13px;
-    }
-
-    @media (max-width: 768px) {
-        .hero-panel {
-            padding: 35px;
-        }
-
-        .hero-panel h1 {
-            font-size: 32px;
-        }
-
-        .panel-card {
-            padding: 25px;
-        }
-    }
-       
-    </style>
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/panelCliente.css">
 </head>
 
 <body>
 
-    <nav class="navbar-panel">
-        <a href="index.html" class="logo-panel">
-            RUKANO
-        </a>
-
-        <a href="index.html" class="btn-link btn-explorar">
-           Volver al inicio
-        </a>
-    </nav>
+    <div id="navbar-root"></div>
 
     <div class="box">
         
@@ -226,10 +21,34 @@
                 Gestiona tus reservas, revisa horarios disponibles y administra tus servicios contratados.
             </p>
         </section>
-        <section id="dashboardCliente" class="panel-card">
-            <h2>Resumen del cliente</h2>
+        <section id="dashboardCliente" class="panel-card dashboard-section">
+            <div class="dashboard-white-panel">
+                <h2>Resumen del cliente</h2>
 
-            <div class="detalle-reserva">
+                <div class="detalle-reserva datos-cliente">
+                    <div class="dato">
+                        <strong>Nombre</strong>
+                        <span id="clienteNombre">No registrado</span>
+                    </div>
+
+                    <div class="dato">
+                        <strong>Correo</strong>
+                        <span id="clienteCorreo">No registrado</span>
+                    </div>
+
+                    <div class="dato">
+                        <strong>Teléfono</strong>
+                        <span id="clienteTelefono">No registrado</span>
+                    </div>
+
+                    <div class="dato">
+                        <strong>Comuna</strong>
+                        <span id="clienteUbicacion">No registrado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detalle-reserva resumen-cards">
                 <div class="dato">
                     <strong>Estado de cuenta</strong>
                     Activo
@@ -257,7 +76,7 @@
         </section>
 
         <!-- SECCIÓN DE CONFIRMAR RESERVA -->
-        <section id="seccionReserva" class="panel-card" style="display:none;">
+        <section id="seccionReserva" class="panel-card seccion-oculta">
             <h2>Confirmar reserva</h2>
 
             <div class="detalle-reserva">
@@ -298,8 +117,11 @@
         </section>
 
         <!-- HISTORIAL REAL DEL CLIENTE -->
-        <section class="panel-card">
-            <h2>Mis citas</h2>
+        <section class="panel-card citas-section">
+            <div class="section-heading">
+                <h2>Mis citas</h2>
+                <p>Revisa tus reservas activas, horarios y acceso a valoración de servicios.</p>
+            </div>
 
             <div id="listaCitasCliente">
                 <p>Cargando citas...</p>
@@ -307,34 +129,82 @@
         </section>
 
         <!-- REPORTES -->
-        <section class="panel-card">
+        <section class="panel-card reportes-section" id="reportesCliente">
             <h2>Reportes y disputas</h2>
 
-            <div class="dato">
-                <strong>Estado del último reclamo</strong>
-                Sin reclamos activos
-            </div>
+            <div class="reportes-grid">
+                <div class="reclamo-timeline" aria-label="Estado del último reclamo">
+                    <div class="reclamo-timeline-header">
+                        <div>
+                            <strong>Estado del último reclamo</strong>
+                            <span id="ultimoReporteEstado">Cargando estado...</span>
+                        </div>
+                        <p id="ultimoReporteFecha">Fecha no disponible</p>
+                    </div>
 
-            <div class="dato">
-                <strong>Enviar reclamo</strong>
+                    <ol class="timeline-reclamo">
+                        <li class="timeline-step is-complete">
+                            <span class="timeline-dot"></span>
+                            <span>Enviado</span>
+                        </li>
+                        <li class="timeline-step is-active">
+                            <span class="timeline-dot"></span>
+                            <span>Pendiente</span>
+                        </li>
+                        <li class="timeline-step">
+                            <span class="timeline-dot"></span>
+                            <span>En revisión</span>
+                        </li>
+                        <li class="timeline-step">
+                            <span class="timeline-dot"></span>
+                            <span>Resuelto</span>
+                        </li>
+                    </ol>
+                </div>
 
-                <textarea 
-                    placeholder="Describe el problema con el servicio..."
-                    style="width: 100%; height: 100px; box-sizing: border-box; margin-top: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ccc;"
-                ></textarea>
+                <div class="reclamo-form-card">
+                    <strong>Enviar reclamo</strong>
 
-                <button style="margin-top: 15px;">
-                    Enviar reporte
-                </button>
+                    <div class="form-reporte">
+                        <label for="tipoReporte">Tipo de reclamo</label>
+                        <select id="tipoReporte">
+                            <option value="">Selecciona una opción</option>
+                            <option value="Problema con la reserva">Problema con la reserva</option>
+                            <option value="Problema con el técnico">Problema con el técnico</option>
+                            <option value="Problema con el pago">Problema con el pago</option>
+                            <option value="Problema con la plataforma">Problema con la plataforma</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+
+                        <label for="tecnicoRelacionado">Técnico relacionado</label>
+                        <input type="text" id="tecnicoRelacionado" placeholder="Opcional">
+
+                        <label for="mensajeReporte">Descripción del problema</label>
+                        <textarea id="mensajeReporte" placeholder="Describe el problema con el servicio..."></textarea>
+
+                        <button id="btnEnviarReporte">
+                            Enviar reporte
+                        </button>
+
+                        <p id="estadoReporte"></p>
+                    </div>
+                </div>
             </div>
         </section>
 
 
-        <div style="text-align:center; margin-top:30px;">
-            <button id="btnLogout">
-                Cerrar sesión
-            </button>
-        </div>
+        <section class="panel-card account-section">
+            <div class="account-content">
+                <div>
+                    <h2>Acciones de cuenta</h2>
+                    <p>Cierra tu sesión de forma segura cuando termines de gestionar tus reservas.</p>
+                </div>
+
+                <button id="btnLogout">
+                    Cerrar sesión
+                </button>
+            </div>
+        </section>
 
 
         <footer class="footer-panel">
@@ -342,6 +212,7 @@
         </footer>
     </div>
 
+    <script src="js/navbar.js" defer></script>
     <script type="module" src="js/panel.js"></script>
 
 </body>

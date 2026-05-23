@@ -29,6 +29,9 @@ class Servicio(BaseModel):
     descripcion: str 
     precio: float 
     tiempoEstimado: str 
+    disponibilidad: list[dict] = []
+    descripcionTecnico: str | None = None
+    experiencia: str | None = None
     que_incluye: list[str]    
     que_no_incluye: list[str]
     disponibilidad: list[Disponibilidad]
@@ -69,6 +72,9 @@ async def crear_servicio(datos: Servicio):
             "descripcion": datos.descripcion,
             "precio": datos.precio,
             "tiempoEstimado": datos.tiempoEstimado,
+            "disponibilidad": datos.disponibilidad,
+            "descripcionTecnico": datos.descripcionTecnico,
+            "experiencia": datos.experiencia,
             "keyWords": palabras_clave,
             "que_incluye": datos.que_incluye,
             "que_no_incluye": datos.que_no_incluye,

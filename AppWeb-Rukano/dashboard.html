@@ -4,220 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--estilo css-->
+    <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/tecnicoNav.css">
     <title>Dashboard tecnico | RUKANO</title>
 </head>
 <body>
-        <!--navbar-->
-        <nav class="navbar-integrada">
-            <a href="#" class="bloque-logo">RUKANO</a>
-
-            <div class="bloque-menu">
-                <div class="nav-izquierda">
-                    <a href="index.html#servicios">Servicios</a>
-                    <a href="index.html#beneficios">Beneficios</a>
-                    <a href="index.html#como-funciona">¿Cómo Funciona?</a>
-                    <a href="index.html#testimonios">Reseñas</a>
-                </div>
-
-                <div class="nav-derecha">
-                    <a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
-                    <a href="registro.html" class="btn-registro-nav">Registrarse</a>
-                    <div class="perfil-usuario toggle">
-                        <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <!--fin navbar-->
-        
-        <!--Menu-->
-        <div class="nav">
+        <div id="navbar-root"></div>
+        <nav class="tech-nav" aria-label="Navegacion tecnica">
             <ul>
-                <li>
-                    <a href="dashboard.html">
-                        <span class="icono"><ion-icon name="home-outline"></ion-icon></span>
-                        <span class="titulo">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="clientesTec.html">
-                        <span class="icono"><ion-icon name="people-outline"></ion-icon></span>
-                        <span class="titulo">Clientes</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="agendaTec.html">
-                        <span class="icono"><ion-icon name="calendar-outline"></ion-icon></span>
-                        <span class="titulo">Agenda</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="miperfilTec.html">
-                        <span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span>
-                        <span class="titulo">Mi Perfil</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="subirServicio.html">
-                        <span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span>
-                        <span class="titulo">Subir servicio</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="panelTecnico.html">
-                        <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
-                        <span class="titulo">Mis servicios</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="configuracionTec.html">
-                        <span class="icono"><ion-icon name="settings-outline"></ion-icon></span>
-                        <span class="titulo">Configuracion</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="cerrar-sesion">
-                        <span class="icono"><ion-icon name="log-out-outline"></ion-icon></span>
-                        <span class="titulo">Cerrar Sesion</span>
-                    </a>
-                </li>
+                <li class="active"><a href="dashboard.html"><span class="icono"><ion-icon name="home-outline"></ion-icon></span><span class="titulo">Dashboard</span></a></li>
+                <li><a href="panelTecnico.html"><span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span><span class="titulo">Panel tecnico</span></a></li>
+                <li><a href="clientesTec.html"><span class="icono"><ion-icon name="people-outline"></ion-icon></span><span class="titulo">Clientes</span></a></li>
+                <li><a href="agendaTec.html"><span class="icono"><ion-icon name="calendar-outline"></ion-icon></span><span class="titulo">Agenda</span></a></li>
+                <li><a href="miperfilTec.html"><span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span><span class="titulo">Mi perfil</span></a></li>
+                <li><a href="configuracionTec.html"><span class="icono"><ion-icon name="settings-outline"></ion-icon></span><span class="titulo">Configuracion</span></a></li>
             </ul>
-        </div>
+        </nav>
         <!--Fin menu-->
 
         <!--dashboard-->
         <div class="container">
-            
+            <section class="dashboard-header">
+                <span class="dashboard-eyebrow">PANEL T&Eacute;CNICO</span>
+                <h1>Dashboard</h1>
+                <p>Revisa el pulso de tus servicios, citas y clientes asociados desde un solo lugar.</p>
+            </section>
+
+            <section class="dashboard-resumen" aria-label="Resumen del tecnico">
+                <article class="metric-card metric-card--servicios">
+                    <span class="metric-label">Servicios publicados</span>
+                    <strong id="metricServicios">--</strong>
+                    <small id="metricServiciosDetalle">Cargando...</small>
+                    <a href="panelTecnico.html" class="metric-link">Ver servicios</a>
+                </article>
+                <article class="metric-card metric-card--citas">
+                    <span class="metric-label">Citas totales</span>
+                    <strong id="metricCitas">--</strong>
+                    <small id="metricCitasDetalle">Cargando...</small>
+                    <a href="agendaTec.html" class="metric-link">Ver citas</a>
+                </article>
+                <article class="metric-card metric-card--clientes">
+                    <span class="metric-label">Clientes asociados</span>
+                    <strong id="metricClientes">--</strong>
+                    <small id="metricClientesDetalle">Cargando...</small>
+                    <a href="clientesTec.html" class="metric-link">Ver clientes</a>
+                </article>
+                <article class="metric-card metric-card--resenas">
+                    <span class="metric-label">Rese&ntilde;as</span>
+                    <strong id="metricResenas">--</strong>
+                    <small id="metricResenasDetalle">Cargando...</small>
+                </article>
+            </section>
+
             <!--detalles-->
             <div class="detalles">
 
-<div class="ordenes-recientes">
+                <!--proximas citas-->
+                <div class="ordenes-recientes">
 
-    <div class="header">
-        <h2>Citas Agendadas</h2>
-        <a href="agendaTec.html" class="boton">Ver todas</a>
-    </div>
+                    <div class="header">
+                        <h2>Proximas citas</h2>
+                        <a href="agendaTec.html" class="boton">Ver todos</a>
+                    </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID Cliente</th>
-                <th>Servicio Solicitado</th>
-                <th>Fecha / Hora</th>
-                <th>Pago</th>
-                <th>Estatus</th>
-            </tr>
-        </thead>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre cliente</th>
+                                <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Horario</th>
+                                <th>Estatus</th>
+                            </tr>
+                        </thead>
 
-        <tbody>
-            <tr>
-                <td colspan="5" style="text-align:center; padding:20px;">Cargando citas...</td>
-            </tr>
-        </tbody>
-    </table>
+                        <tbody id="tablaOrdenesDashboard">
 
-</div>
+                            <tr>
+                                <td colspan="5" class="dashboard-estado">Cargando datos del dashboard...</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
                 <!--fin ordenes recientes-->
 
                 <!--clientes-->
                 <div class="nuevos-clientes">
 
                     <div class="header">
-                        <h2>Clientes</h2>
+                        <h2>Clientes recientes</h2>
+                        <a href="clientesTec.html" class="boton">Ver clientes</a>
                     </div>
 
                     <table>
-
-                        <tr>
-                            <td>
-                                <div class="imgBox">
-                                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png">
-                                </div>
-                            </td>
-
-                            <td>
-                                <h4>John Doe</h4>
-                            </td>
-
-                            <td>
-                                <a href="#"><ion-icon name="call-outline"></ion-icon></a>
-                                <a href="#"><ion-icon name="mail-outline"></ion-icon></a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="imgBox">
-                                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png">
-                                </div>
-                            </td>
-
-                            <td>
-                                <h4>Olivia Anderson</h4>
-                            </td>
-
-                            <td>
-                                <a href="#"><ion-icon name="call-outline"></ion-icon></a>
-                                <a href="#"><ion-icon name="mail-outline"></ion-icon></a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="imgBox">
-                                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png">
-                                </div>
-                            </td>
-
-                            <td>
-                                <h4>Scarlett Godoy</h4>
-                            </td>
-
-                            <td>
-                                <a href="#"><ion-icon name="call-outline"></ion-icon></a>
-                                <a href="#"><ion-icon name="mail-outline"></ion-icon></a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="imgBox">
-                                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png">
-                                </div>
-                            </td>
-
-                            <td>
-                                <h4>Benjamín Ahumada</h4>
-                            </td>
-
-                            <td>
-                                <a href="#"><ion-icon name="call-outline"></ion-icon></a>
-                                <a href="#"><ion-icon name="mail-outline"></ion-icon></a>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <div class="imgBox">
-                                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png">
-                                </div>
-                            </td>
-
-                            <td>
-                                <h4>Diego Herrera</h4>
-                            </td>
-
-                            <td>
-                                <a href="#"><ion-icon name="call-outline"></ion-icon></a>
-                                <a href="#"><ion-icon name="mail-outline"></ion-icon></a>
-                            </td>
-                        </tr>
-
+                        <tbody id="tablaClientesDashboard">
+                            <tr>
+                                <td colspan="3" class="dashboard-estado">Cargando clientes...</td>
+                            </tr>
+                        </tbody>
                     </table>
 
                 </div>
@@ -235,27 +124,27 @@
                     <h2 class="logo-footer">RUKANO</h2>
                     <p class="slogan-footer">Transformando la forma en que cuidas tu hogar.</p>
                     <div class="redes-sociales">
-                        <a href="#">INSTAGRAM</a>
-                        <a href="#">FACEBOOK</a>
-                        <a href="#">LINKEDIN</a>
+                        <span>INSTAGRAM</span>
+                        <span>FACEBOOK</span>
+                        <span>LINKEDIN</span>
                     </div>
                 </div>
 
                 <div class="footer-col">
                     <span class="footer-label">AYUDA</span>
                     <nav class="footer-links">
-                        <a href="#">Centro de ayuda</a>
-                        <a href="#">Seguridad</a>
-                        <a href="#">Cómo pagar</a>
+                        <span>Centro de ayuda</span>
+                        <span>Seguridad</span>
+                        <span>Como pagar</span>
                     </nav>
                 </div>
 
                 <div class="footer-col">
                     <span class="footer-label">COMPAÑÍA</span>
                     <nav class="footer-links">
-                        <a href="#">Sobre nosotros</a>
-                        <a href="#">Términos y condiciones</a>
-                        <a href="#">Privacidad</a>
+                        <span>Sobre nosotros</span>
+                        <span>Terminos y condiciones</span>
+                        <span>Privacidad</span>
                     </nav>
                 </div>
             </div>
@@ -271,6 +160,7 @@
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     
     <!--script index.js-->
+    <script src="js/navbar.js" defer></script>
     <script type="module" src="js/dashboard.js"></script>
     
 </body>

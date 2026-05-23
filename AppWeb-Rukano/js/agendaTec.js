@@ -1,264 +1,362 @@
 import { auth, db } from "./Firebase-config.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    where
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// === VARIABLES DE CONTROL GLOBAL (Módulo Calendario) ===
-const cal = {
+const estadoAgenda = {
     hoy: new Date(),
-    mesActual: new Date(),         // Controla qué mes se visualiza
-    fechaElegidaStr: null,         // "YYYY-MM-DD" seleccionado por el técnico
-    idTecnico: null,
-    todasLasCitas: []              // Caché local de citas de este técnico
+    mesActual: new Date(),
+    fechaSeleccionada: "",
+    citas: []
 };
 
 const MESES_ES = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre"
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
-    // === AUTENTICACIÓN Y NAVBAR ===
-    const botonPerfil = document.querySelector(".perfil-usuario") || document.querySelector(".toggle");
-    const menuDesplegable = document.querySelector(".nav");
-    const container = document.querySelector(".container");
+const textareaNota = document.querySelector(".notas-box textarea");
+const botonGuardarNota = document.querySelector(".notas-box .boton");
+const botonMesAnterior = document.getElementById("btn-prev-mes");
+const botonMesSiguiente = document.getElementById("btn-next-mes");
+const botonVerTodas = document.getElementById("btnVerTodasCitas");
 
-    if (botonPerfil && menuDesplegable) {
-        botonPerfil.addEventListener("click", () => {
-            menuDesplegable.classList.toggle("active");
-            if(container) container.classList.toggle("active");
-        });
+inicializarNotas();
+inicializarControlesCalendario();
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "inicioSesion.html";
+        return;
     }
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            try {
-                const userSnap = await getDoc(doc(db, "usuarios", user.uid));
-                if (userSnap.exists()) {
-                    const datosUsuario = userSnap.data();
-                    if (datosUsuario.rol !== "tecnico") return window.location.href = "index.html";
+    const rol = await obtenerRolUsuario(user.uid);
 
-                    cal.idTecnico = user.uid;
-
-                    document.querySelectorAll(".link-sesion, .btn-registro-nav").forEach(el => el.style.display = "none");
-
-                    const navDerecha = document.querySelector(".nav-derecha");
-                    if (navDerecha && botonPerfil && !document.getElementById("saludoNavbar")) {
-                        const saludo = document.createElement("span");
-                        saludo.id = "saludoNavbar";
-                        saludo.style.cssText = "color: var(--c-arena); font-weight: bold; margin-right: 15px; font-size: 14px;";
-                        saludo.textContent = `¡Hola, ${datosUsuario.nombre.split(" ")[0]} !`;
-                        navDerecha.insertBefore(saludo, botonPerfil);
-                    }
-
-                    const img = botonPerfil?.querySelector("img");
-                    if (img) {
-                        const span = document.createElement("span");
-                        span.textContent = datosUsuario.nombre.charAt(0).toUpperCase();
-                        span.style.cssText = "color: white; font-size: 20px; font-weight: 900; background-color: var(--c-rosewood); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%;";
-                        img.replaceWith(span);
-                    }
-
-                    // Descargar historial de citas del técnico para pintar el calendario
-                    await cargarCitasTecnico();
-                }
-            } catch (error) { console.error("Error:", error); }
-        } else {
-            window.location.href = "inicioSesion.html";
-        }
-    });
-
-    const btnCerrarSesion = document.querySelector(".cerrar-sesion");
-    if (btnCerrarSesion) btnCerrarSesion.addEventListener("click", async (e) => { e.preventDefault(); await signOut(auth); });
-
-    // === MENÚ ACTIVE LINKS ===
-    const lista = document.querySelectorAll(".nav li");
-    lista.forEach((item) => {
-        item.addEventListener("click", function() {
-            lista.forEach((i) => i.classList.remove("active"));
-            this.classList.add("active");
-        });
-    });
-
-    // === BLOC DE NOTAS LOCALSTORAGE ===
-    const textarea = document.querySelector(".notas-box textarea");
-    const botonGuardar = document.querySelector(".notas-box .boton");
-    if(textarea && botonGuardar) {
-        textarea.value = localStorage.getItem("notaAgenda") || "";
-        botonGuardar.addEventListener("click", () => {
-            localStorage.setItem("notaAgenda", textarea.value);
-            alert("Nota guardada correctamente");
-        });
+    if (rol === "cliente") {
+        window.location.href = "panelCliente.html";
+        return;
     }
 
-    // === ASIGNACIÓN DE BOTONES DE NAVEGACIÓN MES DEL CALENDARIO ===
-    document.getElementById("btn-prev-mes")?.addEventListener("click", () => cambiarMes(-1));
-    document.getElementById("btn-next-mes")?.addEventListener("click", () => cambiarMes(1));
+    if (rol !== "tecnico") {
+        window.location.href = "inicioSesion.html";
+        return;
+    }
+
+    await cargarCitasTecnico(user.uid);
 });
 
+function inicializarNotas() {
+    if (!textareaNota || !botonGuardarNota) return;
 
-// === DESCARGAR CITAS DE FIRESTORE (CRUZADO CON USUARIOS) ===
-async function cargarCitasTecnico() {
+    textareaNota.value = localStorage.getItem("notaAgenda") || "";
+
+    botonGuardarNota.addEventListener("click", () => {
+        localStorage.setItem("notaAgenda", textareaNota.value);
+        botonGuardarNota.textContent = "Nota guardada";
+
+        window.setTimeout(() => {
+            botonGuardarNota.textContent = "Guardar Nota";
+        }, 1600);
+    });
+}
+
+function inicializarControlesCalendario() {
+    estadoAgenda.mesActual = new Date(
+        estadoAgenda.hoy.getFullYear(),
+        estadoAgenda.hoy.getMonth(),
+        1
+    );
+
+    botonMesAnterior?.addEventListener("click", () => cambiarMes(-1));
+    botonMesSiguiente?.addEventListener("click", () => cambiarMes(1));
+    botonVerTodas?.addEventListener("click", () => {
+        estadoAgenda.fechaSeleccionada = "";
+        renderizarCalendario();
+        renderizarListaCitas(estadoAgenda.citas);
+        actualizarDetalleDia("", []);
+    });
+
+    renderizarCalendario();
+}
+
+async function obtenerRolUsuario(uid) {
     try {
-        const citasRef = collection(db, "citas");
-        const q = query(citasRef, where("idTecnico", "==", cal.idTecnico));
-        const snapshot = await getDocs(q);
+        const usuarioSnap = await getDoc(doc(db, "usuarios", uid));
+        if (!usuarioSnap.exists()) return "";
 
-        // Mapeamos las citas trayendo el nombre real del cliente en paralelo
-        const promesas = snapshot.docs.map(async (docSnap) => {
-            const data = docSnap.data();
-            let nombreCliente = data.idCliente || "Cliente Desconocido";
-
-            if (data.idCliente) {
-                try {
-                    const uSnap = await getDoc(doc(db, "usuarios", data.idCliente));
-                    if (uSnap.exists()) {
-                        const dClie = uSnap.data();
-                        nombreCliente = `${dClie.nombre || ""} ${dClie.apellido || ""}`.trim() || data.idCliente;
-                    }
-                } catch (e) {
-                    console.error("Error trayendo cliente: ", data.idCliente);
-                }
-            }
-            return { id: docSnap.id, ...data, nombreCliente };
-        });
-
-        cal.todasLasCitas = await Promise.all(promesas);
-
-        // Establecer el calendario al primer día del mes corriente
-        cal.mesActual = new Date(cal.hoy.getFullYear(), cal.hoy.getMonth(), 1);
-        renderCalendario();
-
+        return normalizarRol(usuarioSnap.data().rol);
     } catch (error) {
-        console.error("Error poblando citas del calendario:", error);
+        console.log("Error al validar rol tecnico:", error);
+        return "";
     }
 }
 
-// === NAVEGAR ENTRE MESES ===
-function cambiarMes(direccion) {
-    cal.mesActual = new Date(cal.mesActual.getFullYear(), cal.mesActual.getMonth() + direccion, 1);
-    renderCalendario();
+function normalizarRol(rol) {
+    return String(rol || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 }
 
-// === RENDERIZAR LA GRILLA DE DÍAS DEL CALENDARIO ===
-function renderCalendario() {
+async function cargarCitasTecnico(uidTecnico) {
+    const listaCitas = document.getElementById("listaCitasTecnico");
+    if (listaCitas) listaCitas.innerHTML = "<p>Cargando tus citas...</p>";
+
+    try {
+        const consulta = query(
+            collection(db, "citas"),
+            where("idTecnico", "==", uidTecnico)
+        );
+        const resultado = await getDocs(consulta);
+
+        const citas = await Promise.all(resultado.docs.map(async (docCita) => {
+            const cita = { id: docCita.id, ...docCita.data() };
+            return {
+                ...cita,
+                nombreCliente: await obtenerNombreCliente(cita)
+            };
+        }));
+
+        estadoAgenda.citas = citas;
+        renderizarCalendario();
+        renderizarListaCitas(citas);
+    } catch (error) {
+        console.log("Error al cargar citas del tecnico:", error);
+        if (listaCitas) listaCitas.innerHTML = "<p>No se pudieron cargar tus citas.</p>";
+    }
+}
+
+async function obtenerNombreCliente(cita) {
+    const nombreEnCita = obtenerDato(cita.nombreCliente || cita.cliente || cita.clienteNombre, "");
+    if (nombreEnCita) return nombreEnCita;
+    if (!cita.idCliente) return "Cliente no especificado";
+
+    try {
+        const clienteSnap = await getDoc(doc(db, "usuarios", cita.idCliente));
+        if (!clienteSnap.exists()) return cita.idCliente;
+
+        const cliente = clienteSnap.data();
+        return obtenerDato(`${cliente.nombre || ""} ${cliente.apellido || ""}`, cita.idCliente);
+    } catch (error) {
+        console.log("Error al cargar cliente de cita:", error);
+        return cita.idCliente;
+    }
+}
+
+function cambiarMes(direccion) {
+    estadoAgenda.mesActual = new Date(
+        estadoAgenda.mesActual.getFullYear(),
+        estadoAgenda.mesActual.getMonth() + direccion,
+        1
+    );
+    estadoAgenda.fechaSeleccionada = "";
+    renderizarCalendario();
+    actualizarDetalleDia("", []);
+}
+
+function renderizarCalendario() {
     const grid = document.getElementById("cal-grid");
     const label = document.getElementById("cal-mes-label");
     if (!grid || !label) return;
 
-    const anio = cal.mesActual.getFullYear();
-    const mes = cal.mesActual.getMonth();
-
-    // Actualizar nombre superior del mes
-    label.textContent = `${MESES_ES[mes]} ${anio}`;
-
-    // Obtener primer día del mes y calcular desfase (Lunes = 0 a Domingo = 6)
-    const primerDia = new Date(anio, mes, 1);
-    let offsetLunes = primerDia.getDay() - 1;
-    if (offsetLunes < 0) offsetLunes = 6; 
-
+    const anio = estadoAgenda.mesActual.getFullYear();
+    const mes = estadoAgenda.mesActual.getMonth();
     const totalDiasMes = new Date(anio, mes + 1, 0).getDate();
-    const hoyFormateado = formatearFechaStr(cal.hoy);
+    const primerDiaMes = new Date(anio, mes, 1);
+    const offsetLunes = (primerDiaMes.getDay() + 6) % 7;
+    const hoyFormateado = formatearFecha(estadoAgenda.hoy);
 
-    grid.innerHTML = ""; // Limpiar grilla previa
+    label.textContent = `${MESES_ES[mes]} ${anio}`;
+    grid.innerHTML = "";
 
-    // 1. Celdas vacías de desfase inicial
-    for (let i = 0; i < offsetLunes; i++) {
-        const celdaVacia = document.createElement("div");
-        celdaVacia.className = "dia";
-        celdaVacia.style.opacity = "0"; // Invisible
-        grid.appendChild(celdaVacia);
+    for (let i = 0; i < offsetLunes; i += 1) {
+        const espacio = document.createElement("div");
+        espacio.className = "dia dia-vacio";
+        grid.appendChild(espacio);
     }
 
-    // 2. Generar los días reales del mes
-    for (let d = 1; d <= totalDiasMes; d++) {
-        const iterFecha = new Date(anio, mes, d);
-        const fechaStr = formatearFechaStr(iterFecha);
+    for (let dia = 1; dia <= totalDiasMes; dia += 1) {
+        const fecha = formatearFecha(new Date(anio, mes, dia));
+        const citasDia = filtrarCitasPorFecha(fecha);
+        const celda = document.createElement("button");
 
-        // Filtrar citas del técnico en esta fecha específica
-        const citasDelDia = cal.todasLasCitas.filter(c => c.fecha === fechaStr);
-        const tieneServicios = citasDelDia.length > 0;
-
-        const celda = document.createElement("div");
+        celda.type = "button";
         celda.className = "dia";
-        celda.textContent = d;
-        celda.style.cursor = "pointer";
+        celda.dataset.fecha = fecha;
+        celda.textContent = String(dia);
+        celda.setAttribute("aria-label", `Ver citas del dia ${dia}`);
 
-        // Asignación de clases CSS existentes en tu proyecto
-        if (tieneServicios) celda.classList.add("servicio"); // Resalta color de servicio activo
-        if (fechaStr === hoyFormateado) celda.classList.add("hoy"); // Círculo o borde de hoy
-        if (fechaStr === cal.fechaElegidaStr) {
-            celda.style.outline = "3px solid var(--c-arena)";
-            celda.style.fontWeight = "bold";
-        }
+        if (fecha === hoyFormateado) celda.classList.add("hoy");
+        if (citasDia.length > 0) celda.classList.add("servicio");
+        if (fecha === estadoAgenda.fechaSeleccionada) celda.classList.add("seleccionado");
 
-        // Evento click para inspeccionar la agenda del día
         celda.addEventListener("click", () => {
-            cal.fechaElegidaStr = fechaStr;
-            renderCalendario(); // Redibuja para refrescar el borde de selección
-            mostrarDetallesDia(fechaStr, citasDelDia);
+            estadoAgenda.fechaSeleccionada = fecha;
+            renderizarCalendario();
+            renderizarListaCitas(citasDia, "No tienes citas agendadas para este dia.");
+            actualizarDetalleDia(fecha, citasDia);
         });
 
         grid.appendChild(celda);
     }
 }
 
-// === DESPLEGAR LAS CITAS DEL DÍA SELECCIONADO EN EL PANEL LATERAL ===
-function mostrarDetallesDia(fechaStr, citas) {
-    const labelFecha = document.getElementById("fecha-seleccionada-label");
-    const contenedorLista = document.getElementById("lista-citas-dia");
-    if (!contenedorLista) return;
+function filtrarCitasPorFecha(fecha) {
+    return estadoAgenda.citas.filter((cita) => obtenerFechaCitaISO(cita) === fecha);
+}
 
-    // Desglosar fecha de forma estética
-    const [anio, mes, dia] = fechaStr.split("-");
-    if (labelFecha) {
-        labelFecha.textContent = `${dia} de ${MESES_ES[Number(mes) - 1]} de ${anio}`;
-    }
+function renderizarListaCitas(citas, mensajeVacio = "No tienes citas agendadas.") {
+    const listaCitas = document.getElementById("listaCitasTecnico");
+    if (!listaCitas) return;
 
-    if (citas.length === 0) {
-        contenedorLista.innerHTML = `
-            <div style="text-align: center; padding: 20px; color: #777;">
-                <p>¡Día libre! No tienes servicios agendados para esta fecha.</p>
-            </div>
-        `;
+    if (!Array.isArray(citas) || citas.length === 0) {
+        listaCitas.innerHTML = `<p>${mensajeVacio}</p>`;
         return;
     }
 
-    // Ordenar citas por hora
-    citas.sort((a, b) => (a.hora || "").localeCompare(b.hora || ""));
-
-    let html = "";
-    citas.forEach(cita => {
-        const estadoCita = (cita.estado || "pendiente").toLowerCase();
-        const badgeEstado = estadoCita === "realizado" ? "COMPLETADO" : estadoCita.toUpperCase();
-
-        html += `
-            <div style="border-left: 5px solid ${estadoCita === 'realizado' ? '#22c55e' : '#eab308'}; 
-                        background: #fdfdfd; padding: 12px; border-radius: 4px; margin-bottom: 12px; 
-                        box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
-                <div style="font-weight: bold; font-size: 13px; color: #444; margin-bottom: 4px;">
-                    ${cita.hora || "Horario no fijado"} hrs
-                </div>
-                <h4 style="margin: 0 0 5px 0; color: #111; font-size: 15px;">${cita.tituloServicio || "Servicio General"}</h4>
-                <p style="margin: 2px 0; font-size: 13px; color: #555;"><strong>Cliente:</strong> ${cita.nombreCliente}</p>
-                <p style="margin: 2px 0; font-size: 11px; color: #888; font-family: monospace; word-break: break-all;">ID Cliente: ${cita.idCliente}</p>
-                
-                <span style="display: inline-block; font-size: 11px; font-weight: bold; margin-top: 6px; 
-                             padding: 2px 6px; border-radius: 4px;
-                             background: ${estadoCita === 'realizado' ? '#dbf7e6' : '#fef5d1'}; 
-                             color: ${estadoCita === 'realizado' ? '#15803d' : '#a16207'};">
-                    ${badgeEstado}
-                </span>
-            </div>
-        `;
+    listaCitas.innerHTML = "";
+    ordenarCitas(citas).forEach((cita) => {
+        listaCitas.appendChild(crearCardCita(cita));
     });
-
-    contenedorLista.innerHTML = html;
 }
 
-// === UTILIDAD: CONVERTIR OBJETO DATE A CADENA "YYYY-MM-DD" ===
-function formatearFechaStr(date) {
-    const anio = date.getFullYear();
-    const mes = String(date.getMonth() + 1).padStart(2, "0");
-    const dia = String(date.getDate()).padStart(2, "0");
+function actualizarDetalleDia(fecha, citas) {
+    const labelFecha = document.getElementById("fecha-seleccionada-label");
+    const listaDia = document.getElementById("lista-citas-dia");
+    if (!listaDia) return;
+
+    if (!fecha) {
+        if (labelFecha) labelFecha.textContent = "Selecciona un dia en el calendario";
+        listaDia.innerHTML = '<p class="agenda-dia-vacio">Presiona cualquier dia resaltado para ver tus compromisos.</p>';
+        return;
+    }
+
+    if (labelFecha) labelFecha.textContent = formatearFechaLarga(fecha);
+
+    if (!Array.isArray(citas) || citas.length === 0) {
+        listaDia.innerHTML = '<p class="agenda-dia-vacio">Dia libre. No tienes servicios agendados para esta fecha.</p>';
+        return;
+    }
+
+    listaDia.innerHTML = "";
+    ordenarCitas(citas).forEach((cita) => {
+        listaDia.appendChild(crearCardCita(cita));
+    });
+}
+
+function crearCardCita(cita) {
+    const servicio = obtenerDato(cita.tituloServicio || cita.servicio || cita.nombreServicio, "Servicio no especificado");
+    const cliente = obtenerDato(cita.nombreCliente || cita.idCliente, "Cliente no especificado");
+    const fecha = obtenerFechaCita(cita);
+    const horario = obtenerHorarioCita(cita);
+    const estado = obtenerDato(cita.estado, "Estado pendiente");
+    const precio = obtenerDato(cita.precio, "");
+    const card = document.createElement("article");
+
+    card.className = "cita-tecnico-card";
+    card.innerHTML = `
+        <strong>${escaparHtml(servicio)}</strong>
+        <p><span>Cliente</span><b>${escaparHtml(cliente)}</b></p>
+        <p><span>Fecha</span><b>${escaparHtml(fecha)}</b></p>
+        <p><span>Horario</span><b>${escaparHtml(horario)}</b></p>
+        <p><span>Estado</span><b>${escaparHtml(estado)}</b></p>
+        ${precio ? `<p><span>Precio</span><b>$${escaparHtml(precio)}</b></p>` : ""}
+    `;
+
+    return card;
+}
+
+function ordenarCitas(citas) {
+    return [...citas].sort((a, b) => {
+        const fechaA = `${obtenerFechaCitaISO(a)} ${obtenerDato(a.horaInicio || a.hora, "")}`;
+        const fechaB = `${obtenerFechaCitaISO(b)} ${obtenerDato(b.horaInicio || b.hora, "")}`;
+        return fechaA.localeCompare(fechaB);
+    });
+}
+
+function obtenerFechaCitaISO(cita) {
+    const fecha = parsearFecha(cita.fecha || cita.dia);
+    return fecha ? formatearFecha(fecha) : "";
+}
+
+function obtenerFechaCita(cita) {
+    const fecha = parsearFecha(cita.fecha || cita.dia);
+
+    if (fecha) {
+        return fecha.toLocaleDateString("es-CL", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit"
+        });
+    }
+
+    return obtenerDato(cita.fecha || cita.dia, "Fecha no definida");
+}
+
+function obtenerHorarioCita(cita) {
+    const horaInicio = obtenerDato(cita.horaInicio, "");
+    const horaFin = obtenerDato(cita.horaFin, "");
+
+    if (horaInicio && horaFin) return `${horaInicio} - ${horaFin}`;
+    return obtenerDato(cita.hora, "Horario no definido");
+}
+
+function parsearFecha(valor) {
+    if (!valor) return null;
+    if (typeof valor.toDate === "function") return valor.toDate();
+    if (valor instanceof Date) return valor;
+    if (typeof valor.seconds === "number") return new Date(valor.seconds * 1000);
+
+    if (typeof valor === "string") {
+        const fechaISO = valor.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (fechaISO) {
+            return new Date(Number(fechaISO[1]), Number(fechaISO[2]) - 1, Number(fechaISO[3]));
+        }
+    }
+
+    const fechaParseada = new Date(valor);
+    return Number.isNaN(fechaParseada.getTime()) ? null : fechaParseada;
+}
+
+function formatearFecha(fecha) {
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+    const dia = String(fecha.getDate()).padStart(2, "0");
     return `${anio}-${mes}-${dia}`;
+}
+
+function formatearFechaLarga(fechaISO) {
+    const [anio, mes, dia] = fechaISO.split("-");
+    return `${dia} de ${MESES_ES[Number(mes) - 1]} de ${anio}`;
+}
+
+function obtenerDato(valor, fallback) {
+    const texto = String(valor ?? "").trim();
+    return texto || fallback;
+}
+
+function escaparHtml(valor) {
+    return String(valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
