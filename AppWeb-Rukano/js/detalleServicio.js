@@ -153,6 +153,7 @@ async function cargarDetalleServicio(idServicio) {
         if (!response.ok) throw new Error("Servicio no encontrado.");
 
         const servicio = await response.json();
+        configurarPagoServicio(servicio, idServicio);
 
         // 1. SECCIÓN PRINCIPAL (HERO)
         setTxt("servicio-categoria", servicio.categoria);
@@ -218,6 +219,38 @@ async function cargarDetalleServicio(idServicio) {
 
     } catch (error) {
         console.error("Error cargando servicio:", error);
+    }
+}
+
+function configurarPagoServicio(servicio, idServicio) {
+    const btnPago = document.getElementById("btn-comprar");
+    const mensajePago = document.getElementById("pago-mensaje");
+    if (!btnPago) return;
+
+    const nombreServicio = String(servicio.nombre || "").trim();
+    const precioServicio = Number(servicio.precio);
+    const idTecnico = String(servicio.idTecnico || "").trim();
+    const pagoDisponible = Boolean(nombreServicio) && Number.isFinite(precioServicio) && precioServicio > 0;
+
+    window.RukanoPago = {
+        title: nombreServicio,
+        quantity: 1,
+        price: precioServicio,
+        idServicio,
+        idTecnico
+    };
+
+    btnPago.dataset.title = nombreServicio;
+    btnPago.dataset.quantity = "1";
+    btnPago.dataset.price = pagoDisponible ? String(precioServicio) : "";
+    btnPago.dataset.servicioId = idServicio || "";
+    btnPago.dataset.tecnicoId = idTecnico;
+    btnPago.disabled = !pagoDisponible;
+
+    if (mensajePago) {
+        mensajePago.textContent = pagoDisponible
+            ? ""
+            : "El pago no esta disponible para este servicio.";
     }
 }
 
