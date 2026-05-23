@@ -12,7 +12,7 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 window.addEventListener("DOMContentLoaded", () => {
 
@@ -208,7 +208,9 @@ window.addEventListener("DOMContentLoaded", () => {
                 disponibilidad.push({
                     dia: check.value,
                     inicio: inicio,
-                    fin: fin
+                    fin: fin,
+                    hora_inicio: inicio,
+                    hora_fin: fin
                 });
             }
         });
@@ -228,6 +230,22 @@ window.addEventListener("DOMContentLoaded", () => {
             inicio.value = "";
             fin.value = "";
         });
+    }
+
+    function normalizarDisponibilidadItem(item = {}) {
+        const inicio = item.inicio || item.hora_inicio || "";
+        const fin = item.fin || item.hora_fin || "";
+
+        return {
+            dia: item.dia || "Dia no definido",
+            inicio: inicio || "Inicio no definido",
+            fin: fin || "Fin no definido"
+        };
+    }
+
+    function formatearDisponibilidadItem(item = {}) {
+        const horario = normalizarDisponibilidadItem(item);
+        return `${horario.dia}: ${horario.inicio} - ${horario.fin}`;
     }
 
     function configurarModalPanelTecnico() {
@@ -378,7 +396,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 const servicio = docServicio.data();
 
                 const disponibilidad = Array.isArray(servicio.disponibilidad)
-                    ? servicio.disponibilidad.map(item => `${item.dia}: ${item.inicio} - ${item.fin}`).join(" | ")
+                    ? servicio.disponibilidad.map(formatearDisponibilidadItem).join(" | ")
                     : "Sin disponibilidad";
 
                 const card = document.createElement("div");
@@ -570,15 +588,16 @@ window.addEventListener("DOMContentLoaded", () => {
             contenedor.innerHTML = "";
 
             dias.forEach((item) => {
+                const horario = normalizarDisponibilidadItem(item);
                 const opcion = document.createElement("label");
                 opcion.className = "dato";
                 opcion.style.display = "block";
                 opcion.style.marginTop = "12px";
 
                 opcion.innerHTML = `
-                    <input type="radio" name="horarioSeleccionado" value="${item.dia}|${item.inicio}|${item.fin}">
-                    <strong>${item.dia}</strong>
-                    ${item.inicio} - ${item.fin}
+                    <input type="radio" name="horarioSeleccionado" value="${horario.dia}|${horario.inicio}|${horario.fin}">
+                    <strong>${horario.dia}</strong>
+                    ${horario.inicio} - ${horario.fin}
                 `;
 
                 contenedor.appendChild(opcion);

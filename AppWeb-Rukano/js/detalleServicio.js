@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/f
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ─── CONFIGURACIÓN DEL BACKEND ───
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 // ─── ESTADO GLOBAL DEL USUARIO (llenado por Firebase) ───
 let usuarioLogueado = null;   // objeto User de Firebase Auth

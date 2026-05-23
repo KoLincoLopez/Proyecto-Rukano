@@ -1,11 +1,7 @@
 (function () {
     const btnComprar = document.getElementById("btn-comprar");
     const usarCheckoutRedireccion = true;
-    const isLocalBackend = (
-        window.location.protocol === "file:" ||
-        ["localhost", "127.0.0.1"].includes(window.location.hostname)
-    );
-    const apiBaseUrl = isLocalBackend ? "http://localhost:8000" : "https://rukano-sph.onrender.com";
+    const apiBaseUrl = window.RukanoApiConfig.getApiBaseUrl();
 
     if (!btnComprar) {
         return;

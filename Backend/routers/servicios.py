@@ -18,8 +18,10 @@ class PreguntaFormulario(BaseModel):
 
 class Disponibilidad(BaseModel):
     dia: str          # Ej: "Lunes"
-    hora_inicio: str  # Ej: "09:00"
-    hora_fin: str     # Ej: "17:00"
+    inicio: str | None = None
+    fin: str | None = None
+    hora_inicio: str | None = None  # Ej: "09:00"
+    hora_fin: str | None = None     # Ej: "17:00"
 
 class Servicio(BaseModel): 
     idTecnico: str 
@@ -29,12 +31,11 @@ class Servicio(BaseModel):
     descripcion: str 
     precio: float 
     tiempoEstimado: str 
-    disponibilidad: list[dict] = []
+    disponibilidad: list[Disponibilidad]
     descripcionTecnico: str | None = None
     experiencia: str | None = None
     que_incluye: list[str]    
     que_no_incluye: list[str]
-    disponibilidad: list[Disponibilidad]
     esquema_formulario: list[PreguntaFormulario] 
 
 # --- FUNCIONES AUXILIARES ---
@@ -46,6 +47,32 @@ def generar_keywords(titulo, categoria, descripcion):
     words = clean_text.split()
     keywords = list(set([w for w in words if len(w) > 2]))
     return keywords
+
+def dump_model(modelo):
+    if hasattr(modelo, "model_dump"):
+        return modelo.model_dump()
+    return modelo.dict()
+
+def normalizar_disponibilidad(disponibilidad):
+    normalizada = []
+
+    for item in disponibilidad:
+        data = dump_model(item)
+        inicio = data.get("inicio") or data.get("hora_inicio")
+        fin = data.get("fin") or data.get("hora_fin")
+
+        if not data.get("dia") or not inicio or not fin:
+            raise HTTPException(status_code=422, detail="Disponibilidad incompleta")
+
+        normalizada.append({
+            "dia": data["dia"],
+            "inicio": inicio,
+            "fin": fin,
+            "hora_inicio": inicio,
+            "hora_fin": fin
+        })
+
+    return normalizada
 
 # --- ENDPOINTS ---
 
@@ -61,6 +88,7 @@ async def crear_servicio(datos: Servicio):
         id_generado = str(uuid.uuid4())
         ahora = datetime.now(timezone.utc)
         palabras_clave = generar_keywords(datos.nombre, datos.categoria, datos.descripcion)
+        disponibilidad = normalizar_disponibilidad(datos.disponibilidad)
 
         # 2. MAPEO DE DATOS INCLUYENDO EL FORMULARIO
         servicio_doc = {
@@ -72,17 +100,13 @@ async def crear_servicio(datos: Servicio):
             "descripcion": datos.descripcion,
             "precio": datos.precio,
             "tiempoEstimado": datos.tiempoEstimado,
-            "disponibilidad": datos.disponibilidad,
+            "disponibilidad": disponibilidad,
             "descripcionTecnico": datos.descripcionTecnico,
             "experiencia": datos.experiencia,
             "keyWords": palabras_clave,
             "que_incluye": datos.que_incluye,
             "que_no_incluye": datos.que_no_incluye,
-
-            "disponibilidad": [d.dict() for d in datos.disponibilidad],
-            "esquema_formulario": [p.dict() for p in datos.esquema_formulario], 
-
-            "esquema_formulario": [p.model_dump() for p in datos.esquema_formulario],
+            "esquema_formulario": [dump_model(p) for p in datos.esquema_formulario],
 
             "estado": "activo",
             "createdAt": ahora
@@ -91,6 +115,8 @@ async def crear_servicio(datos: Servicio):
         db.collection("servicios").document(id_generado).set(servicio_doc)
         return {"msg": "Servicio con formulario dinámico publicado", "id": id_generado}
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
