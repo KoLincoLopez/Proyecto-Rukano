@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error en el pago</title>
+    <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="../css/payment-stile/error.css">
+    <link rel="stylesheet" href="../css/navbar.css">
 </head>
 <body>
+    <div id="navbar-root"></div>
     <main class="payment-status payment-status--error">
         <p class="payment-kicker">Rukano</p>
         <h1>No se pudo completar el pago</h1>
         <p>Mercado Pago no confirmo la operacion. Puedes volver al servicio e intentarlo nuevamente.</p>
-        <a href="../index.html">Volver al inicio</a>
+        <div class="payment-actions">
+            <a href="../index.html">Volver al inicio</a>
+            <a href="../panelCliente.html" class="payment-link-secondary">Ir al panel</a>
+        </div>
     </main>
+    <script src="../js/navbar.js" defer></script>
 </body>
 </html>

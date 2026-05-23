@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pago pendiente</title>
+    <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="../css/payment-stile/pendiente.css">
+    <link rel="stylesheet" href="../css/navbar.css">
 </head>
 <body>
+    <div id="navbar-root"></div>
     <main class="payment-status payment-status--pending">
         <p class="payment-kicker">Rukano</p>
         <h1>Pago pendiente</h1>
         <p>Mercado Pago dejo la operacion en revision. Cuando se actualice, podras continuar el seguimiento del servicio.</p>
-        <a href="../panelCliente.html">Volver al panel</a>
+        <div class="payment-actions">
+            <a href="../panelCliente.html">Volver al panel</a>
+            <a href="../index.html#servicios" class="payment-link-secondary">Explorar servicios</a>
+        </div>
     </main>
+    <script src="../js/navbar.js" defer></script>
 </body>
 </html>

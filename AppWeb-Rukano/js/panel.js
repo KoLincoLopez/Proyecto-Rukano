@@ -12,8 +12,6 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const API_URL = window.RukanoApiConfig.getApiBaseUrl();
-
 window.addEventListener("DOMContentLoaded", () => {
 
     let datosUsuarioActual = null;
@@ -80,155 +78,8 @@ window.addEventListener("DOMContentLoaded", () => {
                 await signOut(auth);
                 window.location.href = "inicioSesion.html";
             } catch (error) {
-                console.log("Error al cerrar sesión:", error);
+                console.log("Error al cerrar sesion:", error);
             }
-        });
-    }
-
-    const formServicio = document.getElementById("formServicio");
-
-    if (formServicio) {
-        formServicio.addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            const titulo = document.getElementById("tituloServicio").value.trim();
-            const categoria = document.getElementById("categoriaServicio").value.trim();
-            const comuna = document.getElementById("comunaServicio").value.trim();
-            const precio = document.getElementById("precioServicio").value.trim();
-            const tiempo = document.getElementById("tiempoServicio").value.trim();
-            const descripcion = document.getElementById("descripcionServicio").value.trim();
-            const descripcionTecnico = document.getElementById("descripcionTecnicoServicio").value.trim();
-            const experiencia = document.getElementById("experienciaTecnicoServicio").value.trim();
-            const incluye = document.getElementById("incluyeServicio").value.trim();
-            const noIncluye = document.getElementById("noIncluyeServicio").value.trim();
-
-            const mensajeServicio = document.getElementById("mensajeServicio");
-            const user = auth.currentUser;
-
-            if (!user) {
-                mensajeServicio.textContent = "Debes iniciar sesión.";
-                return;
-            }
-
-            const disponibilidad = obtenerDisponibilidadFormulario();
-
-            if (
-                !titulo ||
-                !categoria ||
-                !comuna ||
-                !precio ||
-                !tiempo ||
-                !descripcion ||
-                !descripcionTecnico ||
-                !experiencia ||
-                !incluye ||
-                !noIncluye
-            ) {
-                mensajeServicio.textContent = "Completa todos los campos del servicio.";
-                return;
-            }
-
-            if (disponibilidad.length === 0) {
-                mensajeServicio.textContent = "Selecciona al menos un día disponible con hora inicio y hora fin.";
-                return;
-            }
-
-            try {
-                const servicioNuevo = {
-                    idTecnico: user.uid,
-                    nombre: titulo,
-                    categoria: categoria,
-                    comuna: comuna,
-                    descripcion: descripcion,
-                    descripcionTecnico: descripcionTecnico,
-                    experiencia: experiencia,
-                    precio: Number(precio),
-                    tiempoEstimado: tiempo,
-                    disponibilidad: disponibilidad,
-                    que_incluye: textoALista(incluye),
-                    que_no_incluye: textoALista(noIncluye),
-                    esquema_formulario: [
-                        {
-                            id_pregunta: "1",
-                            pregunta: "Describe el problema",
-                            tipo: "text",
-                            obligatorio: true
-                        },
-                        {
-                            id_pregunta: "2",
-                            pregunta: "¿Necesitas servicio urgente?",
-                            tipo: "boolean",
-                            obligatorio: false
-                        }
-                    ]
-                };
-
-                const response = await fetch(`${API_URL}/servicios/crear`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(servicioNuevo)
-                });
-
-                if (!response.ok) {
-                    throw new Error("Error al crear servicio en backend");
-                }
-
-                mensajeServicio.textContent = "Servicio publicado correctamente.";
-                formServicio.reset();
-                limpiarDisponibilidadFormulario();
-
-                await cargarMisServicios(user.uid, "Actualizando tus servicios...");
-
-            } catch (error) {
-                console.log(error);
-                mensajeServicio.textContent = "Error al publicar servicio.";
-            }
-        });
-    }
-
-    function textoALista(texto) {
-        return texto
-            .split("\n")
-            .map(item => item.trim())
-            .filter(item => item !== "");
-    }
-
-    function obtenerDisponibilidadFormulario() {
-        const dias = document.querySelectorAll(".agenda-dia");
-        let disponibilidad = [];
-
-        dias.forEach((dia) => {
-            const check = dia.querySelector(".check-dia");
-            const inicio = dia.querySelector(".hora-inicio").value;
-            const fin = dia.querySelector(".hora-fin").value;
-
-            if (check.checked && inicio && fin) {
-                disponibilidad.push({
-                    dia: check.value,
-                    inicio: inicio,
-                    fin: fin,
-                    hora_inicio: inicio,
-                    hora_fin: fin
-                });
-            }
-        });
-
-        return disponibilidad;
-    }
-
-    function limpiarDisponibilidadFormulario() {
-        const dias = document.querySelectorAll(".agenda-dia");
-
-        dias.forEach((dia) => {
-            const check = dia.querySelector(".check-dia");
-            const inicio = dia.querySelector(".hora-inicio");
-            const fin = dia.querySelector(".hora-fin");
-
-            check.checked = false;
-            inicio.value = "";
-            fin.value = "";
         });
     }
 
@@ -237,7 +88,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const fin = item.fin || item.hora_fin || "";
 
         return {
-            dia: item.dia || "Dia no definido",
+            dia: item.dia || item["día"] || item.day || "Dia no definido",
             inicio: inicio || "Inicio no definido",
             fin: fin || "Fin no definido"
         };
@@ -246,6 +97,24 @@ window.addEventListener("DOMContentLoaded", () => {
     function formatearDisponibilidadItem(item = {}) {
         const horario = normalizarDisponibilidadItem(item);
         return `${horario.dia}: ${horario.inicio} - ${horario.fin}`;
+    }
+
+    function actualizarResumenServicios(servicios = []) {
+        const totalServicios = document.getElementById("totalServiciosTecnico");
+        const serviciosActivos = document.getElementById("serviciosActivosTecnico");
+        const serviciosConDisponibilidad = document.getElementById("serviciosConDisponibilidad");
+
+        const activos = servicios.filter((servicio) => {
+            return normalizarTexto(servicio.estado || "activo") !== "inactivo";
+        }).length;
+
+        const conDisponibilidad = servicios.filter((servicio) => {
+            return Array.isArray(servicio.disponibilidad) && servicio.disponibilidad.length > 0;
+        }).length;
+
+        if (totalServicios) totalServicios.textContent = String(servicios.length);
+        if (serviciosActivos) serviciosActivos.textContent = String(activos);
+        if (serviciosConDisponibilidad) serviciosConDisponibilidad.textContent = String(conDisponibilidad);
     }
 
     function configurarModalPanelTecnico() {
@@ -352,9 +221,9 @@ window.addEventListener("DOMContentLoaded", () => {
             confirmarEliminacion() {
                 return abrir({
                     tipo: "eliminar",
-                    titulo: "¿Eliminar servicio?",
-                    texto: "Esta acción quitará el servicio de tu listado. Puedes volver a publicarlo más adelante si lo necesitas.",
-                    confirmar: "Confirmar eliminación"
+                    titulo: "Eliminar servicio",
+                    texto: "Esta accion quitara el servicio de tu listado. Puedes volver a publicarlo mas adelante si lo necesitas.",
+                    confirmar: "Confirmar eliminacion"
                 });
             },
             editarTitulo(valorActual) {
@@ -385,15 +254,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const resultado = await getDocs(consulta);
 
-            if (resultado.empty) {
-                lista.innerHTML = '<p class="servicios-estado">Aún no has publicado servicios.</p>';
+            const serviciosPublicados = [];
+
+            resultado.forEach((docServicio) => {
+                serviciosPublicados.push({
+                    id: docServicio.id,
+                    data: docServicio.data()
+                });
+            });
+
+            actualizarResumenServicios(serviciosPublicados.map((servicio) => servicio.data));
+
+            if (serviciosPublicados.length === 0) {
+                lista.innerHTML = '<p class="servicios-estado">Aun no has publicado servicios.</p>';
                 return;
             }
 
             lista.innerHTML = "";
 
-            resultado.forEach((docServicio) => {
-                const servicio = docServicio.data();
+            serviciosPublicados.forEach((docServicio) => {
+                const servicio = docServicio.data;
 
                 const disponibilidad = Array.isArray(servicio.disponibilidad)
                     ? servicio.disponibilidad.map(formatearDisponibilidadItem).join(" | ")
@@ -404,7 +284,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
                 card.innerHTML = `
                     <strong>${servicio.nombre || servicio.titulo || "Servicio"}</strong>
-                    <p>Categoría: ${servicio.categoria || "No especificada"}</p>
+                    <p>Categoria: ${servicio.categoria || "No especificada"}</p>
                     <p>Comuna: ${servicio.comuna || "No especificada"}</p>
                     <p>Precio: $${Math.round(servicio.precio || 0)}</p>
                     <p>Tiempo estimado: ${servicio.tiempoEstimado || "No especificado"}</p>
@@ -413,7 +293,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
                     <div class="servicio-tecnico-acciones">
                         <button class="btnEditar" data-id="${docServicio.id}">
-                            Editar título
+                            Editar titulo
                         </button>
 
                         <button class="btnEliminar" data-id="${docServicio.id}">
@@ -501,7 +381,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const precioReserva = document.getElementById("precioReserva");
 
         if (servicioReserva) servicioReserva.textContent = servicio || "Sin servicio seleccionado";
-        if (tecnicoReserva) tecnicoReserva.textContent = tecnico || "Sin técnico seleccionado";
+        if (tecnicoReserva) tecnicoReserva.textContent = tecnico || "Sin tecnico seleccionado";
         if (precioReserva) precioReserva.textContent = precio || "0";
 
         if (vieneDeReserva) {
@@ -547,7 +427,8 @@ window.addEventListener("DOMContentLoaded", () => {
         const ubicacion = obtenerDato(
             datosCliente.comuna,
             datosCliente.direccion,
-            datosCliente["dirección"],
+            datosCliente["direcci\u00f3n"],
+            datosCliente["direccion"],
             datosCliente.region
         );
 
@@ -573,7 +454,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const servicioSnap = await getDoc(servicioRef);
 
             if (!servicioSnap.exists()) {
-                contenedor.innerHTML = "<p>No se encontró el servicio.</p>";
+                contenedor.innerHTML = "<p>No se encontro el servicio.</p>";
                 return;
             }
 
@@ -581,7 +462,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const dias = servicio.disponibilidad || [];
 
             if (!Array.isArray(dias) || dias.length === 0) {
-                contenedor.innerHTML = "<p>Este servicio aún no tiene horarios disponibles.</p>";
+                contenedor.innerHTML = "<p>Este servicio aun no tiene horarios disponibles.</p>";
                 return;
             }
 
@@ -617,7 +498,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);
 
         const servicio = params.get("servicio") || "Servicio seleccionado";
-        const tecnico = params.get("tecnico") || "Técnico seleccionado";
+        const tecnico = params.get("tecnico") || "Tecnico seleccionado";
         const precio = params.get("precio") || "0";
         const idTecnico = params.get("idTecnico") || "sin-id-tecnico";
         const idServicio = params.get("idServicio") || "sin-id-servicio";
@@ -685,7 +566,7 @@ window.addEventListener("DOMContentLoaded", () => {
         ) || "No registrado";
 
         if (!user) {
-            estadoReporte.textContent = "Debes iniciar sesión para enviar un reporte.";
+            estadoReporte.textContent = "Debes iniciar sesion para enviar un reporte.";
             return;
         }
 
@@ -795,7 +676,7 @@ window.addEventListener("DOMContentLoaded", () => {
             fecha.textContent = fechaReporte;
             actualizarTimelineReporte(estadoReporte);
         } catch (error) {
-            console.log("Error al cargar último reporte:", error);
+            console.log("Error al cargar ultimo reporte:", error);
             estado.textContent = "No se pudo cargar el estado de tus reclamos.";
             fecha.textContent = "Fecha no disponible";
         }
@@ -857,7 +738,7 @@ window.addEventListener("DOMContentLoaded", () => {
             const resultado = await getDocs(consulta);
 
             if (resultado.empty) {
-                lista.innerHTML = "<p>Aún no tienes citas registradas.</p>";
+                lista.innerHTML = "<p>Aun no tienes citas registradas.</p>";
                 return;
             }
 
@@ -878,7 +759,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 };
 
                 const servicio = obtenerDato(cita.servicio, "Servicio no especificado");
-                const tecnico = obtenerDato(cita.tecnico, "Técnico no asignado");
+                const tecnico = obtenerDato(cita.tecnico, "Tecnico no asignado");
                 const dia = obtenerDato(cita.dia, obtenerDato(cita.fecha, "Fecha no definida"));
                 const horaInicio = obtenerDato(cita.horaInicio, "");
                 const horaFin = obtenerDato(cita.horaFin, "");
@@ -897,7 +778,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
                 const accionResena = faltanDatosResena
                     ? `<button type="button" class="btn-link btn-reservar" disabled style="opacity:0.65; cursor:not-allowed;">
-                        Valoración no disponible
+                        Valoracion no disponible
                     </button>`
                     : `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}&tecnicoId=${encodeURIComponent(tecnicoId)}" class="btn-link btn-reservar">
                         Valorar servicio
@@ -909,7 +790,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 card.innerHTML = `
                     <strong>${servicio}</strong>
                     <div class="cita-meta">
-                        <p><span>Técnico</span><b>${tecnico}</b></p>
+                        <p><span>Tecnico</span><b>${tecnico}</b></p>
                         <p><span>Fecha</span><b>${dia}</b></p>
                         <p><span>Horario</span><b>${horario}</b></p>
                         <p><span>Precio</span><b>${precio === "Precio no informado" ? precio : `$${precio}`}</b></p>

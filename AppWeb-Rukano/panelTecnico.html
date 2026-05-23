@@ -62,107 +62,47 @@
             <p>Administra tus servicios, perfil profesional y horarios disponibles en Rukano.</p>
         </section>
 
-        <section class="panel-card">
-            <h2>Publicar servicio</h2>
+        <section class="panel-card panel-resumen">
+            <div class="panel-resumen-copy">
+                <span class="panel-eyebrow">Gestion de servicios</span>
+                <h2>Resumen de actividad</h2>
+                <p>Revisa el estado de tus publicaciones y administra lo que ya esta visible para clientes.</p>
+            </div>
 
-            <form id="formServicio" class="form-servicio">
+            <a href="subirServicio.html" class="btn-publicar-servicio">
+                <ion-icon name="add-circle-outline"></ion-icon>
+                Publicar nuevo servicio
+            </a>
 
-                <label for="tituloServicio">Titulo del servicio</label>
-                <input type="text" id="tituloServicio" placeholder="Ej: Electricista domiciliario">
+            <div class="panel-metricas" aria-label="Resumen de servicios">
+                <article class="panel-metrica">
+                    <span id="totalServiciosTecnico">0</span>
+                    <p>Servicios publicados</p>
+                </article>
+                <article class="panel-metrica">
+                    <span id="serviciosActivosTecnico">0</span>
+                    <p>Servicios activos</p>
+                </article>
+                <article class="panel-metrica">
+                    <span id="serviciosConDisponibilidad">0</span>
+                    <p>Con disponibilidad</p>
+                </article>
+            </div>
 
-                <label for="categoriaServicio">Categoria</label>
-                <select id="categoriaServicio">
-                    <option value="">Selecciona una categoria</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Gasfiteria">Gasfiteria</option>
-                    <option value="Limpieza">Limpieza</option>
-                    <option value="Jardineria">Jardineria</option>
-                    <option value="Cerrajeria">Cerrajeria</option>
-                    <option value="Pintura">Pintura</option>
-                </select>
-
-                <label for="comunaServicio">Comuna</label>
-                <input type="text" id="comunaServicio" placeholder="Ej: Puente Alto">
-
-                <label for="precioServicio">Precio estimado</label>
-                <input type="number" id="precioServicio" placeholder="Ej: 25000">
-
-                <label for="tiempoServicio">Tiempo estimado</label>
-                <input type="text" id="tiempoServicio" placeholder="Ej: 2 horas">
-
-                <label for="descripcionServicio">Descripcion del servicio</label>
-                <textarea id="descripcionServicio" placeholder="Ej: Servicio especializado para reparacion e instalacion domiciliaria."></textarea>
-
-                <label for="descripcionTecnicoServicio">Descripcion del tecnico</label>
-                <textarea id="descripcionTecnicoServicio" placeholder="Ej: Tecnico con experiencia en reparaciones domiciliarias."></textarea>
-
-                <label for="experienciaTecnicoServicio">Experiencia</label>
-                <input type="text" id="experienciaTecnicoServicio" placeholder="Ej: 3 anos de experiencia">
-
-                <label for="incluyeServicio">Que incluye</label>
-                <textarea id="incluyeServicio" placeholder="Ej: Diagnostico inicial&#10;Mano de obra basica&#10;Revision del problema"></textarea>
-
-                <label for="noIncluyeServicio">Que no incluye</label>
-                <textarea id="noIncluyeServicio" placeholder="Ej: Materiales especiales&#10;Transporte adicional"></textarea>
-
-                <h2 class="subtitulo-formulario">Disponibilidad del servicio</h2>
-
-                <div class="agenda-grid">
-                    <div class="agenda-dia">
-                        <strong>Lunes</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Lunes">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-
-                    <div class="agenda-dia">
-                        <strong>Martes</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Martes">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-
-                    <div class="agenda-dia">
-                        <strong>Miercoles</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Miercoles">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-
-                    <div class="agenda-dia">
-                        <strong>Jueves</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Jueves">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-
-                    <div class="agenda-dia">
-                        <strong>Viernes</strong>
-                        <label>
-                            <input type="checkbox" class="check-dia" value="Viernes">
-                            Disponible
-                        </label>
-                        <input type="time" class="hora-inicio">
-                        <input type="time" class="hora-fin">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-panel">Publicar servicio</button>
-
-                <p id="mensajeServicio"></p>
-            </form>
+            <div class="panel-accesos">
+                <a href="agendaTec.html">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    Revisar agenda
+                </a>
+                <a href="miperfilTec.html">
+                    <ion-icon name="person-circle-outline"></ion-icon>
+                    Actualizar perfil
+                </a>
+                <a href="clientesTec.html">
+                    <ion-icon name="people-outline"></ion-icon>
+                    Ver clientes
+                </a>
+            </div>
         </section>
 
         <section class="panel-card">

@@ -7,88 +7,15 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link rel="stylesheet" href="css/detalleServicio.css">
 
-<style>
-/* ── SKELETON SHIMMER BASE ── */
-@keyframes sk-shimmer {
-  0%   { background-position: -500px 0; }
-  100% { background-position:  500px 0; }
-}
-
-.sk-inline,
-.sk-block,
-.sk-avatar,
-.sk-badge,
-.nav-sk-item {
-  display: inline-block;
-  background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
-  background-size: 1000px 100%;
-  animation: sk-shimmer 1.4s infinite linear;
-  border-radius: 4px;
-  vertical-align: middle;
-}
-
-/* ── VARIANTES DE TAMAÑO ── */
-.sk-bc       { width: 70px;  height: 13px; }
-.sk-bc-long  { width: 140px; height: 13px; }
-.sk-hero-tag { width: 90px;  height: 20px; border-radius: 20px; }
-.sk-hero-title{ width: 280px; height: 34px; }
-.sk-meta     { width: 90px;  height: 14px; }
-.sk-meta-sm  { width: 55px;  height: 14px; }
-
-/* sk-block ocupa línea completa */
-.sk-block {
-  display: block;
-  border-radius: 4px;
-}
-
-/* avatar del técnico como skeleton */
-.sk-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-/* badges skeleton */
-.sk-badge {
-  width: 120px;
-  height: 24px;
-  border-radius: 20px;
-}
-
-/* ── NAV SKELETON ── */
-.nav-auth-skeleton-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.nav-sk-item {
-  height: 32px;
-  border-radius: 6px;
-  /* tono más claro para fondos oscuros del nav */
-  background: linear-gradient(90deg,
-    rgba(255,255,255,0.15) 25%,
-    rgba(255,255,255,0.28) 50%,
-    rgba(255,255,255,0.15) 75%);
-  background-size: 600px 100%;
-}
-
-.nav-sk-wide   { width: 110px; }
-.nav-sk-narrow { width: 80px;  }
-
-/* Cuando Firebase resuelve, ocultar el skeleton del nav */
-.nav-auth-skeleton-wrap.hidden { display: none; }
-</style>
 
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
-  <a class="logo" href="index.html">rukano</a>
+<nav class="detalle-nav">
+  <a class="logo" href="index.html">RUKANO</a>
   <div class="nav-right">
-    <a href="index.html" class="nav-link">Explorar</a>
+    <a href="index.html#servicios" class="nav-link">Explorar</a>
     <a href="index.html#como-funciona" class="nav-link">Cómo funciona</a>
     <!-- Skeleton visible mientras Firebase verifica sesión -->
     <div id="nav-auth-area" class="nav-auth-skeleton-wrap">
@@ -201,8 +128,8 @@
             <span class="tech-badge sk-badge"><span id="tecnico-comuna"></span></span>
           </div>
         </div>
-        <button type="button" class="btn-ver-perfil" disabled style="opacity:0.3;pointer-events:none;">
-          Ver perfil <i class="ti ti-arrow-right" class="icon-sm"></i>
+        <button type="button" class="btn-ver-perfil" disabled aria-disabled="true" title="Perfil publico no disponible para esta demo">
+          Ver perfil <i class="ti ti-arrow-right icon-sm"></i>
         </button>
       </div>
     </div>

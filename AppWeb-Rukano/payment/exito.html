@@ -4,14 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pago exitoso</title>
+    <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="../css/payment-stile/exito.css">
+    <link rel="stylesheet" href="../css/navbar.css">
 </head>
 <body>
+    <div id="navbar-root"></div>
     <main class="payment-status payment-status--success">
         <p class="payment-kicker">Rukano</p>
         <h1>Pago iniciado correctamente</h1>
         <p>Recibimos la respuesta de Mercado Pago. Revisa tu panel para continuar con el seguimiento del servicio.</p>
-        <a href="../panelCliente.html">Volver al panel</a>
+        <div class="payment-actions">
+            <a href="../panelCliente.html">Volver al panel</a>
+            <a href="../index.html#servicios" class="payment-link-secondary">Explorar servicios</a>
+        </div>
     </main>
+    <script src="../js/navbar.js" defer></script>
 </body>
 </html>

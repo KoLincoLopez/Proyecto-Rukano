@@ -3,39 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publicar Servicio — Rukano</title>
+    <title>Publicar servicio - Rukano</title>
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/tecnicoNav.css">
     <link rel="stylesheet" href="css/subirServicio.css">
 </head>
-<body>
 
-    <nav class="navbar-integrada">
-        <a href="index.html" class="bloque-logo">RUKANO</a>
+<body class="page-subir-servicio">
+    <div id="navbar-root"></div>
 
-        <div class="bloque-menu">
-            <div class="nav-izquierda">
-                <a href="index.html#servicios">Servicios</a>
-                <a href="index.html#beneficios">Beneficios</a>
-                <a href="index.html#como-funciona">¿Cómo Funciona?</a>
-                <a href="index.html#testimonios">Reseñas</a>
-            </div>
-
-            <div class="nav-derecha">
-                <a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
-                <a href="registro.html" class="btn-registro-nav">Registrarse</a>
-                <div class="perfil-usuario toggle">
-                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="Perfil">
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="nav">
+    <nav class="tech-nav" aria-label="Navegacion tecnica">
         <ul>
             <li>
                 <a href="dashboard.html">
                     <span class="icono"><ion-icon name="home-outline"></ion-icon></span>
                     <span class="titulo">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="panelTecnico.html">
+                    <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
+                    <span class="titulo">Panel tecnico</span>
                 </a>
             </li>
             <li>
@@ -53,246 +44,314 @@
             <li>
                 <a href="miperfilTec.html">
                     <span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span>
-                    <span class="titulo">Mi Perfil</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="subirServicio.html">
-                  <span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span>
-                  <span class="titulo">Subir servicio</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="panelTecnico.html">
-                    <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
-                    <span class="titulo">Mis servicios</span>
+                    <span class="titulo">Mi perfil</span>
                 </a>
             </li>
             <li>
                 <a href="configuracionTec.html">
                     <span class="icono"><ion-icon name="settings-outline"></ion-icon></span>
-                    <span class="titulo">Configuración</span>
-                </a>
-            </li>
-            <li>
-                <a href="#" class="cerrar-sesion">
-                    <span class="icono"><ion-icon name="log-out-outline"></ion-icon></span>
-                    <span class="titulo">Cerrar Sesión</span>
+                    <span class="titulo">Configuracion</span>
                 </a>
             </li>
         </ul>
-    </div>
+    </nav>
 
-    <div class="page-wrap">
-        <div class="page-header">
-            <h1>Publica tu servicio</h1>
-            <p>Completa la información para que los clientes te encuentren y contraten</p>
-        </div>
+    <main class="publicar-servicio">
+        <section class="publicar-header">
+            <div>
+                <span class="eyebrow">Servicios tecnicos</span>
+                <h1>Publicar servicio</h1>
+                <p>Completa los datos comerciales, disponibilidad y preguntas que verá el cliente antes de contratar.</p>
+            </div>
+            <a class="btn-link-panel" href="panelTecnico.html">
+                <i class="ti ti-arrow-left"></i>
+                Volver al panel
+            </a>
+        </section>
 
-        <div class="steps-bar">
-            <div class="step-item active" id="step-1-btn" onclick="goStep(1)">
-                <div class="step-num">1</div> Info básica
-            </div>
-            <div class="step-item" id="step-2-btn" onclick="goStep(2)">
-                <div class="step-num">2</div> Alcance
-            </div>
-            <div class="step-item" id="step-3-btn" onclick="goStep(3)">
-                <div class="step-num">3</div> Preguntas
-            </div>
-            <div class="step-item" id="step-4-btn" onclick="goStep(4)">
-                <div class="step-num">4</div> Publicar
-            </div>
-        </div>
+        <section class="publicar-layout">
+            <aside class="publicar-sidebar" aria-label="Progreso de publicacion">
+                <ol class="steps-bar">
+                    <li class="step-item active" data-step-indicator="1">
+                        <span class="step-num">1</span>
+                        Servicio
+                    </li>
+                    <li class="step-item" data-step-indicator="2">
+                        <span class="step-num">2</span>
+                        Alcance
+                    </li>
+                    <li class="step-item" data-step-indicator="3">
+                        <span class="step-num">3</span>
+                        Agenda
+                    </li>
+                    <li class="step-item" data-step-indicator="4">
+                        <span class="step-num">4</span>
+                        Publicar
+                    </li>
+                </ol>
 
-        <div class="section visible" id="section-1">
-            <div class="section-header">
-                <div class="section-icon"><i class="ti ti-file-description"></i></div>
-                <div>
-                    <h2>Información básica</h2>
-                    <p>Nombre, descripción, precio y duración de tu servicio</p>
+                <div class="status-box neutral" id="formStatus" role="status" aria-live="polite">
+                    Ingresa la informacion obligatoria para publicar un servicio real.
                 </div>
-            </div>
+            </aside>
 
-            <div class="field">
-                <label>Título del servicio <span class="req">*</span></label>
-                <input type="text" id="titulo" placeholder="Ej: Instalación de grifería y llaves de paso" maxlength="80">
-                <div class="char-count"><span id="titulo-count">0</span> / 80</div>
-                <div class="field-error" id="err-titulo">El título es obligatorio.</div>
-            </div>
-
-            <div class="field">
-                <label>Descripción <span class="req">*</span> <span class="hint">Mín. 30 caracteres</span></label>
-                <textarea id="descripcion" placeholder="Describe qué realizas: materiales que usas, procedimientos, experiencia, garantía, etc." maxlength="800" rows="5"></textarea>
-                <div class="char-count"><span id="desc-count">0</span> / 800</div>
-                <div class="field-error" id="err-descripcion">La descripción debe tener al menos 30 caracteres.</div>
-            </div>
-
-            <div class="field-row">
-                <div class="field">
-                    <label>Precio del servicio <span class="req">*</span></label>
-                    <div class="input-prefix">
-                        <span class="prefix-sym">$</span>
-                        <input type="number" id="precio" placeholder="0" min="0">
-                    </div>
-                    <div class="field-error" id="err-precio">Ingresa un precio válido mayor a 0.</div>
-                </div>
-                <div class="field">
-                    <label>Duración aprox. <span class="req">*</span> <span class="hint">en horas</span></label>
-                    <div class="input-prefix">
-                        <span class="prefix-sym"><i class="ti ti-clock" style="font-size:13px;vertical-align:-1px"></i></span>
-                        <input type="number" id="duracion" placeholder="0" min="0.5" step="0.5">
-                    </div>
-                    <div class="field-error" id="err-duracion">Ingresa una duración válida.</div>
-                </div>
-            </div>
-
-            <div class="nav-buttons" style="justify-content:flex-end">
-                <button class="btn-primary" onclick="nextStep(1)">Siguiente <i class="ti ti-arrow-right"></i></button>
-            </div>
-        </div>
-
-        <div class="section" id="section-2">
-            <div class="section-header">
-                <div class="section-icon"><i class="ti ti-list-check"></i></div>
-                <div>
-                    <h2>Alcance del servicio</h2>
-                    <p>Define qué incluye y qué NO incluye — mínimo 3 ítems en cada lista</p>
-                </div>
-            </div>
-
-            <div class="list-grid">
-                <div>
-                    <div class="list-label">
-                        <div class="dot" style="background:var(--c-deep-moss)"></div>
-                        Qué incluye <span class="req" style="color:var(--c-mahogany);margin-left:2px">*</span>
-                    </div>
-                    <div class="list-builder">
-                        <div class="list-items" id="include-items"></div>
-                        <div class="list-error" id="err-include">Se requieren al menos 3 ítems.</div>
-                        <div class="list-counter"><span id="include-count">0</span> ítem(s) — mínimo 3</div>
-                        <div class="list-add-row">
-                            <input type="text" id="include-input" placeholder="Agregar ítem..." maxlength="100" onkeydown="handleListKey(event,'include')">
-                            <button class="btn-add-item" onclick="addItem('include')"><i class="ti ti-plus"></i> Agregar</button>
+            <form id="servicioForm" class="service-form" novalidate>
+                <section class="form-section visible" data-step="1">
+                    <div class="section-header">
+                        <div class="section-icon"><i class="ti ti-briefcase"></i></div>
+                        <div>
+                            <h2>Datos del servicio</h2>
+                            <p>Informacion principal para busqueda, detalle y contratacion.</p>
                         </div>
                     </div>
-                </div>
 
-                <div>
-                    <div class="list-label">
-                        <div class="dot" style="background:var(--c-mahogany)"></div>
-                        Qué NO incluye <span class="req" style="color:var(--c-mahogany);margin-left:2px">*</span>
+                    <div class="form-grid two-columns">
+                        <label class="field">
+                            <span>Nombre del servicio <b>*</b></span>
+                            <input type="text" id="nombre" maxlength="80" placeholder="Instalacion electrica domiciliaria">
+                            <small class="field-error" data-error-for="nombre"></small>
+                        </label>
+
+                        <label class="field">
+                            <span>Categoria <b>*</b></span>
+                            <select id="categoria">
+                                <option value="">Selecciona una categoria</option>
+                                <option value="Electricidad">Electricidad</option>
+                                <option value="Gasfiteria">Gasfiteria</option>
+                                <option value="Limpieza">Limpieza</option>
+                                <option value="Jardineria">Jardineria</option>
+                                <option value="Cerrajeria">Cerrajeria</option>
+                                <option value="Pintura">Pintura</option>
+                                <option value="Carpinteria">Carpinteria</option>
+                                <option value="Climatizacion">Climatizacion</option>
+                            </select>
+                            <small class="field-error" data-error-for="categoria"></small>
+                        </label>
                     </div>
-                    <div class="list-builder">
-                        <div class="list-items" id="exclude-items"></div>
-                        <div class="list-error" id="err-exclude">Se requieren al menos 3 ítems.</div>
-                        <div class="list-counter"><span id="exclude-count">0</span> ítem(s) — mínimo 3</div>
-                        <div class="list-add-row">
-                            <input type="text" id="exclude-input" placeholder="Agregar ítem..." maxlength="100" onkeydown="handleListKey(event,'exclude')">
-                            <button class="btn-add-item" onclick="addItem('exclude')"><i class="ti ti-plus"></i> Agregar</button>
+
+                    <label class="field">
+                        <span>Descripcion del servicio <b>*</b></span>
+                        <textarea id="descripcion" rows="5" maxlength="900" placeholder="Explica que problema resuelves, como trabajas y que puede esperar el cliente."></textarea>
+                        <small class="field-help"><span id="descripcionCount">0</span> / 900 caracteres</small>
+                        <small class="field-error" data-error-for="descripcion"></small>
+                    </label>
+
+                    <div class="form-grid three-columns">
+                        <label class="field">
+                            <span>Comuna <b>*</b></span>
+                            <input type="text" id="comuna" maxlength="60" placeholder="Puente Alto">
+                            <small class="field-error" data-error-for="comuna"></small>
+                        </label>
+
+                        <label class="field">
+                            <span>Precio base <b>*</b></span>
+                            <input type="number" id="precio" min="1" step="1" placeholder="25000">
+                            <small class="field-error" data-error-for="precio"></small>
+                        </label>
+
+                        <label class="field">
+                            <span>Tiempo estimado <b>*</b></span>
+                            <input type="number" id="tiempoEstimado" min="0.5" step="0.5" placeholder="2">
+                            <small class="field-error" data-error-for="tiempoEstimado"></small>
+                        </label>
+                    </div>
+
+                    <div class="form-actions end">
+                        <button type="button" class="btn-primary" data-next-step="1">
+                            Siguiente
+                            <i class="ti ti-arrow-right"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="form-section" data-step="2">
+                    <div class="section-header">
+                        <div class="section-icon"><i class="ti ti-list-check"></i></div>
+                        <div>
+                            <h2>Alcance y perfil tecnico</h2>
+                            <p>Define que incluye el servicio y presenta tu experiencia profesional.</p>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="nav-buttons">
-                <button class="btn-secondary" onclick="prevStep(2)"><i class="ti ti-arrow-left"></i> Anterior</button>
-                <button class="btn-primary" onclick="nextStep(2)">Siguiente <i class="ti ti-arrow-right"></i></button>
-            </div>
-        </div>
+                    <div class="form-grid two-columns">
+                        <div class="list-builder">
+                            <div class="list-label">
+                                <span class="dot include"></span>
+                                Que incluye <b>*</b>
+                            </div>
+                            <div class="list-items" id="includeItems"></div>
+                            <div class="list-add-row">
+                                <input type="text" id="includeInput" maxlength="100" placeholder="Diagnostico inicial">
+                                <button type="button" class="btn-add-item" data-list-action="include">
+                                    <i class="ti ti-plus"></i>
+                                    Agregar
+                                </button>
+                            </div>
+                            <small class="field-error" data-error-for="include"></small>
+                        </div>
 
-        <div class="section" id="section-3">
-            <div class="section-header">
-                <div class="section-icon"><i class="ti ti-message-question"></i></div>
-                <div>
-                    <h2>Formulario al cliente</h2>
-                    <p>Preguntas que el cliente responderá al contratar — puedes dejarlo vacío</p>
-                </div>
-            </div>
+                        <div class="list-builder">
+                            <div class="list-label">
+                                <span class="dot exclude"></span>
+                                Que no incluye <b>*</b>
+                            </div>
+                            <div class="list-items" id="excludeItems"></div>
+                            <div class="list-add-row">
+                                <input type="text" id="excludeInput" maxlength="100" placeholder="Materiales especiales">
+                                <button type="button" class="btn-add-item" data-list-action="exclude">
+                                    <i class="ti ti-plus"></i>
+                                    Agregar
+                                </button>
+                            </div>
+                            <small class="field-error" data-error-for="exclude"></small>
+                        </div>
+                    </div>
 
-            <div id="questions-container"></div>
+                    <label class="field">
+                        <span>Descripcion del tecnico <b>*</b></span>
+                        <textarea id="descripcionTecnico" rows="4" maxlength="600" placeholder="Cuenta tu especialidad, forma de trabajo y certificaciones relevantes."></textarea>
+                        <small class="field-error" data-error-for="descripcionTecnico"></small>
+                    </label>
 
-            <button class="btn-add-question" onclick="addQuestion()">
-                <i class="ti ti-plus"></i> Agregar pregunta
-            </button>
+                    <label class="field">
+                        <span>Experiencia <b>*</b></span>
+                        <input type="text" id="experiencia" maxlength="80" placeholder="5 anos de experiencia en reparaciones domiciliarias">
+                        <small class="field-error" data-error-for="experiencia"></small>
+                    </label>
 
-            <div class="nav-buttons">
-                <button class="btn-secondary" onclick="prevStep(3)"><i class="ti ti-arrow-left"></i> Anterior</button>
-                <button class="btn-primary" onclick="nextStep(3)">Revisar publicación <i class="ti ti-arrow-right"></i></button>
-            </div>
-        </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" data-prev-step="2">
+                            <i class="ti ti-arrow-left"></i>
+                            Anterior
+                        </button>
+                        <button type="button" class="btn-primary" data-next-step="2">
+                            Siguiente
+                            <i class="ti ti-arrow-right"></i>
+                        </button>
+                    </div>
+                </section>
 
-        <div class="section" id="section-4">
-            <div class="section-header">
-                <div class="section-icon"><i class="ti ti-eye"></i></div>
-                <div>
-                    <h2>Revisar y publicar</h2>
-                    <p>Así verán tu servicio los clientes en Rukano — revisa antes de publicar</p>
-                </div>
-            </div>
+                <section class="form-section" data-step="3">
+                    <div class="section-header">
+                        <div class="section-icon"><i class="ti ti-calendar-time"></i></div>
+                        <div>
+                            <h2>Disponibilidad</h2>
+                            <p>Selecciona al menos un dia con hora de inicio y termino.</p>
+                        </div>
+                    </div>
 
-            <div id="preview-content"></div>
+                    <div class="availability-grid" id="availabilityGrid">
+                        <div class="availability-day">
+                            <label><input type="checkbox" class="check-dia" value="Lunes"> Lunes</label>
+                            <input type="time" class="hora-inicio" aria-label="Inicio lunes">
+                            <input type="time" class="hora-fin" aria-label="Termino lunes">
+                        </div>
+                        <div class="availability-day">
+                            <label><input type="checkbox" class="check-dia" value="Martes"> Martes</label>
+                            <input type="time" class="hora-inicio" aria-label="Inicio martes">
+                            <input type="time" class="hora-fin" aria-label="Termino martes">
+                        </div>
+                        <div class="availability-day">
+                            <label><input type="checkbox" class="check-dia" value="Miercoles"> Miercoles</label>
+                            <input type="time" class="hora-inicio" aria-label="Inicio miercoles">
+                            <input type="time" class="hora-fin" aria-label="Termino miercoles">
+                        </div>
+                        <div class="availability-day">
+                            <label><input type="checkbox" class="check-dia" value="Jueves"> Jueves</label>
+                            <input type="time" class="hora-inicio" aria-label="Inicio jueves">
+                            <input type="time" class="hora-fin" aria-label="Termino jueves">
+                        </div>
+                        <div class="availability-day">
+                            <label><input type="checkbox" class="check-dia" value="Viernes"> Viernes</label>
+                            <input type="time" class="hora-inicio" aria-label="Inicio viernes">
+                            <input type="time" class="hora-fin" aria-label="Termino viernes">
+                        </div>
+                        <div class="availability-day">
+                            <label><input type="checkbox" class="check-dia" value="Sabado"> Sabado</label>
+                            <input type="time" class="hora-inicio" aria-label="Inicio sabado">
+                            <input type="time" class="hora-fin" aria-label="Termino sabado">
+                        </div>
+                    </div>
+                    <small class="field-error" data-error-for="disponibilidad"></small>
 
-            <div class="nav-buttons">
-                <button class="btn-secondary" onclick="prevStep(4)"><i class="ti ti-arrow-left"></i> Editar</button>
-                <button class="btn-primary" onclick="publishService()" style="font-size:13px;padding:15px 36px;">
-                    <i class="ti ti-rocket"></i> Publicar servicio
-                </button>
-            </div>
-        </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" data-prev-step="3">
+                            <i class="ti ti-arrow-left"></i>
+                            Anterior
+                        </button>
+                        <button type="button" class="btn-primary" data-next-step="3">
+                            Siguiente
+                            <i class="ti ti-arrow-right"></i>
+                        </button>
+                    </div>
+                </section>
 
-        <div class="success-screen" id="success-screen">
-            <div class="success-icon"><i class="ti ti-circle-check"></i></div>
-            <h2>¡Publicado!</h2>
-            <p>Tu servicio ya está visible en Rukano. Te avisaremos cuando un cliente quiera contratarte.</p>
-            <button class="btn-primary" onclick="resetForm()" style="margin:0 auto;">
-                <i class="ti ti-plus"></i> Publicar otro servicio
-            </button>
-        </div>
+                <section class="form-section" data-step="4">
+                    <div class="section-header">
+                        <div class="section-icon"><i class="ti ti-message-question"></i></div>
+                        <div>
+                            <h2>Preguntas y publicacion</h2>
+                            <p>Agrega preguntas opcionales para que el cliente entregue contexto antes de reservar.</p>
+                        </div>
+                    </div>
 
-    </div>
+                    <div id="questionsContainer" class="questions-container"></div>
+
+                    <button type="button" class="btn-add-question" id="btnAddQuestion">
+                        <i class="ti ti-plus"></i>
+                        Agregar pregunta
+                    </button>
+
+                    <div class="preview-card" id="previewCard" aria-live="polite"></div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" data-prev-step="4">
+                            <i class="ti ti-arrow-left"></i>
+                            Anterior
+                        </button>
+                        <button type="submit" class="btn-primary" id="btnPublicar">
+                            <i class="ti ti-rocket"></i>
+                            Publicar servicio
+                        </button>
+                    </div>
+                </section>
+            </form>
+        </section>
+    </main>
 
     <footer class="footer-rukano">
         <div class="footer-grid">
             <div class="footer-col-marca">
                 <h2 class="logo-footer">RUKANO</h2>
                 <p class="slogan-footer">Transformando la forma en que cuidas tu hogar.</p>
-                <div class="redes-sociales">
-                    <a href="#">INSTAGRAM</a>
-                    <a href="#">FACEBOOK</a>
-                    <a href="#">LINKEDIN</a>
-                </div>
             </div>
-
             <div class="footer-col">
                 <span class="footer-label">AYUDA</span>
                 <nav class="footer-links">
                     <a href="#">Centro de ayuda</a>
                     <a href="#">Seguridad</a>
-                    <a href="#">Cómo pagar</a>
+                    <a href="#">Como pagar</a>
                 </nav>
             </div>
-
             <div class="footer-col">
-                <span class="footer-label">COMPAÑÍA</span>
+                <span class="footer-label">COMPANIA</span>
                 <nav class="footer-links">
                     <a href="#">Sobre nosotros</a>
-                    <a href="#">Términos y condiciones</a>
+                    <a href="#">Terminos y condiciones</a>
                     <a href="#">Privacidad</a>
                 </nav>
             </div>
         </div>
-
         <div class="footer-bottom">
-            <p>&copy; 2026 RUKANO. HECHO CON PASIÓN POR EQUIPO TAP</p>
+            <p>&copy; 2026 RUKANO. HECHO POR EQUIPO TAP</p>
             <p class="pais-footer">CHILE / SANTIAGO</p>
         </div>
     </footer>
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="js/apiConfig.js"></script>
+    <script src="js/navbar.js" defer></script>
     <script type="module" src="js/subirServicio.js"></script>
-    
 </body>
 </html>

@@ -73,73 +73,130 @@ body {
     text-transform: uppercase;
 }
 
-.subtitulo-formulario {
-    margin-top: 35px !important;
-}
-
-.form-servicio label {
-    color: var(--c-licorice);
-    display: block;
-    font-weight: 700;
-    margin-bottom: 6px;
-    margin-top: 15px;
-}
-
-.form-servicio input,
-.form-servicio select,
-.form-servicio textarea {
-    background: var(--c-gris-claro);
-    border: 2px solid #ddd;
-    border-radius: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-    padding: 13px;
-    width: 100%;
-}
-
-.form-servicio textarea {
-    min-height: 90px;
-    resize: vertical;
-}
-
-.agenda-grid {
+.panel-resumen {
+    align-items: start;
     display: grid;
-    gap: 18px;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    margin-top: 20px;
+    gap: 24px;
+    grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.agenda-dia {
-    background: var(--c-gris-claro);
-    border: 2px solid #ddd;
-    padding: 18px;
+.panel-resumen-copy {
+    min-width: 0;
 }
 
-.agenda-dia strong {
-    color: var(--c-licorice);
+.panel-eyebrow {
+    color: var(--c-mahogany);
     display: block;
-    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
     margin-bottom: 10px;
     text-transform: uppercase;
 }
 
-.agenda-dia label {
-    align-items: center;
-    display: flex;
-    font-weight: 700;
-    gap: 10px;
+.panel-resumen h2 {
     margin-bottom: 12px;
 }
 
-.agenda-dia input[type="time"] {
-    border: 1px solid #ccc;
-    box-sizing: border-box;
-    margin-top: 6px;
-    padding: 10px;
-    width: 100%;
+.panel-resumen p {
+    color: rgba(30, 13, 10, 0.68);
+    font-weight: 700;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 680px;
 }
 
-.btn-panel,
+.btn-publicar-servicio {
+    align-items: center;
+    background: var(--c-mahogany);
+    color: var(--c-blanco);
+    display: inline-flex;
+    font-size: 13px;
+    font-weight: 900;
+    gap: 10px;
+    justify-content: center;
+    letter-spacing: 1px;
+    min-height: 48px;
+    padding: 0 22px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.btn-publicar-servicio ion-icon {
+    font-size: 20px;
+}
+
+.btn-publicar-servicio:hover {
+    background: var(--c-froly);
+    transform: translateY(-2px);
+}
+
+.panel-metricas {
+    display: grid;
+    gap: 16px;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.panel-metrica {
+    background: var(--c-gris-claro);
+    border-left: 6px solid var(--c-mahogany);
+    padding: 20px;
+}
+
+.panel-metrica span {
+    color: var(--c-licorice);
+    display: block;
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.panel-metrica p {
+    color: var(--c-licorice);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.panel-accesos {
+    display: grid;
+    gap: 12px;
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.panel-accesos a {
+    align-items: center;
+    border: 2px solid var(--c-licorice);
+    color: var(--c-licorice);
+    display: flex;
+    font-size: 12px;
+    font-weight: 900;
+    gap: 10px;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 14px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.panel-accesos a:hover {
+    background: var(--c-licorice);
+    color: var(--c-arena);
+    transform: translateY(-2px);
+}
+
+.panel-accesos ion-icon {
+    font-size: 19px;
+}
+
 .btn-logout {
     background-color: var(--c-mahogany);
     border: none;
@@ -154,16 +211,9 @@ body {
     transition: 0.3s;
 }
 
-.btn-panel:hover,
 .btn-logout:hover {
     background-color: var(--c-froly);
     transform: translateY(-2px);
-}
-
-#mensajeServicio {
-    color: var(--c-mahogany);
-    font-weight: 700;
-    margin-top: 15px;
 }
 
 #listaMisServicios .dato {
@@ -404,6 +454,14 @@ body {
     .panel-tecnico {
         padding: 0 var(--pad-lateral);
     }
+
+    .panel-resumen {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-publicar-servicio {
+        width: fit-content;
+    }
 }
 
 @media (max-width: 700px) {
@@ -418,6 +476,15 @@ body {
 
     .panel-card {
         padding: 25px;
+    }
+
+    .panel-metricas,
+    .panel-accesos {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-publicar-servicio {
+        width: 100%;
     }
 
     .panel-modal {

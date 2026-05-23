@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 from datetime import datetime, timezone
+from typing import Any
 import uuid
 import re 
 from core.firebase_config import db
@@ -16,13 +17,6 @@ class PreguntaFormulario(BaseModel):
     tipo: str         # Ej: "text", "boolean", "number"
     obligatorio: bool
 
-class Disponibilidad(BaseModel):
-    dia: str          # Ej: "Lunes"
-    inicio: str | None = None
-    fin: str | None = None
-    hora_inicio: str | None = None  # Ej: "09:00"
-    hora_fin: str | None = None     # Ej: "17:00"
-
 class Servicio(BaseModel): 
     idTecnico: str 
     nombre: str 
@@ -31,7 +25,7 @@ class Servicio(BaseModel):
     descripcion: str 
     precio: float 
     tiempoEstimado: str 
-    disponibilidad: list[Disponibilidad]
+    disponibilidad: list[dict[str, Any]]
     descripcionTecnico: str | None = None
     experiencia: str | None = None
     que_incluye: list[str]    
@@ -57,15 +51,36 @@ def normalizar_disponibilidad(disponibilidad):
     normalizada = []
 
     for item in disponibilidad:
-        data = dump_model(item)
+        data = dump_model(item) if hasattr(item, "dict") or hasattr(item, "model_dump") else dict(item or {})
+        dia = data.get("dia") or data.get("día") or data.get("day")
         inicio = data.get("inicio") or data.get("hora_inicio")
         fin = data.get("fin") or data.get("hora_fin")
+        horarios = data.get("horarios") or data.get("slots")
 
-        if not data.get("dia") or not inicio or not fin:
+        if horarios and isinstance(horarios, list):
+            for horario in horarios:
+                horario_data = horario if isinstance(horario, dict) else {"inicio": horario, "fin": horario}
+                horario_inicio = horario_data.get("inicio") or horario_data.get("hora_inicio") or horario_data.get("hora")
+                horario_fin = horario_data.get("fin") or horario_data.get("hora_fin") or horario_inicio
+
+                if not dia or not horario_inicio or not horario_fin:
+                    raise HTTPException(status_code=422, detail="Disponibilidad incompleta")
+
+                normalizada.append({
+                    "dia": dia,
+                    "inicio": horario_inicio,
+                    "fin": horario_fin,
+                    "hora_inicio": horario_inicio,
+                    "hora_fin": horario_fin
+                })
+
+            continue
+
+        if not dia or not inicio or not fin:
             raise HTTPException(status_code=422, detail="Disponibilidad incompleta")
 
         normalizada.append({
-            "dia": data["dia"],
+            "dia": dia,
             "inicio": inicio,
             "fin": fin,
             "hora_inicio": inicio,

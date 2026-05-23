@@ -216,6 +216,8 @@ async function cargarDetalleServicio(idServicio) {
             await cargarDatosTecnico(servicio.idTecnico);
         }
 
+        cal.disponibilidad = normalizarDisponibilidadServicio(servicio.disponibilidad);
+
         // 4. Llenar listas
         renderLista("servicio-incluye", servicio.que_incluye);
         renderLista("servicio-no-incluye", servicio.que_no_incluye);
@@ -322,8 +324,8 @@ async function cargarDatosTecnico(idTecnico) {
                 const btnPerfil = avatar.closest('.tech-card')?.querySelector('.btn-ver-perfil');
                 if (btnPerfil) {
                     btnPerfil.disabled = true;
-                    btnPerfil.style.opacity = '0.65';
-                    btnPerfil.style.pointerEvents = 'none';
+                    btnPerfil.setAttribute("aria-disabled", "true");
+                    btnPerfil.title = "Perfil publico no disponible para esta demo";
                 }
             }
 
@@ -439,6 +441,7 @@ const cal = {
     horaElegida:  null,             // string "HH:MM"
     idTecnico:    null,             // se llena al cargar el servicio
     horasOcupadas: [],              // respuesta del backend para la fecha elegida
+    disponibilidad: [],             // disponibilidad normalizada del servicio
 };
 
 // Horarios ofrecidos (08:00 a 18:00 cada hora)
@@ -454,6 +457,102 @@ const MESES_ES = [
 ];
 
 // ─── INICIALIZAR CALENDARIO (se llama cuando se abre el modal) ───
+const DIAS_ES = [
+    "Domingo","Lunes","Martes","Miercoles","Jueves","Viernes","Sabado"
+];
+
+function normalizarDisponibilidadServicio(disponibilidad = []) {
+    if (!Array.isArray(disponibilidad)) return [];
+
+    return disponibilidad.flatMap((item = {}) => {
+        const dia = item.dia || item["día"] || item.day || "";
+        const horarios = item.horarios || item.slots;
+
+        if (Array.isArray(horarios)) {
+            return horarios
+                .map((horario) => {
+                    const horarioData = typeof horario === "string" ? { inicio: horario, fin: horario } : horario || {};
+                    return normalizarItemDisponibilidad({
+                        dia,
+                        inicio: horarioData.inicio || horarioData.hora_inicio || horarioData.hora,
+                        fin: horarioData.fin || horarioData.hora_fin || horarioData.hora
+                    });
+                })
+                .filter(Boolean);
+        }
+
+        return [normalizarItemDisponibilidad(item)].filter(Boolean);
+    });
+}
+
+function normalizarItemDisponibilidad(item = {}) {
+    const dia = normalizarDiaSemana(item.dia || item["día"] || item.day);
+    const inicio = normalizarHora(item.inicio || item.hora_inicio || item.hora);
+    const fin = normalizarHora(item.fin || item.hora_fin || item.hora);
+
+    if (!dia || !inicio || !fin) return null;
+
+    return { dia, inicio, fin, hora_inicio: inicio, hora_fin: fin };
+}
+
+function normalizarDiaSemana(dia) {
+    const normalizado = String(dia || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    const mapa = {
+        domingo: "Domingo",
+        lunes: "Lunes",
+        martes: "Martes",
+        miercoles: "Miercoles",
+        jueves: "Jueves",
+        viernes: "Viernes",
+        sabado: "Sabado"
+    };
+
+    return mapa[normalizado] || "";
+}
+
+function normalizarHora(hora) {
+    const match = String(hora || "").trim().match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return "";
+    return `${match[1].padStart(2, "0")}:${match[2]}`;
+}
+
+function obtenerDisponibilidadFecha(fecha) {
+    if (!Array.isArray(cal.disponibilidad) || cal.disponibilidad.length === 0) return [];
+
+    const diaSemana = DIAS_ES[fecha.getDay()];
+    return cal.disponibilidad.filter((item) => item.dia === diaSemana);
+}
+
+function tieneDisponibilidadFecha(fecha) {
+    return cal.disponibilidad.length === 0 || obtenerDisponibilidadFecha(fecha).length > 0;
+}
+
+function obtenerSlotsDisponiblesFecha(fecha) {
+    const disponibilidadDia = obtenerDisponibilidadFecha(fecha);
+    if (disponibilidadDia.length === 0) return SLOTS_DIA;
+
+    const slots = new Set();
+
+    disponibilidadDia.forEach((item) => {
+        SLOTS_DIA.forEach((slot) => {
+            if (slot >= item.inicio && slot < item.fin) {
+                slots.add(slot);
+            }
+
+            if (item.inicio === item.fin && slot === item.inicio) {
+                slots.add(slot);
+            }
+        });
+    });
+
+    return Array.from(slots);
+}
+
 function initCalendario(idTecnico) {
     cal.idTecnico    = idTecnico;
     cal.mesActual    = new Date(cal.hoy.getFullYear(), cal.hoy.getMonth(), 1);
@@ -526,7 +625,8 @@ function renderCalendario() {
         const fechaStr = toDateStr(fecha);
         const esPasado = fecha < new Date(hoyStr);          // días anteriores a hoy
         const esDomingo = fecha.getDay() === 0;             // domingos bloqueados
-        const bloqueado = esPasado || esDomingo;
+        const sinDisponibilidad = !tieneDisponibilidadFecha(fecha);
+        const bloqueado = esPasado || esDomingo || sinDisponibilidad;
         const seleccionado = fechaStr === elegidaStr;
 
         const clases = [
@@ -538,7 +638,7 @@ function renderCalendario() {
 
         html += `<div class="${clases}" 
                       ${bloqueado ? "" : `onclick="calSeleccionarDia('${fechaStr}')"`}
-                      title="${bloqueado ? (esDomingo ? "Domingos no disponibles" : "Fecha pasada") : ""}">
+                      title="${bloqueado ? (esPasado ? "Fecha pasada" : "Sin disponibilidad") : ""}">
                     ${d}
                  </div>`;
     }
@@ -598,9 +698,10 @@ async function cargarHorasOcupadas(fechaStr) {
     }
 
     renderSlots();
+    const slotsDisponibles = cal.fechaElegida ? obtenerSlotsDisponiblesFecha(cal.fechaElegida) : SLOTS_DIA;
     slotNote.textContent = cal.horasOcupadas.length > 0
         ? `${cal.horasOcupadas.length} horario(s) ya reservado(s) aparecen bloqueados.`
-        : "Todos los horarios están disponibles para este día.";
+        : `${slotsDisponibles.length} horario(s) disponibles para este dia.`;
 }
 
 // ─── RENDERIZAR SLOTS DE HORA ───
@@ -608,7 +709,14 @@ function renderSlots() {
     const grid = document.getElementById('timeslot-grid');
     if (!grid) return;
 
-    grid.innerHTML = SLOTS_DIA.map(hora => {
+    const slotsDisponibles = cal.fechaElegida ? obtenerSlotsDisponiblesFecha(cal.fechaElegida) : SLOTS_DIA;
+
+    if (slotsDisponibles.length === 0) {
+        grid.innerHTML = `<div class="slot-loading">No hay horarios disponibles para este día.</div>`;
+        return;
+    }
+
+    grid.innerHTML = slotsDisponibles.map(hora => {
         const ocupada     = cal.horasOcupadas.includes(hora);
         const seleccionada = hora === cal.horaElegida;
         const clases = [

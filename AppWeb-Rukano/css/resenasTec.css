@@ -54,11 +54,11 @@ body {
 }
 
 .resena-page {
-    min-height: calc(100vh - 78px);
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 22px var(--pad-lateral) 34px;
+    padding: 150px var(--pad-lateral) 48px;
 }
 
 .resena-card {
@@ -378,7 +378,7 @@ textarea:focus {
 
     .resena-page {
         align-items: flex-start;
-        padding-top: 42px;
+        padding-top: 132px;
     }
 
     .resena-card {
