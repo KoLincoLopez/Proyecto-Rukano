@@ -11,7 +11,7 @@ body {
 
 :root {
     --c-licorice: #1E0D0A;
-    --c-rosewood: #550006; 
+    --c-rosewood: #550006;
     --c-mahogany: #BF353B;
     --c-froly: #EE666A;
     --c-deep-moss: #3D4421;
@@ -19,9 +19,6 @@ body {
     --c-gris-claro: #f9f9f9;
     --c-arena: #F5EFEA;
     --pad-lateral: 80px;
-
-    --nav-width: 280px;
-    --nav-width-collapsed: 90px;
 }
 
 * {
@@ -36,173 +33,7 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-#navbar-root .navbar-integrada:not(.scrolled):not(.menu-open) .bloque-logo {
-    color: var(--c-licorice) !important;
-}
-
-#navbar-root .navbar-integrada:not(.scrolled):not(.menu-open) .bloque-logo:hover {
-    color: var(--c-rosewood) !important;
-}
-
-/*================ NAVBAR SUPERIOR ================*/
-
-.navbar-integrada{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:90px;
-    display:flex;
-    align-items:center;
-    background:var(--c-licorice);
-    padding:0 30px;
-    z-index:5000;
-    box-shadow:0 4px 15px rgba(0,0,0,0.05);
-}
-
-.bloque-logo {
-    font-family: 'Arial Black', sans-serif;
-    font-size: 45px;
-    font-weight: 900;
-    color: var(--c-blanco)  ;
-    text-decoration: none;
-    padding-left: var(--pad-lateral);
-    letter-spacing: -2px;
-}
-
-.bloque-menu {
-    background-color: var(--c-licorice);
-    height: 60px;
-    flex-grow: 1;
-    margin-left: 60px;
-    border-radius: 40px 0 0 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 40px;
-}
-
-.nav-izquierda,
-.nav-derecha {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-}
-
-.nav-izquierda a,
-.link-sesion {
-    color: var(--c-arena);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
-    opacity: 0.8;
-    transition: 0.3s;
-}
-
-.nav-izquierda a:hover,
-.link-sesion:hover {
-    color: var(--c-froly);
-    opacity: 1;
-}
-
-.btn-registro-nav {
-    background-color: var(--c-mahogany);
-    color: var(--c-blanco);
-    text-decoration: none;
-    padding: 10px 24px;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 900;
-    transition: 0.3s;
-}
-
-.btn-registro-nav:hover {
-    background-color: var(--c-froly);
-}
-
-/*================ MENU LATERAL ================*/
-
-/*================ MENU LATERAL ================*/
-
-.nav {
-    position: fixed;
-
-    top: 95px;
-    right: 15px;
-
-    width: 220px;
-    height: auto;
-
-    background-color: var(--c-licorice);
-
-    border-radius: 25px;
-
-    overflow: hidden;
-
-    transition: 0.4s ease;
-
-    z-index: 2000;
-
-    padding-bottom: 20px;
-
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-15px);
-}
-
-.nav.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.nav ul {
-    width: 100%;
-    padding-top: 20px;
-}
-
-.nav ul li {
-    list-style: none;
-    width: 100%;
-}
-
-.nav ul li a {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: var(--c-arena);
-    transition: 0.3s;
-    border-radius: 30px 0 0 30px;
-}
-
-.nav ul li:hover a {
-    background-color: var(--c-mahogany);
-}
-
-.nav ul li a .icono {
-    min-width: 65px;
-    height: 58px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem;
-}
-
-.nav ul li a .titulo {
-    white-space: nowrap;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.cerrar-sesion {
-    margin-top: 0px;
-}
-
-/*================ CONTENIDO ================*/
+/*================ CONTENIDO DASHBOARD ================*/
 
 .container {
     position: relative;
@@ -283,15 +114,15 @@ body {
 .metric-card {
     border-radius: 0;
     padding: 26px;
-    box-shadow: 0 12px 28px rgba(30,13,10,0.08);
-    border: 1px solid rgba(30,13,10,0.08);
+    box-shadow: 0 12px 28px rgba(30, 13, 10, 0.08);
+    border: 1px solid rgba(30, 13, 10, 0.08);
     border-bottom: 5px solid transparent;
     min-width: 0;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .metric-card:hover {
-    box-shadow: 0 16px 36px rgba(30,13,10,0.12);
+    box-shadow: 0 16px 36px rgba(30, 13, 10, 0.12);
     transform: translateY(-3px);
 }
 
@@ -308,7 +139,7 @@ body {
 
 .metric-card--clientes {
     background: var(--c-arena);
-    border-color: rgba(61,68,33,0.22);
+    border-color: rgba(61, 68, 33, 0.22);
     border-bottom-color: var(--c-mahogany);
 }
 
@@ -320,7 +151,7 @@ body {
 
 .metric-label {
     display: block;
-    color: rgba(30,13,10,0.7);
+    color: rgba(30, 13, 10, 0.7);
     font-size: 12px;
     font-weight: 900;
     letter-spacing: 0.05em;
@@ -340,7 +171,7 @@ body {
 
 .metric-card small {
     display: block;
-    color: rgba(30,13,10,0.65);
+    color: rgba(30, 13, 10, 0.65);
     font-weight: 700;
     overflow-wrap: anywhere;
 }
@@ -386,60 +217,6 @@ body {
     color: var(--c-arena);
 }
 
-/*================ TOPBAR ================*/
-
-.topbar {
-    display: none;
-}
-
-.toggle {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    background-color: var(--c-licorice);
-    color: var(--c-blanco);
-    border-radius: 18px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    font-size: 2rem;
-    flex-shrink: 0;
-}
-
-.toggle:hover {
-    background-color: var(--c-mahogany);
-    transform: scale(1.05);
-}
-
-.perfil-usuario {
-    width: 50px;
-    height: 50px;
-
-    border-radius: 50%;
-
-    overflow: hidden;
-
-    cursor: pointer;
-
-    transition: 0.3s ease;
-
-    border: 2px solid transparent;
-
-    flex-shrink: 0;
-}
-
-.perfil-usuario:hover {
-    transform: scale(1.05);
-    border-color: var(--c-froly);
-}
-
-.perfil-usuario img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
 /*================ DETALLES ================*/
 
 .detalles {
@@ -450,7 +227,7 @@ body {
     gap: 30px;
 }
 
-/*================ ORDENES ================*/
+/*================ ORDENES / CITAS ================*/
 
 .ordenes-recientes,
 .nuevos-clientes {
@@ -458,8 +235,8 @@ body {
     background-color: var(--c-blanco);
     padding: 30px;
     border-radius: 0;
-    border: 1px solid rgba(30,13,10,0.08);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border: 1px solid rgba(30, 13, 10, 0.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .header {
@@ -504,7 +281,7 @@ table {
 table thead td,
 table thead th {
     font-weight: 700;
-    color: rgba(30,13,10,0.68);
+    color: rgba(30, 13, 10, 0.68);
     font-size: 12px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -512,7 +289,7 @@ table thead th {
 
 .ordenes-recientes table tr {
     color: var(--c-licorice);
-    border-bottom: 1px solid rgba(0,0,0,0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .ordenes-recientes table tr:last-child {
@@ -556,14 +333,13 @@ table thead th {
 .dashboard-estado {
     padding: 22px 10px;
     text-align: center;
-    color: rgba(30,13,10,0.65);
+    color: rgba(30, 13, 10, 0.65);
     font-weight: 800;
 }
 
 .dashboard-estado.error {
     color: var(--c-mahogany);
 }
-
 
 /*================ CLIENTES ================*/
 
@@ -606,12 +382,12 @@ table thead th {
     background: var(--c-arena);
     color: var(--c-licorice);
     font-weight: 900;
-    border: 2px solid rgba(191,53,59,0.25);
+    border: 2px solid rgba(191, 53, 59, 0.25);
 }
 
 .cliente-contacto {
     display: block;
-    color: rgba(30,13,10,0.6);
+    color: rgba(30, 13, 10, 0.6);
     font-size: 12px;
     font-weight: 700;
     overflow-wrap: anywhere;
@@ -646,7 +422,7 @@ table thead th {
 
 .logo-footer {
     font-size: 40px;
-    font-family: 'Arial Black', sans-serif;
+    font-family: "Arial Black", sans-serif;
     margin-bottom: 20px;
 }
 
@@ -664,7 +440,7 @@ table thead th {
 .redes-sociales span,
 .footer-links a,
 .footer-links span {
-    color: rgba(255,255,255,0.7);
+    color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
     transition: 0.3s;
 }
@@ -688,7 +464,7 @@ table thead th {
 }
 
 .footer-bottom {
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 30px;
     display: flex;
     justify-content: space-between;
@@ -701,43 +477,19 @@ table thead th {
     opacity: 0.6;
 }
 
-/*================ RESPONSIVE ================*/
-
 /*================ RESPONSIVE TABLET ================*/
 
-@media (max-width: 991px){
+@media (max-width: 991px) {
 
     :root {
         --pad-lateral: 40px;
     }
 
-    .navbar-integrada{
-        padding: 0 20px;
-    }
-
-    .bloque-logo{
-        padding-left: 0;
-        font-size: 34px;
-    }
-
-    .bloque-menu{
-        margin-left: 20px;
-        padding: 0 20px;
-    }
-
-    .nav-izquierda{
-        gap: 15px;
-    }
-
-    .nav-izquierda a{
-        font-size: 13px;
-    }
-
-    .container{
+    .container {
         padding: 30px var(--pad-lateral) 48px;
     }
 
-    .dashboard-resumen{
+    .dashboard-resumen {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -748,187 +500,113 @@ table thead th {
         padding: 26px;
     }
 
-    .detalles{
+    .detalles {
         grid-template-columns: 1fr;
     }
 
-    .ordenes-recientes{
+    .ordenes-recientes {
         overflow-x: auto;
     }
 
-    .ordenes-recientes table{
+    .ordenes-recientes table {
         min-width: 700px;
     }
 
-    .footer-rukano{
+    .footer-rukano {
         padding: 60px 30px 30px;
     }
 
-    .footer-grid{
+    .footer-grid {
         grid-template-columns: 1fr 1fr;
         gap: 40px;
     }
-
 }
 
 /*================ RESPONSIVE TELEFONO ================*/
 
-@media (max-width:768px){
+@media (max-width: 768px) {
 
     :root {
         --pad-lateral: 30px;
     }
 
-    .navbar-integrada{
-        height: 80px;
-        padding: 0 15px;
-    }
-
-    .bloque-logo{
-        font-size: 28px;
-    }
-
-    .bloque-menu{
-        margin-left: 10px;
-        padding: 0 15px;
-        height: 50px;
-    }
-
-    .nav-izquierda{
-        display: none;
-    }
-
-    .link-sesion,
-    .btn-registro-nav{
-        display: none;
-    }
-
-    .perfil-usuario{
-        width: 42px;
-        height: 42px;
-    }
-
-    /* CAMBIO */
-    .nav{
-        width: 220px;
-        left: 15px;
-        right: auto;
-        top: 90px;
-
-        transform: translateX(-20px);
-    }
-
-    .nav.active{
-        transform: translateX(0);
-    }
-
-    .container{
+    .container {
         padding: 26px var(--pad-lateral) 40px;
     }
 
-    .dashboard-resumen{
+    .dashboard-resumen {
         grid-template-columns: 1fr;
         gap: 15px;
     }
 
-    .detalles{
+    .detalles {
         gap: 20px;
     }
 
     .ordenes-recientes,
-    .nuevos-clientes{
+    .nuevos-clientes {
         padding: 20px;
     }
 
-    .ordenes-recientes table{
+    .ordenes-recientes {
+        overflow-x: auto;
+    }
+
+    .ordenes-recientes table {
         min-width: 650px;
     }
 
-    .footer-rukano{
+    .footer-rukano {
         padding: 50px 20px 25px;
     }
 
-    .footer-grid{
+    .footer-grid {
         grid-template-columns: 1fr;
         gap: 35px;
     }
 
-    .footer-bottom{
+    .footer-bottom {
         flex-direction: column;
         text-align: center;
     }
-
 }
 
 /*================ RESPONSIVE TELEFONO PEQUEÑO ================*/
 
-@media (max-width:480px){
+@media (max-width: 480px) {
 
     :root {
         --pad-lateral: 20px;
     }
 
-    .navbar-integrada{
-        height: 75px;
-    }
-
-    .bloque-logo{
-        font-size: 24px;
-    }
-
-    .bloque-menu{
-        height: 45px;
-        border-radius: 30px;
-    }
-
-    .perfil-usuario{
-        width: 38px;
-        height: 38px;
-    }
-
-    /* CAMBIO */
-    .nav{
-        width: calc(100% - 20px);
-        left: 10px;
-        right: auto;
-        top: 85px;
-
-        transform: translateX(-20px);
-    }
-
-    .nav.active{
-        transform: translateX(0);
-    }
-
-    .container{
+    .container {
         padding: 22px var(--pad-lateral) 34px;
     }
 
     .dashboard-header,
     .metric-card,
     .ordenes-recientes,
-    .nuevos-clientes{
+    .nuevos-clientes {
         padding: 18px;
     }
 
-    .header{
+    .header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
 
-    .boton{
+    .boton {
         width: 100%;
         text-align: center;
     }
 
-    .logo-footer{
+    .logo-footer {
         font-size: 32px;
     }
 
-    .redes-sociales{
+    .redes-sociales {
         flex-direction: column;
         gap: 10px;
     }
-
 }
