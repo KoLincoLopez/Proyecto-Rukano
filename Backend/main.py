@@ -6,6 +6,7 @@ from routers import citas  # Importa el router de citas
 from routers import reports  # Importa el router de reportes
 from routers import servicios  # Importa el router de servicios
 from routers import auth  # Importa el router de autenticación
+from routers import payments
 from fastapi.middleware.cors import CORSMiddleware
 # Aqui hay que ir importando los routers de cada microservicio || from routers import router_users, router_products, etc.
 
@@ -21,7 +22,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500"], # Cambia el puerto si usas otro
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://127.0.0.1:5501",
+        "http://localhost:5500",
+        "http://localhost:5501",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,7 +41,8 @@ app.include_router(users.router, prefix="/users")  # Agrega el router de usuario
 app.include_router(citas.router, prefix="/citas")  # Agrega el router de citas con el prefijo "/citas"
 app.include_router(reports.router, prefix="/reports")  # Agrega el router de reportes con el prefijo "/reports"
 app.include_router(servicios.router, prefix="/servicios")  # Agrega el router de servicios con el prefijo "/servicios"
-app.include_router(auth.router)  
+app.include_router(auth.router)
+app.include_router(payments.router)
 
 @app.get("/")  # Ruta raíz para verificar que el servidor está funcionando
 def home():

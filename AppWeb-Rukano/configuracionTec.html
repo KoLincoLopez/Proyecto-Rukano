@@ -6,7 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- CSS -->
+    <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/configuracionTec.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/tecnicoNav.css">
 
     <title>Configuración | RUKANO</title>
 </head>
@@ -14,189 +17,87 @@
 <body>
 
 <section>
-
-    <!-- ================= NAVBAR ================= -->
-    <nav class="navbar-integrada">
-
-        <a href="#" class="bloque-logo">RUKANO</a>
-
-        <div class="bloque-menu">
-            <div class="nav-izquierda">
-                <a href="index.html#servicios">Servicios</a>
-                <a href="index.html#beneficios">Beneficios</a>
-                <a href="index.html#como-funciona">¿Cómo Funciona?</a>
-                <a href="index.html#testimonios">Reseñas</a>
-            </div>
-
-            <div class="nav-derecha">
-
-                <a href="inicioSesion.html" class="link-sesion">
-                    Iniciar sesión
-                </a>
-
-                <a href="registro.html" class="btn-registro-nav">
-                    Registrarse
-                </a>
-
-                <!-- FOTO PERFIL = BOTON MENU -->
-                <div class="perfil-usuario toggle">
-                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
-                </div>
-
-            </div>
-
-        </div>
-
-    </nav>
-    <!-- ================= FIN NAVBAR ================= -->
-
-
-    <!-- ================= MENU ================= -->
-    <div class="nav">
-
-        <ul>
-
-            <li>
-                <a href="dashboard.html">
-                    <span class="icono">
-                        <ion-icon name="home-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Dashboard</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="clientesTec.html">
-                    <span class="icono">
-                        <ion-icon name="people-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Clientes</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="agendaTec.html">
-                    <span class="icono">
-                        <ion-icon name="calendar-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Agenda</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="miperfilTec.html">
-                    <span class="icono">
-                        <ion-icon name="person-circle-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Mi Perfil</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="subirServicio.html">
-                    <span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span>
-                    <span class="titulo">Subir servicio</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="panelTecnico.html">
-                    <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
-                    <span class="titulo">Mis servicios</span>
-                </a>
-            </li>
-
-            <li class="active">
-                <a href="configuracionTec.html">
-                    <span class="icono">
-                        <ion-icon name="settings-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Configuración</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#" class="cerrar-sesion">
-                    <span class="icono">
-                        <ion-icon name="log-out-outline"></ion-icon>
-                    </span>
-
-                    <span class="titulo">Cerrar Sesión</span>
-                </a>
-            </li>
-
-        </ul>
-
-    </div>
-    <!-- ================= FIN MENU ================= -->
+        <div id="navbar-root"></div>
+        <nav class="tech-nav" aria-label="Navegacion tecnica">
+            <ul>
+                <li><a href="dashboard.html"><span class="icono"><ion-icon name="home-outline"></ion-icon></span><span class="titulo">Dashboard</span></a></li>
+                <li><a href="panelTecnico.html"><span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span><span class="titulo">Panel tecnico</span></a></li>
+                <li><a href="clientesTec.html"><span class="icono"><ion-icon name="people-outline"></ion-icon></span><span class="titulo">Clientes</span></a></li>
+                <li><a href="agendaTec.html"><span class="icono"><ion-icon name="calendar-outline"></ion-icon></span><span class="titulo">Agenda</span></a></li>
+                <li><a href="miperfilTec.html"><span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span><span class="titulo">Mi perfil</span></a></li>
+                <li class="active"><a href="configuracionTec.html"><span class="icono"><ion-icon name="settings-outline"></ion-icon></span><span class="titulo">Configuracion</span></a></li>
+            </ul>
+        </nav>
+        <!--Fin menu-->
 
 
     <!-- ================= CONTENIDO ================= -->
-    <div class="container">
+    <main class="configuracion-tecnico">
+        <section class="configuracion-hero" aria-labelledby="configuracionTitulo">
+            <span class="configuracion-eyebrow">Preferencias del técnico</span>
+            <h1 id="configuracionTitulo">Configuración</h1>
+            <p>Administra preferencias simples de tu cuenta técnica. Los cambios se guardan en tu perfil de RUKANO.</p>
+        </section>
 
-        <!-- ================= DETALLES ================= -->
-        <div class="detalles">
-
-            <!-- ======== AJUSTES ======== -->
-            <div class="ajustes-cuenta">
-
-                <div class="header">
-                    <h2>Configuración de Cuenta</h2>
+        <section class="configuracion-grid" aria-label="Opciones de configuración">
+            <article class="config-card config-card--estado">
+                <div>
+                    <span class="configuracion-eyebrow">Cuenta</span>
+                    <h2>Preferencias rápidas</h2>
+                    <p>Actualiza cómo quieres operar dentro del flujo técnico.</p>
                 </div>
 
-                <!-- ======== TABLA ======== -->
-                <table>
-
-                    <tbody>
-
-                        <tr>
-                            <td>Disponibilidad</td>
-
-                            <td>
-                                <button class="boton">
-                                    Disponible
-                                </button>
-                            </td>
-                        </tr>
-
-                    </tbody>
-
-                </table>
-                <!-- ======== FIN TABLA ======== -->
-
-
-                <!-- ======== DANGER ZONE ======== -->
-                <div class="danger-zone">
-
-                    <div class="danger-info">
-
-                        <h3>Eliminar cuenta</h3>
-
-                        <p>
-                            Esta acción eliminará tu cuenta permanentemente y no podrá recuperarse.
-                        </p>
-
+                <div class="config-opciones">
+                    <div class="config-opcion">
+                        <div>
+                            <span>Notificaciones</span>
+                            <p>Controla avisos y recordatorios de actividad.</p>
+                        </div>
+                        <button class="boton" id="btnNotificaciones" type="button" disabled>
+                            Cargando...
+                        </button>
                     </div>
 
-                    <button class="btn-eliminar">
-                        Eliminar
-                    </button>
+                    <div class="config-opcion">
+                        <div>
+                            <span>Disponibilidad</span>
+                            <p>Indica si estás disponible para nuevas solicitudes.</p>
+                        </div>
+                        <button class="boton" id="btnDisponibilidad" type="button" disabled>
+                            Cargando...
+                        </button>
+                    </div>
 
+                    <div class="config-opcion">
+                        <div>
+                            <span>Idioma</span>
+                            <p>Define el idioma visible para tus preferencias.</p>
+                        </div>
+                        <button class="boton" id="btnIdioma" type="button" disabled>
+                            Cargando...
+                        </button>
+                    </div>
                 </div>
-                <!-- ======== FIN DANGER ZONE ======== -->
+            </article>
 
-            </div>
-            <!-- ======== FIN AJUSTES ======== -->
+            <article class="config-card config-card--preferencias">
+                <div class="config-card__header">
+                    <span class="configuracion-eyebrow">Notas internas</span>
+                    <h2>Preferencias</h2>
+                    <p>Guarda instrucciones o criterios personales para tu operación diaria.</p>
+                </div>
 
-        </div>
-        <!-- ================= FIN DETALLES ================= -->
+                <textarea id="preferenciasTexto" placeholder="Escribe tus preferencias o configuraciones personales..."></textarea>
 
-    </div>
+                <div class="config-acciones">
+                    <button class="boton boton-principal" id="btnGuardarPreferencias" type="button" disabled>
+                        Guardar Cambios
+                    </button>
+                    <p class="configuracion-estado" id="configuracionEstado" role="status" aria-live="polite"></p>
+                </div>
+            </article>
+        </section>
+    </main>
     <!-- ================= FIN CONTENIDO ================= -->
 
 </section>
@@ -264,7 +165,8 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 <!-- ================= JS ================= -->
-<script type="module" src="js/configuracionTec.js"></script>
+<script src="js/navbar.js" defer></script>
+    <script type="module" src="js/configuracionTec.js"></script>
 
 </body>
 </html>

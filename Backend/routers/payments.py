@@ -8,18 +8,22 @@ router = APIRouter(
     tags=["Payments"]
 )
 
-mp_service = MercadoPagoService()
-
-
 @router.post("/create_preference")
 async def create_payment_preference(payment: PaymentPreferenceRequest):
     try:
+        mp_service = MercadoPagoService()
         preference = mp_service.create_preference(
             payment.title,
             payment.quantity,
             payment.price
         )
     except RuntimeError as exc:
+        if "MERCADOPAGO_ACCESS_TOKEN" in str(exc):
+            raise HTTPException(
+                status_code=503,
+                detail="Mercado Pago no esta configurado"
+            ) from exc
+
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     print("=========================================")

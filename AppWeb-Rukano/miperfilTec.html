@@ -4,228 +4,187 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/miperfilTec.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/tecnicoNav.css">
 
     <title>Mi Perfil | RUKANO</title>
 </head>
 <body>
 
 <section>
+        <div id="navbar-root"></div>
+        <nav class="tech-nav" aria-label="Navegacion tecnica">
+            <ul>
+                <li><a href="dashboard.html"><span class="icono"><ion-icon name="home-outline"></ion-icon></span><span class="titulo">Dashboard</span></a></li>
+                <li><a href="panelTecnico.html"><span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span><span class="titulo">Panel tecnico</span></a></li>
+                <li><a href="clientesTec.html"><span class="icono"><ion-icon name="people-outline"></ion-icon></span><span class="titulo">Clientes</span></a></li>
+                <li><a href="agendaTec.html"><span class="icono"><ion-icon name="calendar-outline"></ion-icon></span><span class="titulo">Agenda</span></a></li>
+                <li class="active"><a href="miperfilTec.html"><span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span><span class="titulo">Mi perfil</span></a></li>
+                <li><a href="configuracionTec.html"><span class="icono"><ion-icon name="settings-outline"></ion-icon></span><span class="titulo">Configuracion</span></a></li>
+            </ul>
+        </nav>
+        <!--Fin menu-->
 
-    <nav class="navbar-integrada">
 
-        <a href="#" class="bloque-logo">RUKANO</a>
-
-        <div class="bloque-menu">
-            <div class="nav-izquierda">
-                <a href="index.html#servicios">Servicios</a>
-                <a href="index.html#beneficios">Beneficios</a>
-                <a href="index.html#como-funciona">¿Cómo Funciona?</a>
-                <a href="index.html#testimonios">Reseñas</a>
+    <!-- ================= CONTENIDO ================= -->
+    <main class="perfil-tecnico">
+        <section class="perfil-hero" aria-labelledby="perfilTitulo">
+            <div>
+                <span class="perfil-eyebrow">Perfil profesional</span>
+                <h1 id="perfilTitulo">Mi Perfil</h1>
+                <p>Datos profesionales del técnico autenticado dentro de RUKANO.</p>
             </div>
+        </section>
 
-            <div class="nav-derecha">
-
-                <a href="inicioSesion.html" class="link-sesion">
-                    Iniciar sesión
-                </a>
-
-                <a href="registro.html" class="btn-registro-nav">
-                    Registrarse
-                </a>
-
-                <div class="perfil-usuario toggle">
-                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
+        <section class="perfil-grid" aria-label="Información del técnico">
+            <article class="perfil-card perfil-card--identidad">
+                <div class="perfil-img">
+                    <img id="perfilFoto" alt="Foto del técnico" hidden>
+                    <div id="perfilFotoFallback" class="perfil-avatar-fallback" aria-hidden="true">T</div>
                 </div>
 
-            </div>
-
-        </div>
-
-    </nav>
-    <div class="nav">
-
-        <ul>
-
-            <li>
-                <a href="dashboard.html">
-                    <span class="icono">
-                        <ion-icon name="home-outline"></ion-icon>
-                    </span>
-                    <span class="titulo">Dashboard</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="clientesTec.html">
-                    <span class="icono">
-                        <ion-icon name="people-outline"></ion-icon>
-                    </span>
-                    <span class="titulo">Clientes</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="agendaTec.html">
-                    <span class="icono">
-                        <ion-icon name="calendar-outline"></ion-icon>
-                    </span>
-                    <span class="titulo">Agenda</span>
-                </a>
-            </li>
-
-            <li class="active">
-                <a href="miperfilTec.html">
-                    <span class="icono">
-                        <ion-icon name="person-circle-outline"></ion-icon>
-                    </span>
-                    <span class="titulo">Mi Perfil</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="subirServicio.html">
-                    <span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span>
-                    <span class="titulo">Subir servicio</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="panelTecnico.html">
-                    <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
-                    <span class="titulo">Mis servicios</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="configuracionTec.html">
-                    <span class="icono">
-                        <ion-icon name="settings-outline"></ion-icon>
-                    </span>
-                    <span class="titulo">Configuración</span>
-                </a>
-            </li>
-
-            <li>
-                <a href="#" class="cerrar-sesion">
-                    <span class="icono">
-                        <ion-icon name="log-out-outline"></ion-icon>
-                    </span>
-                    <span class="titulo">Cerrar Sesión</span>
-                </a>
-            </li>
-
-        </ul>
-
-    </div>
-    <div class="container">
-
-        <div class="detalles">
-
-            <div class="perfil-box">
-
-                <div class="header">
-                    <h2>Mi Perfil</h2>
-                </div>
-
-                <div class="perfil-contenido">
-
-                    <div class="perfil-img" id="contenedor-foto-perfil">
-                        <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
+                <div class="perfil-identidad-datos">
+                    <div class="perfil-dato perfil-dato--principal">
+                        <span>Nombre</span>
+                        <strong id="perfilNombre">No registrado</strong>
                     </div>
 
-                    <div class="perfil-info">
+                    <div class="perfil-dato perfil-dato--principal">
+                        <span>Apellido</span>
+                        <strong id="perfilApellido">No registrado</strong>
+                    </div>
+                </div>
+            </article>
 
-                        <div class="campo">
-                            <label>Nombre</label>
-                            <input type="text" id="input-nombre" placeholder="Cargando...">
-                        </div>
+            <article class="perfil-card perfil-card--datos">
+                <header class="perfil-card__header">
+                    <span class="perfil-eyebrow">Datos de contacto</span>
+                    <h2>Información general</h2>
+                </header>
 
-                        <div class="campo">
-                            <label>Apellido</label>
-                            <input type="text" id="input-apellido" placeholder="Cargando...">
-                        </div>
-
-                        <div class="campo">
-                            <label>Correo Electrónico</label>
-                            <input type="email" id="input-correo" disabled style="background-color: #f1f5f9; cursor: not-allowed;">
-                        </div>
-
-                        <div class="campo">
-                            <label>Teléfono</label>
-                            <input type="text" id="input-telefono" placeholder="Cargando...">
-                        </div>
-
-                        <div class="campo">
-                            <label>Especialidad</label>
-                            <input type="text" id="input-especialidad" placeholder="Cargando...">
-                        </div>
-
-                        <button class="boton" id="btn-guardar-perfil">
-                            Guardar Cambios
-                        </button>
-
+                <div class="perfil-datos-grid">
+                    <div class="perfil-dato">
+                        <span>Correo</span>
+                        <strong id="perfilCorreo">No registrado</strong>
                     </div>
 
+                    <div class="perfil-dato">
+                        <span>Teléfono</span>
+                        <strong id="perfilTelefono">No registrado</strong>
+                    </div>
+
+                    <div class="perfil-dato">
+                        <span>Comuna</span>
+                        <strong id="perfilComuna">No registrado</strong>
+                    </div>
                 </div>
+            </article>
 
-            </div>
-            <div class="notas-box">
+            <article class="perfil-card perfil-card--datos">
+                <header class="perfil-card__header">
+                    <span class="perfil-eyebrow">Oficio</span>
+                    <h2>Perfil técnico</h2>
+                </header>
 
-                <div class="header">
-                    <h2>Descripción profesional</h2>
+                <div class="perfil-datos-grid">
+                    <div class="perfil-dato perfil-dato--destacado">
+                        <span>Especialidad</span>
+                        <strong id="perfilEspecialidad">No registrado</strong>
+                    </div>
+
+                    <div class="perfil-dato">
+                        <span>Experiencia</span>
+                        <strong id="perfilExperiencia">Sin experiencia registrada</strong>
+                    </div>
+
+                    <div class="perfil-dato">
+                        <span>Verificación</span>
+                        <strong id="perfilVerificado">Pendiente de verificación</strong>
+                    </div>
                 </div>
+            </article>
 
-                <textarea id="textarea-descripcion" placeholder="Escribe una descripción sobre ti o tus servicios..."></textarea>
+            <article class="perfil-card perfil-card--descripcion">
+                <header class="perfil-card__header">
+                    <span class="perfil-eyebrow">Presentación</span>
+                    <h2>Descripción</h2>
+                </header>
 
-                <button class="boton" id="btn-actualizar-descripcion">
-                    Actualizar Descripción
-                </button>
+                <p id="perfilDescripcion">Sin descripción</p>
+            </article>
+        </section>
+    </main>
+    <!-- ================= FIN CONTENIDO ================= -->
 
-            </div>
-            </div>
-        </div>
-    </section>
+</section>
 
 
+<!-- ================= FOOTER ================= -->
 <footer class="footer-rukano">
+
     <div class="footer-grid">
+
         <div class="footer-col-marca">
+
             <h2 class="logo-footer">RUKANO</h2>
-            <p class="slogan-footer">Transformando la forma en que cuidas tu hogar.</p>
+
+            <p class="slogan-footer">
+                Transformando la forma en que cuidas tu hogar.
+            </p>
+
             <div class="redes-sociales">
                 <a href="#">INSTAGRAM</a>
                 <a href="#">FACEBOOK</a>
                 <a href="#">LINKEDIN</a>
             </div>
+
         </div>
+
         <div class="footer-col">
+
             <span class="footer-label">AYUDA</span>
+
             <nav class="footer-links">
                 <a href="#">Centro de ayuda</a>
                 <a href="#">Seguridad</a>
                 <a href="#">Cómo pagar</a>
             </nav>
+
         </div>
+
         <div class="footer-col">
+
             <span class="footer-label">COMPAÑÍA</span>
+
             <nav class="footer-links">
                 <a href="#">Sobre nosotros</a>
                 <a href="#">Términos y condiciones</a>
                 <a href="#">Privacidad</a>
             </nav>
+
         </div>
+
     </div>
+
     <div class="footer-bottom">
         <p>&copy; 2026 RUKANO. HECHO CON PASIÓN POR EQUIPO TAP</p>
         <p class="pais-footer">CHILE / SANTIAGO</p>
     </div>
-</footer>
 
+</footer>
+<!-- ================= FIN FOOTER ================= -->
+
+
+<!-- ================= IONICONS ================= -->
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
-<script type="module" src="js/miperfilTec.js"></script>
+<!-- ================= JS ================= -->
+<script src="js/navbar.js" defer></script>
+    <script type="module" src="js/miperfilTec.js"></script>
 
 </body>
 </html>

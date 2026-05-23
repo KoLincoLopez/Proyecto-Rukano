@@ -20,16 +20,14 @@
         </div>
 
         <div class="split-formulario">
-
             <div class="nav-registro">
-                <span>¿Ya tienes cuenta?</span>
-                <a href="inicioSesion.html" class="btn-link">Inicia sesión</a>
+                <span>Ya tienes cuenta?</span>
+                <a href="inicioSesion.html" class="btn-link">Inicia sesion</a>
             </div>
 
             <div class="formulario-caja scroll-custom">
                 <div id="registro">
-
-                    <h2 class="titulo-form">ÚNETE</h2>
+                    <h2 class="titulo-form">UNETE</h2>
                     <p class="subtitulo-form">Crea tu cuenta y empieza hoy mismo.</p>
 
                     <div class="grid-inputs">
@@ -42,29 +40,33 @@
                     </div>
 
                     <div class="grupo-input">
-                        <input type="text" id="telefono" placeholder="Teléfono" required>
+                        <input type="text" id="telefono" placeholder="Telefono" required>
                     </div>
 
                     <div class="grupo-input">
-                        <input type="email" id="email" placeholder="Correo electrónico" required>
+                        <input type="text" id="comuna" placeholder="Comuna" required>
+                    </div>
+
+                    <div class="grupo-input">
+                        <input type="email" id="email" placeholder="Correo electronico" required>
                     </div>
 
                     <div class="grid-inputs">
                         <div class="grupo-input">
-                            <input type="password" id="password" placeholder="Contraseña" required>
+                            <input type="password" id="password" placeholder="Contrasena" required>
                         </div>
                         <div class="grupo-input">
-                            <input type="password" id="confirmPassword" placeholder="Repetir contraseña" required>
+                            <input type="password" id="confirmPassword" placeholder="Repetir contrasena" required>
                         </div>
                     </div>
 
                     <div class="checkbox-moderno">
                         <input type="checkbox" id="showPassword">
-                        <label for="showPassword">Mostrar contraseñas</label>
+                        <label for="showPassword">Mostrar contrasenas</label>
                     </div>
 
                     <div class="selector-rol-custom">
-                        <span class="label-rol">¿Cómo usarás Rukano?</span>
+                        <span class="label-rol">Como usaras Rukano?</span>
 
                         <div class="opciones-rol">
                             <label class="tarjeta-rol">
@@ -78,28 +80,29 @@
                             <label class="tarjeta-rol">
                                 <input type="radio" name="rol" value="tecnico" id="rolTecnico" required>
                                 <div class="contenido-tarjeta">
-                                    <h4>SOY TÉCNICO</h4>
+                                    <h4>SOY TECNICO</h4>
                                     <p>Ofrezco servicios</p>
                                 </div>
                             </label>
                         </div>
                     </div>
 
+                    <div class="grupo-input campo-tecnico" id="campoEspecialidad" hidden>
+                        <input type="text" id="especialidad" placeholder="Especialidad del tecnico">
+                    </div>
+
                     <button id="btnRegistro" class="btn-primario">REGISTRARSE</button>
 
                     <p class="volver-inicio">
-                        <a href="index.html">← Volver al inicio</a>
+                        <a href="index.html">Volver al inicio</a>
                     </p>
-
                 </div>
             </div>
         </div>
     </div>
 
-
     <script type="module" src="js/transiciones.js"></script>
     <script type="module" src="js/registro.js"></script>
 
 </body>
-
 </html>

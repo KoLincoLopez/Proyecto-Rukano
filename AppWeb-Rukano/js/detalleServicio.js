@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/f
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ─── CONFIGURACIÓN DEL BACKEND ───
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 // ─── ESTADO GLOBAL DEL USUARIO (llenado por Firebase) ───
 let usuarioLogueado = null;   // objeto User de Firebase Auth
@@ -160,6 +160,7 @@ async function cargarDetalleServicio(idServicio) {
         if (!response.ok) throw new Error("Servicio no encontrado.");
 
         const servicio = await response.json();
+        configurarPagoServicio(servicio, idServicio);
 
         // 1. SECCIÓN PRINCIPAL (HERO)
         setTxt("servicio-categoria", servicio.categoria);
@@ -228,6 +229,38 @@ async function cargarDetalleServicio(idServicio) {
     }
 }
 
+function configurarPagoServicio(servicio, idServicio) {
+    const btnPago = document.getElementById("btn-comprar");
+    const mensajePago = document.getElementById("pago-mensaje");
+    if (!btnPago) return;
+
+    const nombreServicio = String(servicio.nombre || "").trim();
+    const precioServicio = Number(servicio.precio);
+    const idTecnico = String(servicio.idTecnico || "").trim();
+    const pagoDisponible = Boolean(nombreServicio) && Number.isFinite(precioServicio) && precioServicio > 0;
+
+    window.RukanoPago = {
+        title: nombreServicio,
+        quantity: 1,
+        price: precioServicio,
+        idServicio,
+        idTecnico
+    };
+
+    btnPago.dataset.title = nombreServicio;
+    btnPago.dataset.quantity = "1";
+    btnPago.dataset.price = pagoDisponible ? String(precioServicio) : "";
+    btnPago.dataset.servicioId = idServicio || "";
+    btnPago.dataset.tecnicoId = idTecnico;
+    btnPago.disabled = !pagoDisponible;
+
+    if (mensajePago) {
+        mensajePago.textContent = pagoDisponible
+            ? ""
+            : "El pago no esta disponible para este servicio.";
+    }
+}
+
 async function cargarDatosTecnico(idTecnico) {
     try {
         const response = await fetch(`${API_URL}/users/usuario/publico/${idTecnico}`);
@@ -285,11 +318,12 @@ async function cargarDatosTecnico(idTecnico) {
                         <span class="tech-badge"><i class="ti ti-map-pin"></i> <span id="tecnico-comuna">${escapeHtml(tecnico.comuna || "")}</span></span>
                     `;
                 }
-                // Restaurar enlace al perfil
+                // El perfil publico del tecnico queda fuera del flujo principal de demo.
                 const btnPerfil = avatar.closest('.tech-card')?.querySelector('.btn-ver-perfil');
                 if (btnPerfil) {
-                    btnPerfil.style.opacity = '';
-                    btnPerfil.style.pointerEvents = '';
+                    btnPerfil.disabled = true;
+                    btnPerfil.style.opacity = '0.65';
+                    btnPerfil.style.pointerEvents = 'none';
                 }
             }
 

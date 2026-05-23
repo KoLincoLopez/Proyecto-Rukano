@@ -1,150 +1,148 @@
 import { auth, db } from "./Firebase-config.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// ID global para almacenar la referencia del técnico actual
-let uidTecnicoActual = null;
-
-document.addEventListener("DOMContentLoaded", () => {
-    // === AUTENTICACIÓN Y NAVBAR ===
-    const botonPerfil = document.querySelector(".perfil-usuario") || document.querySelector(".toggle");
-    const nav = document.querySelector(".nav");
-
-    if (botonPerfil && nav) {
-        botonPerfil.addEventListener("click", (e) => {
-            e.stopPropagation();
-            nav.classList.toggle("active");
-        });
-        document.addEventListener("click", (e) => {
-            if (!nav.contains(e.target) && !botonPerfil.contains(e.target)) nav.classList.remove("active");
-        });
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        window.location.href = "inicioSesion.html";
+        return;
     }
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            try {
-                uidTecnicoActual = user.uid;
-                const userSnap = await getDoc(doc(db, "usuarios", user.uid));
-                
-                if (userSnap.exists()) {
-                    const datosUsuario = userSnap.data();
-                    
-                    // Protección de Ruta por Rol
-                    if (datosUsuario.rol !== "tecnico") return window.location.href = "index.html";
+    try {
+        const usuarioSnap = await getDoc(doc(db, "usuarios", user.uid));
 
-                    // Ocultar botones de login/registro
-                    document.querySelectorAll(".link-sesion, .btn-registro-nav").forEach(el => el.style.display = "none");
-
-                    // Renderizar Saludo en Navbar
-                    const navDerecha = document.querySelector(".nav-derecha");
-                    if (navDerecha && botonPerfil && !document.getElementById("saludoNavbar")) {
-                        const saludo = document.createElement("span");
-                        saludo.id = "saludoNavbar";
-                        saludo.style.cssText = "color: var(--c-arena); font-weight: bold; margin-right: 15px; font-size: 14px;";
-                        saludo.textContent = `¡Hola, ${datosUsuario.nombre.split(" ")[0]} !`;
-                        navDerecha.insertBefore(saludo, botonPerfil);
-                    }
-
-                    // Renderizar Inicial en Botón del Navbar
-                    const img = botonPerfil?.querySelector("img");
-                    if (img) {
-                        const span = document.createElement("span");
-                        span.textContent = datosUsuario.nombre.charAt(0).toUpperCase();
-                        span.style.cssText = "color: white; font-size: 20px; font-weight: 900; background-color: var(--c-rosewood); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%;";
-                        img.replaceWith(span);
-                    }
-
-                    // === POBLAR LOS CAMPOS DEL FORMULARIO CON FIRESTORE ===
-                    poblarFormularioPerfil(datosUsuario);
-
-                }
-            } catch (error) { console.error("Error al cargar perfil:", error); }
-        } else {
+        if (!usuarioSnap.exists()) {
             window.location.href = "inicioSesion.html";
-        }
-    });
-
-    // === GESTIÓN DE CERRAR SESIÓN ===
-    const btnCerrarSesion = document.querySelector(".cerrar-sesion");
-    if (btnCerrarSesion) {
-        btnCerrarSesion.addEventListener("click", async (e) => { 
-            e.preventDefault(); 
-            if(confirm("¿Seguro que deseas cerrar sesión?")) await signOut(auth); 
-        });
-    }
-
-    // === EVENTO: GUARDAR CAMBIOS PRINCIPALES ===
-    document.getElementById("btn-guardar-perfil")?.addEventListener("click", async () => {
-        if (!uidTecnicoActual) return;
-
-        const nombre = document.getElementById("input-nombre").value.trim();
-        const apellido = document.getElementById("input-apellido").value.trim();
-        const telefono = document.getElementById("input-telefono").value.trim();
-        const especialidad = document.getElementById("input-especialidad").value.trim();
-
-        if (!nombre || !apellido) {
-            alert("⚠️ El nombre y el apellido son campos obligatorios.");
             return;
         }
 
-        try {
-            const tecRef = doc(db, "usuarios", uidTecnicoActual);
-            await updateDoc(tecRef, {
-                nombre: nombre,
-                apellido: apellido,
-                telefono: telefono,
-                especialidad: especialidad
-            });
+        const datosUsuario = usuarioSnap.data();
+        const rol = normalizarRol(datosUsuario.rol);
 
-            alert("¡Cambios guardados con éxito! El perfil se ha actualizado correctamente. 💾");
-            window.location.reload(); // Recarga para refrescar los textos y navbar
-
-        } catch (error) {
-            console.error("Error actualizando perfil:", error);
-            alert("Ocurrió un error al intentar guardar los datos.");
+        if (rol === "cliente") {
+            window.location.href = "panelCliente.html";
+            return;
         }
-    });
 
-    // === EVENTO: ACTUALIZAR DESCRIPCIÓN PROFESIONAL ===
-    document.getElementById("btn-actualizar-descripcion")?.addEventListener("click", async () => {
-        if (!uidTecnicoActual) return;
-
-        const descripcion = document.getElementById("textarea-descripcion").value.trim();
-
-        try {
-            const tecRef = doc(db, "usuarios", uidTecnicoActual);
-            await updateDoc(tecRef, {
-                descripcion: descripcion
-            });
-
-            alert("¡Descripción actualizada con éxito! 📝");
-        } catch (error) {
-            console.error("Error actualizando descripción:", error);
-            alert("Ocurrió un error al intentar actualizar la descripción.");
+        if (rol !== "tecnico") {
+            window.location.href = "inicioSesion.html";
+            return;
         }
-    });
+
+        renderizarPerfilTecnico(datosUsuario, user);
+    } catch (error) {
+        console.log("Error al validar acceso tecnico:", error);
+        window.location.href = "inicioSesion.html";
+    }
 });
 
-// === FUNCIÓN AUXILIAR PARA VOLCAR LOS DATOS EN LOS ELEMENTOS ===
-function poblarFormularioPerfil(datos) {
-    if (document.getElementById("input-nombre")) document.getElementById("input-nombre").value = datos.nombre || "";
-    if (document.getElementById("input-apellido")) document.getElementById("input-apellido").value = datos.apellido || "";
-    if (document.getElementById("input-correo")) document.getElementById("input-correo").value = datos.correo || "";
-    if (document.getElementById("input-telefono")) document.getElementById("input-telefono").value = datos.telefono || "";
-    if (document.getElementById("input-especialidad")) document.getElementById("input-especialidad").value = datos.especialidad || "";
-    if (document.getElementById("textarea-descripcion")) document.getElementById("textarea-descripcion").value = datos.descripcion || "";
+function normalizarRol(rol) {
+    return String(rol || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
 
-    // Poner la inicial grande también en la foto de perfil del cuerpo si no tiene foto_perfil URL
-    const contenedorFoto = document.getElementById("contenedor-foto-perfil");
-    if (contenedorFoto && (!datos.foto_perfil || datos.foto_perfil === "")) {
-        const spanGrande = document.createElement("div");
-        spanGrande.textContent = (datos.nombre || "R").charAt(0).toUpperCase();
-        spanGrande.style.cssText = "color: white; font-size: 48px; font-weight: 900; background-color: var(--c-rosewood); width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin: 0 auto;";
-        
-        const imgInterna = contenedorFoto.querySelector("img");
-        if (imgInterna) imgInterna.replaceWith(spanGrande);
-    } else if (contenedorFoto && datos.foto_perfil) {
-        const imgInterna = contenedorFoto.querySelector("img");
-        if (imgInterna) imgInterna.src = datos.foto_perfil;
+function renderizarPerfilTecnico(datosUsuario, user) {
+    const nombre = obtenerDato(datosUsuario.nombre ?? datosUsuario.nombres, "No registrado");
+    const apellido = obtenerDato(datosUsuario.apellido ?? datosUsuario.apellidos, "No registrado");
+    const correo = obtenerDato(datosUsuario.correo ?? datosUsuario.email ?? user?.email, "No registrado");
+    const telefono = obtenerDato(datosUsuario.telefono ?? datosUsuario.telefonoContacto ?? datosUsuario.phone, "No registrado");
+    const comuna = obtenerDato(datosUsuario.comuna, "No registrado");
+    const especialidad = obtenerEspecialidad(datosUsuario);
+    const descripcion = obtenerDato(
+        datosUsuario.descripcionTecnico ?? datosUsuario.descripcion ?? datosUsuario.bio,
+        "Sin descripción"
+    );
+    const experiencia = obtenerDato(datosUsuario.experiencia, "Sin experiencia registrada");
+    const estadoVerificacion = obtenerEstadoVerificacion(datosUsuario);
+
+    asignarValor("perfilNombre", nombre);
+    asignarValor("perfilApellido", apellido);
+    asignarValor("perfilCorreo", correo);
+    asignarValor("perfilTelefono", telefono);
+    asignarValor("perfilComuna", comuna);
+    asignarValor("perfilEspecialidad", especialidad);
+    asignarValor("perfilExperiencia", experiencia);
+    asignarValor("perfilVerificado", estadoVerificacion);
+    asignarValor("perfilDescripcion", descripcion);
+    renderizarFotoPerfil(datosUsuario, user, nombre, apellido);
+}
+
+function obtenerEspecialidad(datosUsuario) {
+    const especialidad = datosUsuario.especialidad
+        ?? datosUsuario.categoria
+        ?? datosUsuario.rubro
+        ?? datosUsuario.profesion
+        ?? datosUsuario.servicioPrincipal;
+
+    if (Array.isArray(especialidad)) {
+        const valores = especialidad.map((valor) => obtenerDato(valor, "")).filter(Boolean);
+        return valores.length ? valores.join(", ") : "No registrado";
     }
+
+    return obtenerDato(especialidad, "No registrado");
+}
+
+function obtenerEstadoVerificacion(datosUsuario) {
+    const estado = datosUsuario.verificado ?? datosUsuario.estadoVerificado ?? datosUsuario.estado_verificacion;
+
+    if (estado === true) return "Verificado";
+    if (estado === false || estado == null) return "Pendiente de verificación";
+
+    return obtenerDato(estado, "Pendiente de verificación");
+}
+
+function renderizarFotoPerfil(datosUsuario, user, nombre, apellido) {
+    const imagen = document.getElementById("perfilFoto");
+    const fallback = document.getElementById("perfilFotoFallback");
+
+    if (!imagen || !fallback) return;
+
+    const fotoPerfil = obtenerDato(
+        datosUsuario.foto_perfil ?? datosUsuario.foto ?? datosUsuario.photoURL ?? user?.photoURL,
+        ""
+    );
+
+    if (fotoPerfil) {
+        imagen.src = fotoPerfil;
+        imagen.hidden = false;
+        fallback.hidden = true;
+        return;
+    }
+
+    imagen.removeAttribute("src");
+    imagen.hidden = true;
+    fallback.textContent = obtenerIniciales(nombre, apellido);
+    fallback.hidden = false;
+}
+
+function obtenerIniciales(nombre, apellido) {
+    const inicialNombre = obtenerDato(nombre, "").charAt(0);
+    const inicialApellido = obtenerDato(apellido, "").charAt(0);
+    const iniciales = `${inicialNombre}${inicialApellido}`.trim();
+
+    return iniciales || "T";
+}
+
+function asignarValor(id, valor) {
+    const elemento = document.getElementById(id);
+    if (!elemento) return;
+
+    const valorSeguro = obtenerDato(valor, "No registrado");
+
+    if ("value" in elemento) {
+        elemento.value = valorSeguro;
+        return;
+    }
+
+    elemento.textContent = valorSeguro;
+}
+
+function obtenerDato(valor, fallback) {
+    if (valor === undefined || valor === null) return fallback;
+
+    const texto = String(valor).trim();
+    return texto || fallback;
 }

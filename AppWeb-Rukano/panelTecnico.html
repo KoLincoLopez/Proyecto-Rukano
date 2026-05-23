@@ -2,146 +2,210 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Rukano - Panel Técnico</title>
-    <link rel="stylesheet" href="css/panelTecnico.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rukano - Panel Tecnico</title>
 
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/panelTecnico.css">
+    <link rel="stylesheet" href="css/tecnicoNav.css">
 </head>
 
 <body>
+    <div id="navbar-root"></div>
 
-    <!--navbar-->
-    <nav class="navbar-integrada">
-        <a href="#" class="bloque-logo">RUKANO</a>
-
-            <div class="bloque-menu">
-                <div class="nav-izquierda">
-                    <a href="index.html#servicios">Servicios</a>
-                    <a href="index.html#beneficios">Beneficios</a>
-                    <a href="index.html#como-funciona">¿Cómo Funciona?</a>
-                    <a href="index.html#testimonios">Reseñas</a>
-                </div>
-
-            <div class="nav-derecha">
-                <a href="inicioSesion.html" class="link-sesion">Iniciar sesión</a>
-                <a href="registro.html" class="btn-registro-nav">Registrarse</a>
-                <div class="perfil-usuario toggle">
-                    <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
-                </div>
-            </div>
-        </div>
+    <nav class="tech-nav" aria-label="Navegacion tecnica">
+        <ul>
+            <li>
+                <a href="dashboard.html">
+                    <span class="icono"><ion-icon name="home-outline"></ion-icon></span>
+                    <span class="titulo">Dashboard</span>
+                </a>
+            </li>
+            <li class="active">
+                <a href="panelTecnico.html">
+                    <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
+                    <span class="titulo">Panel tecnico</span>
+                </a>
+            </li>
+            <li>
+                <a href="clientesTec.html">
+                    <span class="icono"><ion-icon name="people-outline"></ion-icon></span>
+                    <span class="titulo">Clientes</span>
+                </a>
+            </li>
+            <li>
+                <a href="agendaTec.html">
+                    <span class="icono"><ion-icon name="calendar-outline"></ion-icon></span>
+                    <span class="titulo">Agenda</span>
+                </a>
+            </li>
+            <li>
+                <a href="miperfilTec.html">
+                    <span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span>
+                    <span class="titulo">Mi perfil</span>
+                </a>
+            </li>
+            <li>
+                <a href="configuracionTec.html">
+                    <span class="icono"><ion-icon name="settings-outline"></ion-icon></span>
+                    <span class="titulo">Configuracion</span>
+                </a>
+            </li>
+        </ul>
     </nav>
-        <!--fin navbar-->
 
-        <!--Menu-->
-        <div class="nav">
-            <ul>
-                <li>
-                    <a href="dashboard.html">
-                        <span class="icono"><ion-icon name="home-outline"></ion-icon></span>
-                        <span class="titulo">Dashboard</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="clientesTec.html">
-                        <span class="icono"><ion-icon name="people-outline"></ion-icon></span>
-                        <span class="titulo">Clientes</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="agendaTec.html">
-                        <span class="icono"><ion-icon name="calendar-outline"></ion-icon></span>
-                        <span class="titulo">Agenda</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="miperfilTec.html">
-                        <span class="icono"><ion-icon name="person-circle-outline"></ion-icon></span>
-                        <span class="titulo">Mi Perfil</span>
-                    </a>
-                </li>
+    <main class="panel-tecnico">
 
-                <li>
-                    <a href="subirServicio.html">
-                        <span class="icono"><ion-icon name="add-circle-outline"></ion-icon></span>
-                        <span class="titulo">Subir servicio</span>
-                    </a>
-                </li>
+        <section class="panel-header">
+            <h1>Panel Tecnico</h1>
+            <p>Administra tus servicios, perfil profesional y horarios disponibles en Rukano.</p>
+        </section>
 
-                <li>
-                    <a href="panelTecnico.html">
-                        <span class="icono"><ion-icon name="briefcase-outline"></ion-icon></span>
-                        <span class="titulo">Mis servicios</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="configuracionTec.html">
-                        <span class="icono"><ion-icon name="settings-outline"></ion-icon></span>
-                        <span class="titulo">Configuracion</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="cerrar-sesion">
-                        <span class="icono"><ion-icon name="log-out-outline"></ion-icon></span>
-                        <span class="titulo">Cerrar Sesion</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <!--Fin menu-->
+        <section class="panel-card">
+            <h2>Publicar servicio</h2>
 
-        <div class="panel-tecnico">
-            <div class="panel-header">
-                <h1>Mis Servicios Publicados</h1>
-                <p>Administra los servicios que los clientes pueden ver y contratar</p>
-            </div>
+            <form id="formServicio" class="form-servicio">
 
-            <div id="listaMisServicios">
-                </div>
-        </div>
+                <label for="tituloServicio">Titulo del servicio</label>
+                <input type="text" id="tituloServicio" placeholder="Ej: Electricista domiciliario">
 
+                <label for="categoriaServicio">Categoria</label>
+                <select id="categoriaServicio">
+                    <option value="">Selecciona una categoria</option>
+                    <option value="Electricidad">Electricidad</option>
+                    <option value="Gasfiteria">Gasfiteria</option>
+                    <option value="Limpieza">Limpieza</option>
+                    <option value="Jardineria">Jardineria</option>
+                    <option value="Cerrajeria">Cerrajeria</option>
+                    <option value="Pintura">Pintura</option>
+                </select>
 
-    </main>
+                <label for="comunaServicio">Comuna</label>
+                <input type="text" id="comunaServicio" placeholder="Ej: Puente Alto">
 
-        <footer class="footer-rukano">
-            <div class="footer-grid">
-                <div class="footer-col-marca">
-                    <h2 class="logo-footer">RUKANO</h2>
-                    <p class="slogan-footer">Transformando la forma en que cuidas tu hogar.</p>
-                    <div class="redes-sociales">
-                        <a href="#">INSTAGRAM</a>
-                        <a href="#">FACEBOOK</a>
-                        <a href="#">LINKEDIN</a>
+                <label for="precioServicio">Precio estimado</label>
+                <input type="number" id="precioServicio" placeholder="Ej: 25000">
+
+                <label for="tiempoServicio">Tiempo estimado</label>
+                <input type="text" id="tiempoServicio" placeholder="Ej: 2 horas">
+
+                <label for="descripcionServicio">Descripcion del servicio</label>
+                <textarea id="descripcionServicio" placeholder="Ej: Servicio especializado para reparacion e instalacion domiciliaria."></textarea>
+
+                <label for="descripcionTecnicoServicio">Descripcion del tecnico</label>
+                <textarea id="descripcionTecnicoServicio" placeholder="Ej: Tecnico con experiencia en reparaciones domiciliarias."></textarea>
+
+                <label for="experienciaTecnicoServicio">Experiencia</label>
+                <input type="text" id="experienciaTecnicoServicio" placeholder="Ej: 3 anos de experiencia">
+
+                <label for="incluyeServicio">Que incluye</label>
+                <textarea id="incluyeServicio" placeholder="Ej: Diagnostico inicial&#10;Mano de obra basica&#10;Revision del problema"></textarea>
+
+                <label for="noIncluyeServicio">Que no incluye</label>
+                <textarea id="noIncluyeServicio" placeholder="Ej: Materiales especiales&#10;Transporte adicional"></textarea>
+
+                <h2 class="subtitulo-formulario">Disponibilidad del servicio</h2>
+
+                <div class="agenda-grid">
+                    <div class="agenda-dia">
+                        <strong>Lunes</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Lunes">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+
+                    <div class="agenda-dia">
+                        <strong>Martes</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Martes">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+
+                    <div class="agenda-dia">
+                        <strong>Miercoles</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Miercoles">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+
+                    <div class="agenda-dia">
+                        <strong>Jueves</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Jueves">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
+                    </div>
+
+                    <div class="agenda-dia">
+                        <strong>Viernes</strong>
+                        <label>
+                            <input type="checkbox" class="check-dia" value="Viernes">
+                            Disponible
+                        </label>
+                        <input type="time" class="hora-inicio">
+                        <input type="time" class="hora-fin">
                     </div>
                 </div>
 
-                <div class="footer-col">
-                    <span class="footer-label">AYUDA</span>
-                    <nav class="footer-links">
-                        <a href="#">Centro de ayuda</a>
-                        <a href="#">Seguridad</a>
-                        <a href="#">Cómo pagar</a>
-                    </nav>
-                </div>
+                <button type="submit" class="btn-panel">Publicar servicio</button>
 
-                <div class="footer-col">
-                    <span class="footer-label">COMPAÑÍA</span>
-                    <nav class="footer-links">
-                        <a href="#">Sobre nosotros</a>
-                        <a href="#">Términos y condiciones</a>
-                        <a href="#">Privacidad</a>
-                    </nav>
-                </div>
+                <p id="mensajeServicio"></p>
+            </form>
+        </section>
+
+        <section class="panel-card">
+            <h2>Mis servicios publicados</h2>
+
+            <div id="listaMisServicios">
+                <p>Cargando servicios...</p>
+            </div>
+        </section>
+
+        <button id="btnLogout" class="btn-logout">Cerrar sesion</button>
+
+    </main>
+
+    <div id="panelModalOverlay" class="panel-modal-overlay" hidden>
+        <div class="panel-modal" role="dialog" aria-modal="true" aria-labelledby="panelModalTitle">
+            <button type="button" id="panelModalClose" class="panel-modal-close" aria-label="Cerrar modal">&times;</button>
+            <h2 id="panelModalTitle">Editar servicio</h2>
+            <p id="panelModalText"></p>
+
+            <div id="panelModalInputGroup" class="panel-modal-input-group" hidden>
+                <label for="panelModalInput">Nombre del servicio</label>
+                <input type="text" id="panelModalInput">
+                <p id="panelModalError" class="panel-modal-error"></p>
             </div>
 
-            <div class="footer-bottom">
-                <p>&copy; 2026 RUKANO. HECHO CON PASIÓN POR EQUIPO TAP</p>
-                <p class="pais-footer">CHILE / SANTIAGO</p>
+            <div class="panel-modal-actions">
+                <button type="button" id="panelModalCancel" class="panel-modal-btn panel-modal-btn-secundario">Cancelar</button>
+                <button type="button" id="panelModalConfirm" class="panel-modal-btn panel-modal-btn-principal">Guardar cambios</button>
             </div>
-        </footer> 
+        </div>
+    </div>
+
+    <div id="panelToast" class="panel-toast" aria-live="polite" aria-atomic="true"></div>
+
+    <footer class="footer-panel">
+        <p>&copy; 2026 RUKANO - Panel Tecnico</p>
+    </footer>
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>    
-    <script type="module" src="js/panelTec.js"></script>
-
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="js/apiConfig.js"></script>
+    <script src="js/navbar.js" defer></script>
+    <script type="module" src="js/panel.js"></script>
 </body>
 </html>

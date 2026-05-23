@@ -12,23 +12,17 @@ window.addEventListener("DOMContentLoaded", () => {
         const password = passwordInput.value.trim();
 
         if (!email || !password) {
-            alert("Por favor, ingresa tu correo y contraseña.");
+            alert("Por favor, ingresa tu correo y contrasena.");
             return;
         }
 
         try {
-            // INDICADOR VISUAL (Restricción de Interfaz [7])
             btnLogin.disabled = true;
             btnLogin.innerText = "Validando...";
 
-            // 1. Login con Firebase Auth (Correo/Contraseña)
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
+            const token = await userCredential.user.getIdToken();
 
-            // 2. Obtener Token para el Backend (Seguridad RNF 3 [2])
-            const token = await user.getIdToken();
-
-            // 3. Validación en el Backend local
             const response = await fetch(`${apiBaseUrl}/auth/validate`, {
                 method: "POST",
                 headers: {
@@ -37,35 +31,36 @@ window.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            if (!response.ok) throw new Error("Error en la validación del servidor");
+            if (!response.ok) throw new Error("Error en la validacion del servidor");
 
             const data = await response.json();
+            const rol = normalizarRol(data.rol);
 
-            // =======================================================
-            // 4. Redirección por Rol (¡AQUÍ ESTÁ EL CAMBIO!)
-            // =======================================================
-            const rol = String(data.rol || "").toLowerCase();
-            
             if (rol === "tecnico") {
-                window.location.href = "dashboard.html"; // <-- Lo enviamos al nuevo Dashboard
+                window.location.href = "panelTecnico.html";
             } else if (rol === "cliente") {
-                window.location.href = "index.html";     // <-- Lo enviamos a la página de inicio
+                window.location.href = "panelCliente.html";
             } else {
                 alert("Usuario autenticado pero sin rol asignado.");
-                window.location.href = "index.html";     // Por seguridad lo enviamos al inicio
+                window.location.href = "index.html";
             }
-
         } catch (error) {
             console.error(error);
-            alert("Fallo en el inicio de sesión: " + (error.message || "Credenciales incorrectas"));
+            alert("Fallo en el inicio de sesion: " + (error.message || "Credenciales incorrectas"));
             btnLogin.disabled = false;
-            btnLogin.innerText = "Iniciar Sesión";
+            btnLogin.innerText = "Iniciar Sesion";
         }
     });
 });
 
 function getApiBaseUrl() {
-    return (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-        ? "http://localhost:8000"
-        : "https://rukano-sph.onrender.com";
+    return window.RukanoApiConfig.getApiBaseUrl();
+}
+
+function normalizarRol(rol) {
+    return String(rol || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 }
