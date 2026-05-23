@@ -444,6 +444,12 @@
 
   .btn-ver-perfil:hover { background: var(--c-licorice); color: var(--c-arena); }
 
+  .btn-ver-perfil:disabled {
+    cursor: not-allowed;
+    background: transparent;
+    color: var(--c-licorice);
+  }
+
   /* SIDE CARD */
   .side-card {
     background: var(--c-blanco);

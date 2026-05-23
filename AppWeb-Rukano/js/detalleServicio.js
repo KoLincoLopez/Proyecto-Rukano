@@ -318,11 +318,12 @@ async function cargarDatosTecnico(idTecnico) {
                         <span class="tech-badge"><i class="ti ti-map-pin"></i> <span id="tecnico-comuna">${escapeHtml(tecnico.comuna || "")}</span></span>
                     `;
                 }
-                // Restaurar enlace al perfil
+                // El perfil publico del tecnico queda fuera del flujo principal de demo.
                 const btnPerfil = avatar.closest('.tech-card')?.querySelector('.btn-ver-perfil');
                 if (btnPerfil) {
-                    btnPerfil.style.opacity = '';
-                    btnPerfil.style.pointerEvents = '';
+                    btnPerfil.disabled = true;
+                    btnPerfil.style.opacity = '0.65';
+                    btnPerfil.style.pointerEvents = 'none';
                 }
             }
 
