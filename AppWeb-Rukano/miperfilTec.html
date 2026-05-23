@@ -30,78 +30,93 @@
 
 
     <!-- ================= CONTENIDO ================= -->
-    <div class="container">
-
-        <!-- ================= DETALLES ================= -->
-        <div class="detalles">
-
-            <!-- ======== PERFIL ======== -->
-            <div class="perfil-box">
-
-                <div class="header">
-                    <h2>Mi Perfil</h2>
-                </div>
-
-                <div class="perfil-contenido">
-
-                    <div class="perfil-img">
-                        <img src="https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png" alt="">
-                    </div>
-
-                    <div class="perfil-info">
-
-                        <div class="campo">
-                            <label>Nombre Completo</label>
-                            <input type="text" value="Juan Pérez">
-                        </div>
-
-                        <div class="campo">
-                            <label>Correo Electrónico</label>
-                            <input type="email" value="juan@rukano.cl">
-                        </div>
-
-                        <div class="campo">
-                            <label>Teléfono</label>
-                            <input type="text" value="+56 9 1234 5678">
-                        </div>
-
-                        <div class="campo">
-                            <label>Especialidad</label>
-                            <input type="text" value="Técnico Electricista">
-                        </div>
-
-                        <button class="boton">
-                            Guardar Cambios
-                        </button>
-
-                    </div>
-
-                </div>
-
+    <main class="perfil-tecnico">
+        <section class="perfil-hero" aria-labelledby="perfilTitulo">
+            <div>
+                <span class="perfil-eyebrow">Perfil profesional</span>
+                <h1 id="perfilTitulo">Mi Perfil</h1>
+                <p>Datos profesionales del técnico autenticado dentro de RUKANO.</p>
             </div>
-            <!-- ======== FIN PERFIL ======== -->
+        </section>
 
+        <section class="perfil-grid" aria-label="Información del técnico">
+            <article class="perfil-card perfil-card--identidad">
+                <div class="perfil-img">
+                    <img id="perfilFoto" alt="Foto del técnico" hidden>
+                    <div id="perfilFotoFallback" class="perfil-avatar-fallback" aria-hidden="true">T</div>
+                </div>
 
-            <!-- ======== INFORMACIÓN EXTRA ======== -->
-            <div class="notas-box">
+                <div class="perfil-identidad-datos">
+                    <div class="perfil-dato perfil-dato--principal">
+                        <span>Nombre</span>
+                        <strong id="perfilNombre">No registrado</strong>
+                    </div>
 
-                <div class="header">
+                    <div class="perfil-dato perfil-dato--principal">
+                        <span>Apellido</span>
+                        <strong id="perfilApellido">No registrado</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="perfil-card perfil-card--datos">
+                <header class="perfil-card__header">
+                    <span class="perfil-eyebrow">Datos de contacto</span>
+                    <h2>Información general</h2>
+                </header>
+
+                <div class="perfil-datos-grid">
+                    <div class="perfil-dato">
+                        <span>Correo</span>
+                        <strong id="perfilCorreo">No registrado</strong>
+                    </div>
+
+                    <div class="perfil-dato">
+                        <span>Teléfono</span>
+                        <strong id="perfilTelefono">No registrado</strong>
+                    </div>
+
+                    <div class="perfil-dato">
+                        <span>Comuna</span>
+                        <strong id="perfilComuna">No registrado</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="perfil-card perfil-card--datos">
+                <header class="perfil-card__header">
+                    <span class="perfil-eyebrow">Oficio</span>
+                    <h2>Perfil técnico</h2>
+                </header>
+
+                <div class="perfil-datos-grid">
+                    <div class="perfil-dato perfil-dato--destacado">
+                        <span>Especialidad</span>
+                        <strong id="perfilEspecialidad">No registrado</strong>
+                    </div>
+
+                    <div class="perfil-dato">
+                        <span>Experiencia</span>
+                        <strong id="perfilExperiencia">Sin experiencia registrada</strong>
+                    </div>
+
+                    <div class="perfil-dato">
+                        <span>Verificación</span>
+                        <strong id="perfilVerificado">Pendiente de verificación</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="perfil-card perfil-card--descripcion">
+                <header class="perfil-card__header">
+                    <span class="perfil-eyebrow">Presentación</span>
                     <h2>Descripción</h2>
-                </div>
+                </header>
 
-                <textarea placeholder="Escribe una descripción sobre ti o tus servicios..."></textarea>
-
-                <button class="boton">
-                    Actualizar Perfil
-                </button>
-
-            </div>
-            <!-- ======== FIN INFORMACIÓN EXTRA ======== -->
-
-        </div>
-        <!-- ================= FIN DETALLES ================= -->
-
-    </div>
+                <p id="perfilDescripcion">Sin descripción</p>
+            </article>
+        </section>
+    </main>
     <!-- ================= FIN CONTENIDO ================= -->
 
 </section>
@@ -169,7 +184,7 @@
 
 <!-- ================= JS ================= -->
 <script src="js/navbar.js" defer></script>
-    <script src="js/miperfilTec.js"></script>
+    <script type="module" src="js/miperfilTec.js"></script>
 
 </body>
 </html>
