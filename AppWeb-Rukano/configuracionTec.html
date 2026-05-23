@@ -32,113 +32,72 @@
 
 
     <!-- ================= CONTENIDO ================= -->
-    <div class="container">
+    <main class="configuracion-tecnico">
+        <section class="configuracion-hero" aria-labelledby="configuracionTitulo">
+            <span class="configuracion-eyebrow">Preferencias del técnico</span>
+            <h1 id="configuracionTitulo">Configuración</h1>
+            <p>Administra preferencias simples de tu cuenta técnica. Los cambios se guardan en tu perfil de RUKANO.</p>
+        </section>
 
-        <!-- ================= DETALLES ================= -->
-        <div class="detalles">
-
-            <!-- ======== AJUSTES ======== -->
-            <div class="ajustes-cuenta">
-
-                <div class="header">
-                    <h2>Configuración de Cuenta</h2>
+        <section class="configuracion-grid" aria-label="Opciones de configuración">
+            <article class="config-card config-card--estado">
+                <div>
+                    <span class="configuracion-eyebrow">Cuenta</span>
+                    <h2>Preferencias rápidas</h2>
+                    <p>Actualiza cómo quieres operar dentro del flujo técnico.</p>
                 </div>
 
-                <!-- ======== TABLA ======== -->
-                <table>
-
-                    <tbody>
-
-                        <tr>
-                            <td>Cambiar contraseña</td>
-
-                            <td>
-                                <button class="boton">
-                                    Editar
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>Notificaciones</td>
-
-                            <td>
-                                <button class="boton">
-                                    Activadas
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>Disponibilidad</td>
-
-                            <td>
-                                <button class="boton">
-                                    Disponible
-                                </button>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>Idioma</td>
-
-                            <td>
-                                <button class="boton">
-                                    Español
-                                </button>
-                            </td>
-                        </tr>
-
-                    </tbody>
-
-                </table>
-                <!-- ======== FIN TABLA ======== -->
-
-
-                <!-- ======== DANGER ZONE ======== -->
-                <div class="danger-zone">
-
-                    <div class="danger-info">
-
-                        <h3>Eliminar cuenta</h3>
-
-                        <p>
-                            Esta acción eliminará tu cuenta permanentemente y no podrá recuperarse.
-                        </p>
-
+                <div class="config-opciones">
+                    <div class="config-opcion">
+                        <div>
+                            <span>Notificaciones</span>
+                            <p>Controla avisos y recordatorios de actividad.</p>
+                        </div>
+                        <button class="boton" id="btnNotificaciones" type="button" disabled>
+                            Cargando...
+                        </button>
                     </div>
 
-                    <button class="btn-eliminar">
-                        Eliminar
-                    </button>
+                    <div class="config-opcion">
+                        <div>
+                            <span>Disponibilidad</span>
+                            <p>Indica si estás disponible para nuevas solicitudes.</p>
+                        </div>
+                        <button class="boton" id="btnDisponibilidad" type="button" disabled>
+                            Cargando...
+                        </button>
+                    </div>
 
+                    <div class="config-opcion">
+                        <div>
+                            <span>Idioma</span>
+                            <p>Define el idioma visible para tus preferencias.</p>
+                        </div>
+                        <button class="boton" id="btnIdioma" type="button" disabled>
+                            Cargando...
+                        </button>
+                    </div>
                 </div>
-                <!-- ======== FIN DANGER ZONE ======== -->
+            </article>
 
-            </div>
-            <!-- ======== FIN AJUSTES ======== -->
-
-
-            <!-- ======== PANEL EXTRA ======== -->
-            <div class="notas-box">
-
-                <div class="header">
+            <article class="config-card config-card--preferencias">
+                <div class="config-card__header">
+                    <span class="configuracion-eyebrow">Notas internas</span>
                     <h2>Preferencias</h2>
+                    <p>Guarda instrucciones o criterios personales para tu operación diaria.</p>
                 </div>
 
-                <textarea placeholder="Escribe tus preferencias o configuraciones personales..."></textarea>
+                <textarea id="preferenciasTexto" placeholder="Escribe tus preferencias o configuraciones personales..."></textarea>
 
-                <button class="boton">
-                    Guardar Cambios
-                </button>
-
-            </div>
-            <!-- ======== FIN PANEL EXTRA ======== -->
-
-        </div>
-        <!-- ================= FIN DETALLES ================= -->
-
-    </div>
+                <div class="config-acciones">
+                    <button class="boton boton-principal" id="btnGuardarPreferencias" type="button" disabled>
+                        Guardar Cambios
+                    </button>
+                    <p class="configuracion-estado" id="configuracionEstado" role="status" aria-live="polite"></p>
+                </div>
+            </article>
+        </section>
+    </main>
     <!-- ================= FIN CONTENIDO ================= -->
 
 </section>
@@ -207,7 +166,7 @@
 
 <!-- ================= JS ================= -->
 <script src="js/navbar.js" defer></script>
-    <script src="js/configuracionTec.js"></script>
+    <script type="module" src="js/configuracionTec.js"></script>
 
 </body>
 </html>
