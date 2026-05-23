@@ -53,13 +53,13 @@ btn.addEventListener("click", async (e) => {
     const user = auth.currentUser;
 
     if (!user) {
-        mensaje.textContent = "Debes iniciar sesiÃ³n para enviar una reseÃ±a";
+        mensaje.textContent = "Debes iniciar sesión para enviar una reseña";
         return;
     }
 
     if (!citaId || !servicioId || !tecnicoId) {
-        mensaje.textContent = "No se pudo identificar la cita, el servicio o el tÃ©cnico a valorar.";
-        console.warn("Faltan parametros para guardar la reseÃ±a", {
+        mensaje.textContent = "No se pudo identificar la cita, el servicio o el técnico a valorar.";
+        console.warn("Faltan parametros para guardar la reseña", {
             citaId,
             servicioId,
             tecnicoId
