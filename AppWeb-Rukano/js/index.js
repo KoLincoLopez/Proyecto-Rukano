@@ -109,7 +109,7 @@ async function ejecutarBusqueda(url) {
             <div class="editorial-alerta alerta-advertencia">
                 <h2 class="alerta-titulo">DIRECCIÓN INCOMPLETA</h2>
                 <p class="alerta-texto">Por favor, completa la configuración de tu dirección en tu perfil para filtrar técnicos cercanos.</p>
-                <a href="perfil.html" class="btn-outlined-pro">CONFIGURAR PERFIL</a>
+                <a href="panelCliente.html" class="btn-outlined-pro">CONFIGURAR PERFIL</a>
             </div>`;
         return;
     }

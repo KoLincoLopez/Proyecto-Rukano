@@ -19,8 +19,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
     btnRegistro?.addEventListener("click", async () => {
 
-        const nombres = document.getElementById("nombres").value.trim();
-        const apellidos = document.getElementById("apellidos").value.trim();
+        const nombre = document.getElementById("nombres").value.trim();
+        const apellido = document.getElementById("apellidos").value.trim();
         const telefono = document.getElementById("telefono").value.trim();
         const email = document.getElementById("email").value.trim();
         const rol = document.querySelector('input[name="rol"]:checked')?.value || "";
@@ -28,7 +28,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const pass = password.value.trim();
         const confirmPass = confirmPassword.value.trim();
 
-        if (!nombres || !apellidos || !telefono || !email || !pass || !confirmPass || !rol) {
+        if (!nombre || !apellido || !telefono || !email || !pass || !confirmPass || !rol) {
             alert("Completa todos los campos");
             return;
         }
@@ -49,20 +49,24 @@ window.addEventListener("DOMContentLoaded", () => {
 
             await setDoc(doc(db, "usuarios", user.uid), {
                 id: user.uid,
-                nombres,
-                apellidos,
-                telefono,
-                email,
-                rol,
+                uid: user.uid,
+                nombre: nombre,
+                apellido: apellido,
+                nombres: nombre,
+                apellidos: apellido,
+                telefono: telefono,
+                email: email,
+                correo: email,
+                rol: rol,
                 fechaRegistro: new Date()
             });
 
             alert("Usuario registrado correctamente");
-
             window.location.href = "inicioSesion.html";
 
         } catch (error) {
-            alert("Error: " + error.message);
+            console.log("Error al registrar usuario:", error);
+            alert("Error al registrar usuario: " + error.message);
         }
 
     });
