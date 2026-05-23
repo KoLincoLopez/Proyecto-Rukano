@@ -338,7 +338,15 @@ async function publishService() {
         const idServicio = crypto.randomUUID();
 
         // 3. Normalizar categoría y comuna desde la cuenta del técnico
-        const categoria = (tecnicoDatos.especialidad || "general").toLowerCase().replace(/técnico\s+/g, "").trim();
+        const especialidad = (tecnicoDatos.especialidad || "").toLowerCase().trim();
+        const mapaCategorias = {
+            "limpieza": "limpieza",
+            "aseo": "limpieza",
+            "gasfiter": "gasfiteria",
+            "jardinero": "jardineria",
+            "electricista": "electricidad"
+        };
+        const categoria = mapaCategorias[especialidad] || "otros";
         const comuna = tecnicoDatos.comuna || "No especificada";
 
         // 4. Generación automática del array de palabras clave (keyWords)
