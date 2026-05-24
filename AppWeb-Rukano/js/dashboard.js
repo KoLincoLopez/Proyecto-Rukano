@@ -23,47 +23,12 @@ onAuthStateChanged(auth, async (user) => {
             return;
         }
 
-        try {
-            const userRef = doc(db, "usuarios", user.uid);
-            const userSnap = await getDoc(userRef);
-            
-            if (userSnap.exists()) {
-                const datosUsuario = userSnap.data();
-                
-                if (datosUsuario.rol !== "tecnico" && datosUsuario.rol !== "técnico") {
-                    window.location.href = "index.html";
-                    return;
-                }
+        const datosUsuario = usuarioSnap.data();
+        const rol = normalizarRol(datosUsuario.rol);
 
-                // --- CONFIGURACIÓN VISUAL DEL NAVBAR ---
-                document.querySelectorAll(".link-sesion, .btn-registro-nav").forEach(el => el.style.display = "none");
-
-                const navDerecha = document.querySelector(".nav-derecha");
-                if (navDerecha && botonPerfil && !document.getElementById("saludoNavbar")) {
-                    const saludo = document.createElement("span");
-                    saludo.id = "saludoNavbar";
-                    saludo.style.cssText = "color: var(--c-arena); font-weight: bold; margin-right: 15px; font-size: 14px;";
-                    saludo.textContent = `¡Hola, ${datosUsuario.nombre.split(" ")[0]}!`;
-                    navDerecha.insertBefore(saludo, botonPerfil);
-                }
-
-                // CONSERVADO: Transformar la foto de perfil en la letra inicial del técnico
-                const img = botonPerfil?.querySelector("img");
-                if (img && datosUsuario.nombre) {
-                    const span = document.createElement("span");
-                    span.textContent = datosUsuario.nombre.charAt(0).toUpperCase();
-                    span.style.cssText = "color: white; font-size: 18px; font-weight: 900; background-color: var(--c-rosewood); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%;";
-                    img.replaceWith(span);
-                }
-
-                // Cargar datos usando el idTecnico real
-                cargarDatosDashboard(user.uid);
-
-            } else {
-                window.location.href = "inicioSesion.html";
-            }
-        } catch (error) {
-            console.error("Error al validar sesión:", error);
+        if (rol === "cliente") {
+            window.location.href = "panelCliente.html";
+            return;
         }
 
         if (rol !== "tecnico") {
@@ -72,6 +37,7 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         inicializarDashboardTecnico();
+        pintarMetricasCargando();
         await cargarDashboardTecnico(user.uid);
     } catch (error) {
         console.log("Error al validar acceso tecnico:", error);
@@ -80,33 +46,21 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 function normalizarRol(rol) {
-    return String(rol || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+    return normalizarTexto(rol);
 }
 
 function inicializarDashboardTecnico() {
     const lista = document.querySelectorAll(".tech-nav li");
 
-    function activarLink() {
-        lista.forEach((item) => {
-            item.classList.remove("active");
-        });
-        this.classList.add("active");
-    }
-
     lista.forEach((item) => {
-        item.addEventListener("mouseover", activarLink);
+        item.addEventListener("mouseover", () => {
+            lista.forEach((navItem) => navItem.classList.remove("active"));
+            item.classList.add("active");
+        });
     });
 }
 
-    // === 3. CARGAR CITAS REALES DESDE FIRESTORE (CORREGIDO) ===
-    async function cargarDatosDashboard(idTecnico) {
-        const tablaOrdenes = document.querySelector(".ordenes-recientes table tbody");
-        const tablaClientes = document.querySelector(".nuevos-clientes table");
-
+async function cargarDashboardTecnico(uidTecnico) {
     try {
         const [serviciosSnap, citasSnap, resenas] = await Promise.all([
             getDocs(query(collection(db, "servicios"), where("idTecnico", "==", uidTecnico))),
@@ -124,93 +78,7 @@ function inicializarDashboardTecnico() {
             ...documento.data()
         }));
 
-            // 1. Almacenar citas en un array temporal y capturar IDs de clientes únicos
-            const listaCitas = [];
-            const idClientesUnicos = new Set();
-
-            querySnapshot.forEach((documento) => {
-                const cita = documento.data();
-                listaCitas.push(cita);
-                if (cita.idCliente) {
-                    idClientesUnicos.add(cita.idCliente);
-                }
-            });
-
-            // 2. Buscar en paralelo la información de todos los clientes únicos detectados
-            const mapaClientes = {}; // Diccionario para mapear idCliente -> { nombre, foto }
-            
-            const promesasClientes = Array.from(idClientesUnicos).map(async (idCliente) => {
-                try {
-                    const userRef = doc(db, "usuarios", idCliente);
-                    const userSnap = await getDoc(userRef);
-                    
-                    if (userSnap.exists()) {
-                        const datos = userSnap.data();
-                        mapaClientes[idCliente] = {
-                            nombreCompleto: `${datos.nombre} ${datos.apellido}`,
-                            fotoPerfil: datos.foto_perfil || null
-                        };
-                    } else {
-                        mapaClientes[idCliente] = { nombreCompleto: "Usuario Desconocido", fotoPerfil: null };
-                    }
-                } catch (err) {
-                    console.error(`Error al traer datos del cliente ${idCliente}:`, err);
-                    mapaClientes[idCliente] = { nombreCompleto: "Error al cargar nombre", fotoPerfil: null };
-                }
-            });
-
-            // Esperamos que terminen todas las consultas de usuarios antes de renderizar
-            await Promise.all(promesasClientes);
-
-            let htmlOrdenes = "";
-            let htmlClientes = "";
-            const clientesRegistrados = new Set();
-
-            // 3. Construir e inyectar el HTML con los datos reales unidos
-            listaCitas.forEach((cita) => {
-                // Obtener datos del cliente desde nuestro mapa de caché interno
-                const infoCliente = mapaClientes[cita.idCliente] || { nombreCompleto: "Anónimo", fotoPerfil: null };
-                
-                const claseEstatus = cita.estado ? cita.estado.toLowerCase() : "pendiente";
-                const textoEstatus = cita.estado ? cita.estado.toUpperCase() : "PENDIENTE";
-                const textoPago = cita.pagoRetenido ? "Retenido" : "Liberado";
-                const fechaHora = (cita.fecha && cita.hora) ? `${cita.fecha} a las ${cita.hora}` : "No definida";
-
-                // --- A) INYECTAR EN TABLA DE ÓRDENES (Citas Agendadas) ---
-                htmlOrdenes += `
-                    <tr>
-                        <td title="ID: ${cita.idCliente || ''}">${infoCliente.nombreCompleto}</td>
-                        <td>${cita.tituloServicio || "Servicio Técnico"}</td>
-                        <td>${fechaHora}</td>
-                        <td>${textoPago}</td>
-                        <td><span class="estatus ${claseEstatus}">${textoEstatus}</span></td>
-                    </tr>
-                `;
-
-                // --- B) INYECTAR EN TABLA DE CLIENTES ÚNICOS (Panel Derecho) ---
-                if (cita.idCliente && !clientesRegistrados.has(cita.idCliente)) {
-                    clientesRegistrados.add(cita.idCliente);
-                    
-                    // Si el cliente tiene foto guardada en Firebase la usa, si no, usa el placeholder por defecto
-                    const urlFoto = infoCliente.fotoPerfil || "https://e7.pngegg.com/pngimages/355/848/png-clipart-computer-icons-user-profile-google-account-s-icon-account-miscellaneous-sphere-thumbnail.png";
-
-                    htmlClientes += `
-                        <tr>
-                            <td>
-                                <div class="imgBox">
-                                    <img src="${urlFoto}" alt="Usuario">
-                                </div>
-                            </td>
-                            <td>
-                                <h4>${infoCliente.nombreCompleto} <br><span>Cliente</span></h4>
-                            </td>
-                            <td>
-                                <a href="#" style="opacity:0.5; cursor:default;" title="ID completo: ${cita.idCliente}"><ion-icon name="person-outline"></ion-icon></a>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
+        const clientes = await cargarClientesAsociados(citas);
 
         renderizarMetricas(servicios, citas, clientes, resenas);
         renderizarProximasCitas(citas, clientes);
@@ -271,7 +139,7 @@ function renderizarMetricas(servicios, citas, clientes, resenas) {
     const totalCitas = citas.length;
     const totalClientes = clientes.size;
     const calificaciones = resenas
-        .map((resena) => Number(resena.estrellas ?? resena.rating ?? resena.calificacion))
+        .map((resena) => Number(resena.puntuacion ?? resena.estrellas ?? resena.rating ?? resena.calificacion))
         .filter((valor) => Number.isFinite(valor) && valor > 0);
 
     pintarMetrica(
