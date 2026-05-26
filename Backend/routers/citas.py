@@ -17,6 +17,11 @@ class ReservaCita(BaseModel):
     # Aquí es donde el cliente envía el formulario ya respondido
     respuestas_formulario: dict 
 
+# ---MODELO DE DATOS PARA ACTUALIZAR ESTADO DE CITA (RESERVADA/CANCELADA)---
+class ActualizarEstadoCita(BaseModel):
+    idTecnico: str
+    nuevo_estado: str  # Solo permitiremos "reservada" o "cancelada"
+
 # --- ENDPOINT: RESERVAR CON VALIDACIÓN DE FORMULARIO ---
 @router.post("/reservar")
 async def reservar_cita(datos: ReservaCita):
@@ -58,7 +63,7 @@ async def reservar_cita(datos: ReservaCita):
                 "fecha": datos.fecha,
                 "hora": datos.hora,
                 "respuestas_formulario": respuestas_str,
-                "estado": "pagada",
+                "estado": "pendiente",
                 "pagoRetenido": True,
                 "createdAt": ahora
             }
@@ -127,3 +132,65 @@ async def obtener_citas_cliente(cliente_id: str):
     docs = db.collection("citas").where(filter=FieldFilter("idCliente", "==", cliente_id)).stream()
     citas = [doc.to_dict() for doc in docs]
     return sorted(citas, key=lambda x: (x['fecha'], x['hora']))
+
+# --- ENDPOINT: CAMBIAR ESTADO DE LA CITA (DE PENDIENTE A RESERVADA/CANCELADA) ---
+@router.patch("/{id_cita}/estado")
+async def cambiar_estado_cita(id_cita: str, payload: ActualizarEstadoCita):
+    try:
+        # 1. Validar que el nuevo estado sea estrictamente uno de los permitidos
+        estados_permitidos = ["reservada", "cancelada"]
+        if payload.nuevo_estado not in estados_permitidos:
+            raise HTTPException(
+                status_code=400, 
+                detail="El estado proporcionado no es válido. Debe ser 'reservada' o 'cancelada'."
+            )
+
+        cita_ref = db.collection("citas").document(id_cita)
+
+        # 2. Usar transacción para garantizar una lectura/escritura atómica
+        @firestore.transactional
+        def procesar_cambio_estado(transaction, ref):
+            snapshot = ref.get(transaction=transaction)
+
+            if not snapshot.exists:
+                raise HTTPException(status_code=404, detail="La cita no existe en la base de datos.")
+
+            cita_data = snapshot.to_dict()
+
+            # 3. Validar que el técnico que pide el cambio sea el dueño de la cita
+            if cita_data.get("idTecnico") != payload.idTecnico:
+                raise HTTPException(
+                    status_code=403, 
+                    detail="No tienes permisos para modificar esta cita porque pertenece a otro técnico."
+                )
+
+            # 4. REGLA DE NEGOCIO: Solo se puede cambiar si el estado actual es "pendiente"
+            estado_actual = cita_data.get("estado", "").lower()
+            if estado_actual != "pendiente":
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Operación rechazada: La cita ya no está 'pendiente' (Estado actual: '{estado_actual}')."
+                )
+
+            # 5. Ejecutar la actualización
+            transaction.update(ref, {
+                "estado": payload.nuevo_estado,
+                "modificadoEn": datetime.now(timezone.utc)
+            })
+
+            return payload.nuevo_estado
+
+        transaction = db.transaction()
+        nuevo_estado_aplicado = procesar_cambio_estado(transaction, cita_ref)
+
+        return {
+            "status": "success", 
+            "message": f"El estado de la cita se actualizó correctamente a '{nuevo_estado_aplicado}'.",
+            "idCita": id_cita
+        }
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"ERROR AL ACTUALIZAR ESTADO DE CITA: {str(e)}")
+        raise HTTPException(status_code=500, detail="Ocurrió un error interno al intentar actualizar la cita.")

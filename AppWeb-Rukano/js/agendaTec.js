@@ -58,6 +58,7 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
+    estadoAgenda.uidTecnico = user.uid;
     await cargarCitasTecnico(user.uid);
 });
 
@@ -276,11 +277,59 @@ function crearCardCita(cita) {
         <p><span>Cliente</span><b>${escaparHtml(cliente)}</b></p>
         <p><span>Fecha</span><b>${escaparHtml(fecha)}</b></p>
         <p><span>Horario</span><b>${escaparHtml(horario)}</b></p>
-        <p><span>Estado</span><b>${escaparHtml(estado)}</b></p>
+        <p><span>Estado</span><b class="estado-badge estado-${escaparHtml(estado)}">${escaparHtml(estado)}</b></p>
         ${precio ? `<p><span>Precio</span><b>$${escaparHtml(precio)}</b></p>` : ""}
+        ${cita.estado === "pendiente" ? `
+            <div class="cita-acciones">
+                <button class="btn-confirmar" type="button">✓ Confirmar</button>
+                <button class="btn-cancelar" type="button">✕ Cancelar</button>
+            </div>
+        ` : ""}
     `;
 
+    // Adjuntar listeners solo si la cita es pendiente
+    if (cita.estado === "pendiente") {
+        card.querySelector(".btn-confirmar").addEventListener("click", () =>
+            manejarCambioCita(cita.id, "reservada", card)
+        );
+        card.querySelector(".btn-cancelar").addEventListener("click", () =>
+            manejarCambioCita(cita.id, "cancelada", card)
+        );
+    }
+
     return card;
+}
+
+async function manejarCambioCita(idCita, nuevoEstado, card) {
+    const btnConfirmar = card.querySelector(".btn-confirmar");
+    const btnCancelar = card.querySelector(".btn-cancelar");
+
+    // Deshabilitar botones mientras procesa
+    if (btnConfirmar) btnConfirmar.disabled = true;
+    if (btnCancelar) btnCancelar.disabled = true;
+
+    try {
+        await cambiarEstadoCita(idCita, nuevoEstado);
+
+        // Actualizar estado local en memoria
+        const citaLocal = estadoAgenda.citas.find((c) => c.id === idCita);
+        if (citaLocal) citaLocal.estado = nuevoEstado;
+
+        // Actualizar badge y remover botones
+        const badge = card.querySelector(".estado-badge");
+        if (badge) {
+            badge.textContent = nuevoEstado;
+            badge.className = `estado-badge estado-${nuevoEstado}`;
+        }
+        const acciones = card.querySelector(".cita-acciones");
+        if (acciones) acciones.remove();
+
+    } catch (error) {
+        console.error("Error al cambiar estado:", error);
+        alert(`No se pudo actualizar la cita: ${error.message}`);
+        if (btnConfirmar) btnConfirmar.disabled = false;
+        if (btnCancelar) btnCancelar.disabled = false;
+    }
 }
 
 function ordenarCitas(citas) {
@@ -359,4 +408,29 @@ function escaparHtml(valor) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+async function cambiarEstadoCita(idCita, nuevoEstado) {
+    const BASE_URL = "http://localhost:8000"; // ← tu URL real de FastAPI
+
+    let res;
+    try {
+        res = await fetch(`${BASE_URL}/citas/${idCita}/estado`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                idTecnico: estadoAgenda.uidTecnico,
+                nuevo_estado: nuevoEstado
+            })
+        });
+    } catch (networkError) {
+        throw new Error(`Error de red: no se pudo conectar con el servidor (${networkError.message})`);
+    }
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Error ${res.status} al actualizar la cita`);
+    }
+
+    return res.json();
 }
