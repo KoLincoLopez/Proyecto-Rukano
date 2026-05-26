@@ -750,22 +750,28 @@ window.addEventListener("DOMContentLoaded", () => {
                 const servicioId = cita.idServicio || "";
                 const tecnicoId = cita.idTecnico || "";
                 const faltanDatosResena = !citaId || !servicioId || !tecnicoId;
+
                 const obtenerDato = (valor, fallback) => {
                     if (valor === undefined || valor === null || String(valor).trim() === "") {
                         return fallback;
                     }
-
                     return String(valor).trim();
                 };
 
-                const servicio = obtenerDato(cita.servicio, "Servicio no especificado");
-                const tecnico = obtenerDato(cita.tecnico, "Tecnico no asignado");
+                // Compatibilidad con citas creadas desde el frontend (cita.servicio)
+                // y citas creadas desde el backend Python (cita.tituloServicio)
+                const servicio = obtenerDato(cita.tituloServicio, obtenerDato(cita.servicio, "Servicio no especificado"));
+
+                // Compatibilidad: el backend guarda solo idTecnico, sin nombre
+                const tecnico = obtenerDato(cita.tecnico, obtenerDato(cita.idTecnico, "Tecnico no asignado"));
+
                 const dia = obtenerDato(cita.dia, obtenerDato(cita.fecha, "Fecha no definida"));
                 const horaInicio = obtenerDato(cita.horaInicio, "");
                 const horaFin = obtenerDato(cita.horaFin, "");
                 const horario = horaInicio && horaFin ? `${horaInicio} - ${horaFin}` : obtenerDato(cita.hora, "Horario no definido");
                 const precio = obtenerDato(cita.precio, "Precio no informado");
-                const estado = obtenerDato(cita.estado, "Estado pendiente");
+                const estado = obtenerDato(cita.estado, "pendiente");
+                const estadoNorm = estado.toLowerCase().trim();
 
                 if (faltanDatosResena) {
                     console.warn("Cita sin datos suficientes para valorar servicio", {
@@ -784,6 +790,13 @@ window.addEventListener("DOMContentLoaded", () => {
                         Valorar servicio
                     </a>`;
 
+                // Botón "Pagar Cita" solo cuando el estado es "reservada"
+                const accionPago = estadoNorm === "reservada"
+                    ? `<button type="button" class="btn-link btn-pagar-cita" data-cita-id="${citaId}">
+                        Pagar Cita
+                    </button>`
+                    : "";
+
                 const card = document.createElement("div");
                 card.className = "dato cita-card";
 
@@ -797,9 +810,33 @@ window.addEventListener("DOMContentLoaded", () => {
                         <p><span>Estado</span><b>${estado}</b></p>
                     </div>
                     <div class="cita-acciones">
+                        ${accionPago}
                         ${accionResena}
                     </div>
                 `;
+
+                // Lógica del botón Pagar Cita
+                if (estadoNorm === "reservada") {
+                    const btnPagar = card.querySelector(".btn-pagar-cita");
+                    if (btnPagar) {
+                        btnPagar.addEventListener("click", async () => {
+                            btnPagar.disabled = true;
+                            btnPagar.textContent = "Procesando...";
+                            try {
+                                await updateDoc(doc(db, "citas", citaId), {
+                                    estado: "pago_realizado",
+                                    pagadoEn: new Date()
+                                });
+                                // Refrescar la lista para reflejar el nuevo estado
+                                await cargarCitasCliente(uidCliente);
+                            } catch (error) {
+                                console.log("Error al registrar pago:", error);
+                                btnPagar.disabled = false;
+                                btnPagar.textContent = "Pagar Cita";
+                            }
+                        });
+                    }
+                }
 
                 lista.appendChild(card);
             });

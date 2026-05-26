@@ -138,7 +138,7 @@ async def obtener_citas_cliente(cliente_id: str):
 async def cambiar_estado_cita(id_cita: str, payload: ActualizarEstadoCita):
     try:
         # 1. Validar que el nuevo estado sea estrictamente uno de los permitidos
-        estados_permitidos = ["reservada", "cancelada"]
+        estados_permitidos = ["reservada", "cancelada", "pago_realizado"]
         if payload.nuevo_estado not in estados_permitidos:
             raise HTTPException(
                 status_code=400, 
@@ -164,12 +164,22 @@ async def cambiar_estado_cita(id_cita: str, payload: ActualizarEstadoCita):
                     detail="No tienes permisos para modificar esta cita porque pertenece a otro técnico."
                 )
 
-            # 4. REGLA DE NEGOCIO: Solo se puede cambiar si el estado actual es "pendiente"
+            # 4. REGLA DE NEGOCIO: Solo se puede cambiar si el estado actual es "pendiente" o "reservada"
             estado_actual = cita_data.get("estado", "").lower()
-            if estado_actual != "pendiente":
+            if estado_actual == "pendiente" and payload.nuevo_estado == "pago_realizado":
+                raise HTTPException(
+                    status_code=400,
+                    detail="Operación rechazada: La cita debe estar 'reservada' antes de poder pagar."
+                )
+            if estado_actual not in ("pendiente", "reservada"):
                 raise HTTPException(
                     status_code=400, 
-                    detail=f"Operación rechazada: La cita ya no está 'pendiente' (Estado actual: '{estado_actual}')."
+                    detail=f"Operación rechazada: La cita ya no está en un estado modificable (Estado actual: '{estado_actual}')."
+                )
+            if estado_actual == "reservada" and payload.nuevo_estado not in ("cancelada", "pago_realizado"):
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Operación rechazada: Desde 'reservada' solo se puede cancelar o pagar."
                 )
 
             # 5. Ejecutar la actualización
