@@ -196,17 +196,32 @@ function renderizarCalendario() {
     for (let dia = 1; dia <= totalDiasMes; dia += 1) {
         const fecha = formatearFecha(new Date(anio, mes, dia));
         const citasDia = filtrarCitasPorFecha(fecha);
+        const citasPendientesDia = citasDia.filter((c) => c.estado === "pendiente");
         const celda = document.createElement("button");
 
         celda.type = "button";
         celda.className = "dia";
         celda.dataset.fecha = fecha;
-        celda.textContent = String(dia);
         celda.setAttribute("aria-label", `Ver citas del dia ${dia}`);
 
         if (fecha === hoyFormateado) celda.classList.add("hoy");
         if (citasDia.length > 0) celda.classList.add("servicio");
         if (fecha === estadoAgenda.fechaSeleccionada) celda.classList.add("seleccionado");
+
+        // Número del día
+        const spanDia = document.createElement("span");
+        spanDia.textContent = String(dia);
+        celda.appendChild(spanDia);
+
+        // Badge de pendientes: solo se inserta en el DOM si hay al menos uno
+        if (citasPendientesDia.length > 0) {
+            celda.classList.add("tiene-pendientes");
+            const badge = document.createElement("span");
+            badge.className = "badge-pendientes-cal";
+            badge.textContent = String(citasPendientesDia.length);
+            badge.setAttribute("aria-label", `${citasPendientesDia.length} cita(s) pendiente(s)`);
+            celda.appendChild(badge);
+        }
 
         celda.addEventListener("click", () => {
             estadoAgenda.fechaSeleccionada = fecha;
@@ -323,6 +338,9 @@ async function manejarCambioCita(idCita, nuevoEstado, card) {
         }
         const acciones = card.querySelector(".cita-acciones");
         if (acciones) acciones.remove();
+
+        // Redibujar calendario para actualizar los badges de pendientes
+        renderizarCalendario();
 
     } catch (error) {
         console.error("Error al cambiar estado:", error);

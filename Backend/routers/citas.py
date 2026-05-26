@@ -111,7 +111,7 @@ async def obtener_agenda(tecnico_id: str):
 async def obtener_horas_ocupadas(tecnico_id: str, fecha: str):
     """
     Devuelve las horas ya reservadas para un técnico en una fecha específica.
-    El frontend usa esto para deshabilitar esos slots en el selector de horario.
+    Excluye las citas con estado 'cancelada' para que esos horarios queden libres.
     Formato fecha esperado: YYYY-MM-DD
     """
     try:
@@ -121,9 +121,20 @@ async def obtener_horas_ocupadas(tecnico_id: str, fecha: str):
             .where(filter=FieldFilter("fecha", "==", fecha))
             .stream()
         )
-        horas_ocupadas = [doc.to_dict().get("hora") for doc in docs]
-        horas_ocupadas = [h for h in horas_ocupadas if h]  # filtramos None
+        
+        horas_ocupadas = []
+        
+        for doc in docs:
+            cita_data = doc.to_dict()
+            estado = cita_data.get("estado", "").lower()
+            hora = cita_data.get("hora")
+            
+            # REGLA: Si la cita está cancelada, se ignora (el horario queda disponible)
+            if estado != "cancelada" and hora:
+                horas_ocupadas.append(hora)
+                
         return {"status": "success", "fecha": fecha, "horas_ocupadas": horas_ocupadas}
+        
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al consultar agenda: {str(e)}")
 
@@ -270,3 +281,57 @@ async def verificar_y_actualizar_citas():
     except Exception as e:
         print(f"ERROR EN CRON DE CITAS: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error interno en el procesamiento por lote: {str(e)}")
+
+# --- ENDPOINT NOTIFICACIONES: CITAS PENDIENTES (TÉCNICO) ---
+@router.get("/notificaciones/tecnico/{tecnico_id}/pendientes")
+async def contar_citas_pendientes_tecnico(tecnico_id: str):
+    """
+    Devuelve la cantidad de citas en estado 'pendiente' para un técnico.
+    Ideal para mostrar globos de notificación en el dashboard.
+    """
+    try:
+        query = (
+            db.collection("citas")
+            .where(filter=FieldFilter("idTecnico", "==", tecnico_id))
+            .where(filter=FieldFilter("estado", "==", "pendiente"))
+            .stream()
+        )
+        
+        # sum() iterará el generador de forma muy eficiente sin cargar grandes listas
+        cantidad = sum(1 for _ in query)
+        
+        return {
+            "status": "success", 
+            "tecnico_id": tecnico_id,
+            "cantidad_pendientes": cantidad
+        }
+    except Exception as e:
+        print(f"Error al contar notificaciones del técnico: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno al contar citas pendientes")
+
+
+# --- ENDPOINT NOTIFICACIONES: CITAS RESERVADAS (CLIENTE) ---
+@router.get("/notificaciones/cliente/{cliente_id}/reservadas")
+async def contar_citas_reservadas_cliente(cliente_id: str):
+    """
+    Devuelve la cantidad de citas en estado 'reservada' para un cliente.
+    Ideal para avisarle que tiene que realizar el pago o tomar acción.
+    """
+    try:
+        query = (
+            db.collection("citas")
+            .where(filter=FieldFilter("idCliente", "==", cliente_id))
+            .where(filter=FieldFilter("estado", "==", "reservada"))
+            .stream()
+        )
+        
+        cantidad = sum(1 for _ in query)
+        
+        return {
+            "status": "success", 
+            "cliente_id": cliente_id,
+            "cantidad_reservadas": cantidad
+        }
+    except Exception as e:
+        print(f"Error al contar notificaciones del cliente: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno al contar citas reservadas")

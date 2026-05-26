@@ -625,8 +625,9 @@ function renderCalendario() {
         const fechaStr = toDateStr(fecha);
         const esPasado = fecha < new Date(hoyStr);          // días anteriores a hoy
         const esDomingo = fecha.getDay() === 0;             // domingos bloqueados
+        const esHoy = fechaStr === hoyStr;                      // día actual
         const sinDisponibilidad = !tieneDisponibilidadFecha(fecha);
-        const bloqueado = esPasado || esDomingo || sinDisponibilidad;
+        const bloqueado = esPasado || esDomingo || sinDisponibilidad || esHoy;
         const seleccionado = fechaStr === elegidaStr;
 
         const clases = [

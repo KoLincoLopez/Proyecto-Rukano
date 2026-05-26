@@ -915,3 +915,33 @@ section{
 .estado-pendiente  { background: #fef9c3; color: #854d0e; }
 .estado-reservada  { background: #dcfce7; color: #166534; }
 .estado-cancelada  { background: #fee2e2; color: #991b1b; }
+
+/* Celda con citas pendientes: posición relativa para anclar el badge */
+        .dia.tiene-pendientes {
+            position: relative;
+        }
+
+        /* Badge circular rojo en esquina superior derecha de la celda */
+        .badge-pendientes-cal {
+            position: absolute;
+            top: 2px;
+            right: 3px;
+            min-width: 1.1rem;
+            height: 1.1rem;
+            padding: 0 3px;
+            border-radius: 999px;
+            background-color: #e63946;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            line-height: 1.1rem;
+            text-align: center;
+            pointer-events: none;
+            box-shadow: 0 1px 4px rgba(230, 57, 70, 0.45);
+            animation: badge-cal-pop 0.2s ease;
+        }
+
+        @keyframes badge-cal-pop {
+            from { transform: scale(0.5); opacity: 0; }
+            to   { transform: scale(1);   opacity: 1; }
+        }

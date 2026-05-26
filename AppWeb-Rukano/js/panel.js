@@ -392,6 +392,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         cargarCitasCliente(uidCliente);
         cargarUltimoReporteCliente(uidCliente);
+        cargarBadgeCitasReservadas(uidCliente);
 
         const btnConfirmarReserva = document.getElementById("btnConfirmarReserva");
 
@@ -724,6 +725,38 @@ window.addEventListener("DOMContentLoaded", () => {
             .replace(/[\u0300-\u036f]/g, "");
     }
 
+    async function cargarBadgeCitasReservadas(uidCliente) {
+        // Eliminar badge previo del DOM (para el caso de refrescos tras un pago)
+        document.getElementById("badgeCitasReservadas")?.remove();
+
+        const heading = document.querySelector(".citas-section .section-heading h2");
+        if (!heading) return;
+
+        try {
+            const URL_API = window.API_BASE_URL
+                ? `${window.API_BASE_URL}/citas/notificaciones/cliente/${uidCliente}/reservadas`
+                : `http://localhost:8000/citas/notificaciones/cliente/${uidCliente}/reservadas`;
+
+            const response = await fetch(URL_API);
+            if (!response.ok) throw new Error("Error al obtener notificaciones");
+
+            const data = await response.json();
+            const cantidad = data.cantidad_reservadas ?? 0;
+
+            // Solo se inserta en el DOM si hay algo que notificar; si es 0 no existe ningún elemento
+            if (cantidad > 0) {
+                const badge = document.createElement("span");
+                badge.id = "badgeCitasReservadas";
+                badge.className = "badge-citas-reservadas";
+                badge.textContent = String(cantidad);
+                heading.appendChild(badge);
+            }
+        } catch (error) {
+            // Silencioso: si falla el endpoint no interrumpimos la UI
+            console.warn("[Badge] No se pudo cargar la cantidad de citas reservadas:", error);
+        }
+    }
+
     async function cargarCitasCliente(uidCliente) {
         const lista = document.getElementById("listaCitasCliente");
 
@@ -829,8 +862,9 @@ window.addEventListener("DOMContentLoaded", () => {
                                     estado: "pago_realizado",
                                     pagadoEn: new Date()
                                 });
-                                // Refrescar la lista para reflejar el nuevo estado
+                                // Refrescar la lista y el badge para reflejar el nuevo estado
                                 await cargarCitasCliente(uidCliente);
+                                await cargarBadgeCitasReservadas(uidCliente);
                             } catch (error) {
                                 console.log("Error al registrar pago:", error);
                                 btnPagar.disabled = false;
