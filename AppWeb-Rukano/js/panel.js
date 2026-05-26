@@ -16,6 +16,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let datosUsuarioActual = null;
 
+    verificarCitasExpiradasSilencioso();   // Verificar citas expiradas al cargar el panel, sin mostrar errores al usuario en caso de fallo
+
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = "inicioSesion.html";
@@ -848,3 +850,52 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+/**
+ * Ejecuta una actualización silenciosa de los estados de las citas vencidas.
+ * Utiliza localStorage para asegurarse de que solo se llame una vez al día por usuario,
+ * sin importar cuántas pestañas tenga abiertas.
+ */
+async function verificarCitasExpiradasSilencioso() {
+    // 1. Obtener la fecha local de hoy en formato YYYY-MM-DD
+    const hoy = new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' }).split('-').reverse().join('-'); 
+    // Nota: El split/reverse adapta el formato según cómo devuelva el string tu región local, 
+    // una alternativa limpia es: new Date().toISOString().split('T')[0];
+
+    const fechaHoyFormateada = new Date().toISOString().split('T')[0];
+    const ultimaVerificacion = localStorage.getItem('backend_cron_citas_fecha');
+
+    // 2. Si ya se ejecutó con éxito el día de hoy, saltar la petición
+    if (ultimaVerificacion === fechaHoyFormateada) {
+        console.log('[Sistema] Los estados de las citas ya están sincronizados hoy.');
+        return;
+    }
+
+    try {
+        // 3. Cambia esto por tu URL real de producción cuando corresponda
+        const URL_API = 'http://localhost:8000/citas/cron/verificar-fechas-citas'; 
+
+        // Al ser un fetch silencioso, no bloqueamos la UI con loaders o spinners
+        const response = await fetch(URL_API, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(`[Cron Silencioso] Éxito: ${data.message}`);
+            
+            // Guardamos en el almacenamiento del navegador que hoy ya se cumplió la tarea
+            localStorage.setItem('backend_cron_citas_fecha', fechaHoyFormateada);
+        } else {
+            // Error de respuesta del servidor (ej: 500), no guardamos en localStorage para reintentar luego
+            console.warn('[Cron Silencioso] El servidor respondió con un error al procesar fechas.');
+        }
+
+    } catch (error) {
+        // Al ser silencioso, capturamos el error en consola para desarrollo sin interrumpir al cliente
+        console.error('[Cron Silencioso] Error de red o servidor caído:', error);
+    }
+}

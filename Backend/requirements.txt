@@ -4,3 +4,4 @@ pydantic[email]>=2.0.0,<3.0.0
 firebase-admin>=6.0.0,<8.0.0
 python-dotenv>=1.0.0,<2.0.0
 mercadopago>=2.2.0,<3.0.0
+pytz>=2024.0.0,<2025.0.0
