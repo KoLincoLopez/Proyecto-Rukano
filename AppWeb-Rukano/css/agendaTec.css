@@ -945,3 +945,21 @@ section{
             from { transform: scale(0.5); opacity: 0; }
             to   { transform: scale(1);   opacity: 1; }
         }
+
+.btn-concluir {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin-top: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    background: #6366f1;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.btn-concluir:hover:not(:disabled) { background: #4f46e5; }
+.btn-concluir:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.estado-concluida { background: #ede9fe; color: #4c1d95; }

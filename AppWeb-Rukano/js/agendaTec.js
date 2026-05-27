@@ -287,6 +287,10 @@ function crearCardCita(cita) {
     const card = document.createElement("article");
 
     card.className = "cita-tecnico-card";
+    const fechaCitaISO = obtenerFechaCitaISO(cita);
+    const hoyISO = formatearFecha(estadoAgenda.hoy);
+    const esPagoRealizadoHoy = cita.estado === "pago_realizado" && fechaCitaISO === hoyISO;
+
     card.innerHTML = `
         <strong>${escaparHtml(servicio)}</strong>
         <p><span>Cliente</span><b>${escaparHtml(cliente)}</b></p>
@@ -300,6 +304,11 @@ function crearCardCita(cita) {
                 <button class="btn-cancelar" type="button">✕ Cancelar</button>
             </div>
         ` : ""}
+        ${esPagoRealizadoHoy ? `
+            <div class="cita-acciones">
+                <button class="btn-concluir" type="button">✔ Confirmar trabajo</button>
+            </div>
+        ` : ""}
     `;
 
     // Adjuntar listeners solo si la cita es pendiente
@@ -309,6 +318,13 @@ function crearCardCita(cita) {
         );
         card.querySelector(".btn-cancelar").addEventListener("click", () =>
             manejarCambioCita(cita.id, "cancelada", card)
+        );
+    }
+
+    // Listener para concluir trabajo
+    if (esPagoRealizadoHoy) {
+        card.querySelector(".btn-concluir").addEventListener("click", () =>
+            manejarConcluirCita(cita.id, card)
         );
     }
 
@@ -448,6 +464,59 @@ async function cambiarEstadoCita(idCita, nuevoEstado) {
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.detail || `Error ${res.status} al actualizar la cita`);
+    }
+
+    return res.json();
+}
+
+async function manejarConcluirCita(idCita, card) {
+    const btnConcluir = card.querySelector(".btn-concluir");
+    if (btnConcluir) btnConcluir.disabled = true;
+    if (btnConcluir) btnConcluir.textContent = "Procesando...";
+
+    try {
+        await concluirCita(idCita);
+
+        // Actualizar estado local en memoria
+        const citaLocal = estadoAgenda.citas.find((c) => c.id === idCita);
+        if (citaLocal) citaLocal.estado = "concluida";
+
+        // Actualizar badge y quitar botón
+        const badge = card.querySelector(".estado-badge");
+        if (badge) {
+            badge.textContent = "concluida";
+            badge.className = "estado-badge estado-concluida";
+        }
+        const acciones = card.querySelector(".cita-acciones");
+        if (acciones) acciones.remove();
+
+        renderizarCalendario();
+
+    } catch (error) {
+        console.error("Error al concluir cita:", error);
+        alert(`No se pudo concluir la cita: ${error.message}`);
+        if (btnConcluir) btnConcluir.disabled = false;
+        if (btnConcluir) btnConcluir.textContent = "✔ Confirmar trabajo";
+    }
+}
+
+async function concluirCita(idCita) {
+    const BASE_URL = "http://localhost:8000";
+
+    let res;
+    try {
+        res = await fetch(`${BASE_URL}/citas/${idCita}/concluir`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idTecnico: estadoAgenda.uidTecnico })
+        });
+    } catch (networkError) {
+        throw new Error(`Error de red: no se pudo conectar con el servidor (${networkError.message})`);
+    }
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || `Error ${res.status} al concluir la cita`);
     }
 
     return res.json();

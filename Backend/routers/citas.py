@@ -335,3 +335,78 @@ async def contar_citas_reservadas_cliente(cliente_id: str):
     except Exception as e:
         print(f"Error al contar notificaciones del cliente: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno al contar citas reservadas")
+
+
+# --- MODELO PARA CONFIRMAR TRABAJO ---
+class ConfirmarTrabajo(BaseModel):
+    idTecnico: str
+
+# --- ENDPOINT: CONFIRMAR TRABAJO (pago_realizado -> concluida) ---
+@router.patch("/{id_cita}/concluir")
+async def concluir_cita(id_cita: str, payload: ConfirmarTrabajo):
+    """
+    Permite al técnico marcar una cita como 'concluida'.
+    Requisitos:
+      - La cita debe estar en estado 'pago_realizado'.
+      - La fecha de la cita debe ser igual o anterior a hoy.
+      - Solo el técnico dueño de la cita puede concluirla.
+    """
+    try:
+        zona_horaria = pytz.timezone("America/Santiago")
+        hoy_str = datetime.now(zona_horaria).strftime("%Y-%m-%d")
+
+        cita_ref = db.collection("citas").document(id_cita)
+
+        @firestore.transactional
+        def procesar_conclusion(transaction, ref):
+            snapshot = ref.get(transaction=transaction)
+
+            if not snapshot.exists:
+                raise HTTPException(status_code=404, detail="La cita no existe en la base de datos.")
+
+            cita_data = snapshot.to_dict()
+
+            # Validar que sea el técnico dueño
+            if cita_data.get("idTecnico") != payload.idTecnico:
+                raise HTTPException(
+                    status_code=403,
+                    detail="No tienes permisos para concluir esta cita."
+                )
+
+            # Validar estado
+            estado_actual = cita_data.get("estado", "").lower()
+            if estado_actual != "pago_realizado":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Operación rechazada: La cita debe estar en 'pago_realizado' para poder concluirse (Estado actual: '{estado_actual}')."
+                )
+
+            # Validar que la fecha de la cita ya llegó
+            fecha_cita = cita_data.get("fecha", "")
+            if fecha_cita > hoy_str:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Operación rechazada: No puedes concluir una cita que aún no ha ocurrido (Fecha de la cita: '{fecha_cita}')."
+                )
+
+            transaction.update(ref, {
+                "estado": "concluida",
+                "modificadoEn": datetime.now(timezone.utc)
+            })
+
+            return "concluida"
+
+        transaction = db.transaction()
+        procesar_conclusion(transaction, cita_ref)
+
+        return {
+            "status": "success",
+            "message": "La cita fue marcada como concluida correctamente.",
+            "idCita": id_cita
+        }
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"ERROR AL CONCLUIR CITA: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno al intentar concluir la cita.")
