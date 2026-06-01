@@ -48,7 +48,7 @@
             }
 
             if (usarCheckoutRedireccion) {
-                const checkoutUrl = data.sandbox_init_point || data.init_point;
+                const checkoutUrl = data.init_point || data.sandbox_init_point;
                 if (!checkoutUrl) {
                     throw new Error("El servidor no devolvio una URL de checkout");
                 }

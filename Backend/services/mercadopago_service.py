@@ -15,8 +15,7 @@ class MercadoPagoService:
         self.sdk = mercadopago.SDK(access_token)
 
     def create_preference(self, item_title: str, quantity: int, unit_price: float):
-        app_base_url = os.getenv("APP_FRONTEND_URL") or os.getenv("APP_BASE_URL", "https://rukano-sph.onrender.com/app")
-        app_base_url = app_base_url.rstrip("/")
+        app_base_url = self._get_frontend_base_url()
         webhook_url = os.getenv("MERCADOPAGO_WEBHOOK_URL")
 
         preference_data = {
@@ -46,3 +45,23 @@ class MercadoPagoService:
             raise RuntimeError(f"Mercado Pago rechazo la preferencia: {detail}")
 
         return response["response"]
+
+    def _get_frontend_base_url(self) -> str:
+        app_base_url = os.getenv("APP_FRONTEND_URL") or os.getenv(
+            "APP_BASE_URL",
+            "https://proyecto-rukano.onrender.com"
+        )
+        app_base_url = app_base_url.rstrip("/")
+
+        payment_suffixes = (
+            "/payment/exito.html",
+            "/payment/error.html",
+            "/payment/pendiente.html",
+            "/payment"
+        )
+
+        for suffix in payment_suffixes:
+            if app_base_url.endswith(suffix):
+                return app_base_url[: -len(suffix)]
+
+        return app_base_url

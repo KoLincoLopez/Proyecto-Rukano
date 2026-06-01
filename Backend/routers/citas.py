@@ -58,8 +58,8 @@ async def reservar_cita(datos: ReservaCita):
                 "fecha": datos.fecha,
                 "hora": datos.hora,
                 "respuestas_formulario": respuestas_str,
-                "estado": "pagada",
-                "pagoRetenido": True,
+                "estado": "pendiente_pago",
+                "pagoRetenido": False,
                 "createdAt": ahora
             }
 
