@@ -146,9 +146,13 @@ document.addEventListener("DOMContentLoaded", () => {
             aplicarEstadoSesion(false);
         }
 
-        // La carga del servicio ocurre siempre (logueado o no),
-        // pero los botones de acción quedan bloqueados por CSS si no hay sesión.
-        cargarDetalleServicio(servicioId);
+        // La carga del servicio ocurre solo la primera vez que onAuthStateChanged resuelve,
+        // independiente de si el usuario está logueado o no.
+        // Sin este guard, onAuthStateChanged puede dispararse varias veces y duplicar las reseñas.
+        if (!window._servicioYaCargado) {
+            window._servicioYaCargado = true;
+            cargarDetalleServicio(servicioId);
+        }
     });
 });
 
@@ -1088,22 +1092,29 @@ async function cargarResenasTecnico(idTecnico) {
             contenedor.innerHTML = ""; // Limpiar el estado de "Cargando..."
 
             resultado.data.forEach(resena => {
-                // 1. Calcular estrellas doradas vs grises
+                // 1. Calcular estrellas — el campo guardado por resenasTec.js es "estrellas"
+                //    con fallback a "puntuacion" por compatibilidad con reseñas antiguas
                 let estrellasHTML = "";
-                const puntos = Math.round(Number(resena.puntuacion || 0));
+                const puntos = Math.round(Number(resena.estrellas ?? resena.puntuacion ?? 0));
                 for(let i = 1; i <= 5; i++) {
                     if (i <= puntos) {
-                        estrellasHTML += `<i class="ti ti-star-filled" style="color: #F59E0B;"></i>`; // Estrella dorada
+                        estrellasHTML += `<i class="ti ti-star-filled" style="color: #F59E0B;"></i>`;
                     } else {
-                        estrellasHTML += `<i class="ti ti-star" style="color: var(--c-border);"></i>`; // Estrella vacía
+                        estrellasHTML += `<i class="ti ti-star" style="color: var(--c-border);"></i>`;
                     }
                 }
 
-                // 2. Formatear la fecha si existe
+                // 2. Formatear la fecha — el backend guarda "createdAt", con fallback a "fecha_creacion"
                 let fechaTexto = "Recientemente";
-                if (resena.fecha_creacion) {
-                    const fechaObj = new Date(resena.fecha_creacion);
-                    fechaTexto = fechaObj.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+                const fechaRaw = resena.createdAt || resena.fecha_creacion;
+                if (fechaRaw) {
+                    // Firestore puede devolver { _seconds, _nanoseconds } si no está serializado
+                    const fechaObj = fechaRaw._seconds
+                        ? new Date(fechaRaw._seconds * 1000)
+                        : new Date(fechaRaw);
+                    if (!isNaN(fechaObj.getTime())) {
+                        fechaTexto = fechaObj.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+                    }
                 }
 
                 // 3. Crear el elemento de la tarjeta

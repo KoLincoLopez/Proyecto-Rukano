@@ -15,7 +15,7 @@ async def verificar_resena_cita(id_cita: str):
     """
     try:
         # Buscamos en la colección 'resenas' usando el campo 'idCitas'
-        query = db.collection("resenas").where("idCitas", "==", id_cita).stream()
+        query = db.collection("resenas").where("citaId", "==", id_cita).stream()
         docs = list(query)
 
         if docs:
@@ -43,10 +43,11 @@ async def publicar_reseña(datos: dict):
         puntuacion = datos.get("puntuacion")
 
         # ─── PROTECCIÓN BACKEND: Evitar duplicados directos ───
-        query_existente = db.collection("resenas").where("idCitas", "==", id_cita_referencia).stream()
+        # El frontend guarda el campo como "citaId" (no "idCitas"), usamos ese mismo campo
+        query_existente = db.collection("resenas").where("citaId", "==", id_cita_referencia).stream()
         if list(query_existente):
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="Operación inválida: Ya existe una reseña registrada para esta cita."
             )
 
@@ -59,15 +60,15 @@ async def publicar_reseña(datos: dict):
 
         cita_data = docs[0].to_dict()
 
-        if cita_data.get("estado") != "realizado":
+        if cita_data.get("estado") != "concluida":
             raise HTTPException(
                 status_code=400,
-                detail="Solo puedes reseñar servicios marcados como 'realizado'"
+                detail="Solo puedes reseñar servicios marcados como 'concluida'."
             )
 
         nueva_reseña = {
             "idResena": str(uuid.uuid4()),
-            "idCitas": id_cita_referencia,
+            "citaId": id_cita_referencia,       # campo unificado (antes era "idCitas")
             "idServicio": cita_data.get("idServicio"),
             "idTecnico": cita_data.get("idTecnico"),
             "idCliente": cita_data.get("idCliente"),

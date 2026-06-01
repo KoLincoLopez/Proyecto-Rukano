@@ -3,7 +3,10 @@ import {
     addDoc,
     collection,
     doc,
-    getDoc
+    getDoc,
+    getDocs,
+    query,
+    where
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const estrellas = document.querySelectorAll('input[name="rating"]');
@@ -38,32 +41,43 @@ async function inicializarResena() {
         });
     });
 
-    citaPuedeEvaluarse = await validarCitaFinalizada();
-    if (!citaPuedeEvaluarse) {
-        bloquearFormulario("No puedes evaluar esta cita porque aun no aparece como finalizada.");
+    const resultado = await validarCitaFinalizada();
+
+    if (resultado !== true) {
+        // resultado es el mensaje de error específico
+        bloquearFormulario(resultado || "No se pudo validar esta cita.");
         return;
     }
 
+    citaPuedeEvaluarse = true;
     btn?.addEventListener("click", enviarResena);
 }
 
+// Retorna true si la cita es reseñable, o un string con el motivo si no lo es.
 async function validarCitaFinalizada() {
-    if (!citaId) return false;
+    if (!citaId) return "No se encontró el identificador de la cita.";
 
     try {
         const citaSnap = await getDoc(doc(db, "citas", citaId));
-        if (!citaSnap.exists()) return false;
+        if (!citaSnap.exists()) return "La cita no existe.";
 
         const cita = citaSnap.data();
         const estado = normalizarTexto(cita.estado);
         const coincideServicio = !servicioId || cita.idServicio === servicioId;
         const coincideTecnico = !tecnicoId || cita.idTecnico === tecnicoId;
-        const estadoFinalizado = ["realizado", "finalizado", "completado", "pagada"].includes(estado);
 
-        return coincideServicio && coincideTecnico && estadoFinalizado;
+        if (!coincideServicio || !coincideTecnico) return "Los datos de la cita no coinciden.";
+        if (estado !== "concluida") return "No puedes evaluar esta cita porque aún no está marcada como concluida.";
+
+        // Verificar que no tenga ya una reseña
+        const q = query(collection(db, "resenas"), where("citaId", "==", citaId));
+        const snap = await getDocs(q);
+        if (!snap.empty) return "Esta cita ya fue evaluada. Solo se permite una reseña por servicio.";
+
+        return true;
     } catch (error) {
         console.log("No se pudo validar la cita antes de resenar:", error);
-        return false;
+        return "Ocurrió un error al verificar la cita.";
     }
 }
 

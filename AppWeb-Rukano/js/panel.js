@@ -779,7 +779,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             lista.innerHTML = "";
 
-            resultado.forEach((docCita) => {
+            for (const docCita of resultado.docs) {
                 const cita = docCita.data();
                 const citaId = docCita.id;
                 const servicioId = cita.idServicio || "";
@@ -808,22 +808,24 @@ window.addEventListener("DOMContentLoaded", () => {
                 const estado = obtenerDato(cita.estado, "pendiente");
                 const estadoNorm = estado.toLowerCase().trim();
 
-                if (faltanDatosResena) {
-                    console.warn("Cita sin datos suficientes para valorar servicio", {
-                        citaId,
-                        servicioId,
-                        tecnicoId,
-                        cita
-                    });
+                // El botón de reseña solo aplica a citas concluidas con datos completos
+                // y que no tengan ya una reseña registrada
+                let yaResenada = false;
+                if (estadoNorm === "concluida" && !faltanDatosResena) {
+                    try {
+                        const qResena = query(collection(db, "resenas"), where("citaId", "==", citaId));
+                        const snapResena = await getDocs(qResena);
+                        yaResenada = !snapResena.empty;
+                    } catch (_) { /* si falla la consulta, mostramos el botón de todas formas */ }
                 }
 
-                const accionResena = faltanDatosResena
-                    ? `<button type="button" class="btn-link btn-reservar" disabled style="opacity:0.65; cursor:not-allowed;">
-                        Valoracion no disponible
-                    </button>`
-                    : `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}&tecnicoId=${encodeURIComponent(tecnicoId)}" class="btn-link btn-reservar">
+                const puedeResenar = estadoNorm === "concluida" && !faltanDatosResena && !yaResenada;
+
+                const accionResena = puedeResenar
+                    ? `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}&tecnicoId=${encodeURIComponent(tecnicoId)}" class="btn-link btn-reservar">
                         Valorar servicio
-                    </a>`;
+                    </a>`
+                    : "";
 
                 // Botón "Pagar Cita" solo cuando el estado es "reservada"
                 const accionPago = estadoNorm === "reservada"
@@ -875,7 +877,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 }
 
                 lista.appendChild(card);
-            });
+            }
 
         } catch (error) {
             console.log("Error al cargar citas:", error);
