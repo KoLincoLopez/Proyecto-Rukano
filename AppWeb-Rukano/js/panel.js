@@ -16,6 +16,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let datosUsuarioActual = null;
 
+    verificarCitasExpiradasSilencioso();   // Verificar citas expiradas al cargar el panel, sin mostrar errores al usuario en caso de fallo
+
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             window.location.href = "inicioSesion.html";
@@ -390,6 +392,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         cargarCitasCliente(uidCliente);
         cargarUltimoReporteCliente(uidCliente);
+        cargarBadgeCitasReservadas(uidCliente);
 
         const btnConfirmarReserva = document.getElementById("btnConfirmarReserva");
 
@@ -722,6 +725,38 @@ window.addEventListener("DOMContentLoaded", () => {
             .replace(/[\u0300-\u036f]/g, "");
     }
 
+    async function cargarBadgeCitasReservadas(uidCliente) {
+        // Eliminar badge previo del DOM (para el caso de refrescos tras un pago)
+        document.getElementById("badgeCitasReservadas")?.remove();
+
+        const heading = document.querySelector(".citas-section .section-heading h2");
+        if (!heading) return;
+
+        try {
+            const URL_API = window.API_BASE_URL
+                ? `${window.API_BASE_URL}/citas/notificaciones/cliente/${uidCliente}/reservadas`
+                : `http://localhost:8000/citas/notificaciones/cliente/${uidCliente}/reservadas`;
+
+            const response = await fetch(URL_API);
+            if (!response.ok) throw new Error("Error al obtener notificaciones");
+
+            const data = await response.json();
+            const cantidad = data.cantidad_reservadas ?? 0;
+
+            // Solo se inserta en el DOM si hay algo que notificar; si es 0 no existe ningún elemento
+            if (cantidad > 0) {
+                const badge = document.createElement("span");
+                badge.id = "badgeCitasReservadas";
+                badge.className = "badge-citas-reservadas";
+                badge.textContent = String(cantidad);
+                heading.appendChild(badge);
+            }
+        } catch (error) {
+            // Silencioso: si falla el endpoint no interrumpimos la UI
+            console.warn("[Badge] No se pudo cargar la cantidad de citas reservadas:", error);
+        }
+    }
+
     async function cargarCitasCliente(uidCliente) {
         const lista = document.getElementById("listaCitasCliente");
 
@@ -744,45 +779,60 @@ window.addEventListener("DOMContentLoaded", () => {
 
             lista.innerHTML = "";
 
-            resultado.forEach((docCita) => {
+            for (const docCita of resultado.docs) {
                 const cita = docCita.data();
                 const citaId = docCita.id;
                 const servicioId = cita.idServicio || "";
                 const tecnicoId = cita.idTecnico || "";
                 const faltanDatosResena = !citaId || !servicioId || !tecnicoId;
+
                 const obtenerDato = (valor, fallback) => {
                     if (valor === undefined || valor === null || String(valor).trim() === "") {
                         return fallback;
                     }
-
                     return String(valor).trim();
                 };
 
-                const servicio = obtenerDato(cita.servicio, "Servicio no especificado");
-                const tecnico = obtenerDato(cita.tecnico, "Tecnico no asignado");
+                // Compatibilidad con citas creadas desde el frontend (cita.servicio)
+                // y citas creadas desde el backend Python (cita.tituloServicio)
+                const servicio = obtenerDato(cita.tituloServicio, obtenerDato(cita.servicio, "Servicio no especificado"));
+
+                // Compatibilidad: el backend guarda solo idTecnico, sin nombre
+                const tecnico = obtenerDato(cita.tecnico, obtenerDato(cita.idTecnico, "Tecnico no asignado"));
+
                 const dia = obtenerDato(cita.dia, obtenerDato(cita.fecha, "Fecha no definida"));
                 const horaInicio = obtenerDato(cita.horaInicio, "");
                 const horaFin = obtenerDato(cita.horaFin, "");
                 const horario = horaInicio && horaFin ? `${horaInicio} - ${horaFin}` : obtenerDato(cita.hora, "Horario no definido");
                 const precio = obtenerDato(cita.precio, "Precio no informado");
-                const estado = obtenerDato(cita.estado, "Estado pendiente");
+                const estado = obtenerDato(cita.estado, "pendiente");
+                const estadoNorm = estado.toLowerCase().trim();
 
-                if (faltanDatosResena) {
-                    console.warn("Cita sin datos suficientes para valorar servicio", {
-                        citaId,
-                        servicioId,
-                        tecnicoId,
-                        cita
-                    });
+                // El botón de reseña solo aplica a citas concluidas con datos completos
+                // y que no tengan ya una reseña registrada
+                let yaResenada = false;
+                if (estadoNorm === "concluida" && !faltanDatosResena) {
+                    try {
+                        const qResena = query(collection(db, "resenas"), where("citaId", "==", citaId));
+                        const snapResena = await getDocs(qResena);
+                        yaResenada = !snapResena.empty;
+                    } catch (_) { /* si falla la consulta, mostramos el botón de todas formas */ }
                 }
 
-                const accionResena = faltanDatosResena
-                    ? `<button type="button" class="btn-link btn-reservar" disabled style="opacity:0.65; cursor:not-allowed;">
-                        Valoracion no disponible
-                    </button>`
-                    : `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}&tecnicoId=${encodeURIComponent(tecnicoId)}" class="btn-link btn-reservar">
+                const puedeResenar = estadoNorm === "concluida" && !faltanDatosResena && !yaResenada;
+
+                const accionResena = puedeResenar
+                    ? `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}&tecnicoId=${encodeURIComponent(tecnicoId)}" class="btn-link btn-reservar">
                         Valorar servicio
-                    </a>`;
+                    </a>`
+                    : "";
+
+                // Botón "Pagar Cita" solo cuando el estado es "reservada"
+                const accionPago = estadoNorm === "reservada"
+                    ? `<button type="button" class="btn-link btn-pagar-cita" data-cita-id="${citaId}">
+                        Pagar Cita
+                    </button>`
+                    : "";
 
                 const card = document.createElement("div");
                 card.className = "dato cita-card";
@@ -797,12 +847,37 @@ window.addEventListener("DOMContentLoaded", () => {
                         <p><span>Estado</span><b>${estado}</b></p>
                     </div>
                     <div class="cita-acciones">
+                        ${accionPago}
                         ${accionResena}
                     </div>
                 `;
 
+                // Lógica del botón Pagar Cita
+                if (estadoNorm === "reservada") {
+                    const btnPagar = card.querySelector(".btn-pagar-cita");
+                    if (btnPagar) {
+                        btnPagar.addEventListener("click", async () => {
+                            btnPagar.disabled = true;
+                            btnPagar.textContent = "Procesando...";
+                            try {
+                                await updateDoc(doc(db, "citas", citaId), {
+                                    estado: "pago_realizado",
+                                    pagadoEn: new Date()
+                                });
+                                // Refrescar la lista y el badge para reflejar el nuevo estado
+                                await cargarCitasCliente(uidCliente);
+                                await cargarBadgeCitasReservadas(uidCliente);
+                            } catch (error) {
+                                console.log("Error al registrar pago:", error);
+                                btnPagar.disabled = false;
+                                btnPagar.textContent = "Pagar Cita";
+                            }
+                        });
+                    }
+                }
+
                 lista.appendChild(card);
-            });
+            }
 
         } catch (error) {
             console.log("Error al cargar citas:", error);
@@ -811,3 +886,52 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+/**
+ * Ejecuta una actualización silenciosa de los estados de las citas vencidas.
+ * Utiliza localStorage para asegurarse de que solo se llame una vez al día por usuario,
+ * sin importar cuántas pestañas tenga abiertas.
+ */
+async function verificarCitasExpiradasSilencioso() {
+    // 1. Obtener la fecha local de hoy en formato YYYY-MM-DD
+    const hoy = new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' }).split('-').reverse().join('-'); 
+    // Nota: El split/reverse adapta el formato según cómo devuelva el string tu región local, 
+    // una alternativa limpia es: new Date().toISOString().split('T')[0];
+
+    const fechaHoyFormateada = new Date().toISOString().split('T')[0];
+    const ultimaVerificacion = localStorage.getItem('backend_cron_citas_fecha');
+
+    // 2. Si ya se ejecutó con éxito el día de hoy, saltar la petición
+    if (ultimaVerificacion === fechaHoyFormateada) {
+        console.log('[Sistema] Los estados de las citas ya están sincronizados hoy.');
+        return;
+    }
+
+    try {
+        // 3. Cambia esto por tu URL real de producción cuando corresponda
+        const URL_API = 'http://localhost:8000/citas/cron/verificar-fechas-citas'; 
+
+        // Al ser un fetch silencioso, no bloqueamos la UI con loaders o spinners
+        const response = await fetch(URL_API, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(`[Cron Silencioso] Éxito: ${data.message}`);
+            
+            // Guardamos en el almacenamiento del navegador que hoy ya se cumplió la tarea
+            localStorage.setItem('backend_cron_citas_fecha', fechaHoyFormateada);
+        } else {
+            // Error de respuesta del servidor (ej: 500), no guardamos en localStorage para reintentar luego
+            console.warn('[Cron Silencioso] El servidor respondió con un error al procesar fechas.');
+        }
+
+    } catch (error) {
+        // Al ser silencioso, capturamos el error en consola para desarrollo sin interrumpir al cliente
+        console.error('[Cron Silencioso] Error de red o servidor caído:', error);
+    }
+}
