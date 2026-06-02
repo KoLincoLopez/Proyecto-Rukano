@@ -18,8 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
             usuarioLogueado = null;
-            comunaUsuario = null;
-            mostrarAccesoRestringido();
+            comunaUsuario = "";
+            const urlCatalogoInicial = `${API_URL}/search/busqueda_general/publica/todos`;
+            ejecutarBusqueda(urlCatalogoInicial, usuarioLogueado, comunaUsuario);
             return;
         }
 
@@ -51,7 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
             boton.classList.add("activo");
 
             const categoria = boton.getAttribute("data-categoria");
-            const url = `${API_URL}/search/categoria_solicitada/${encodeURIComponent(comunaUsuario || "")}/${encodeURIComponent(categoria)}`;
+            const comunaBusqueda = comunaUsuario || "publica";
+            const url = `${API_URL}/search/categoria_solicitada/${encodeURIComponent(comunaBusqueda)}/${encodeURIComponent(categoria)}`;
             ejecutarBusqueda(url, usuarioLogueado, comunaUsuario);
         });
     });
@@ -61,7 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!texto) return;
 
         botonesCategoria.forEach((boton) => boton.classList.remove("activo"));
-        const url = `${API_URL}/search/busqueda_general/${encodeURIComponent(comunaUsuario || "")}/${encodeURIComponent(texto)}`;
+        const comunaBusqueda = comunaUsuario || "publica";
+        const url = `${API_URL}/search/busqueda_general/${encodeURIComponent(comunaBusqueda)}/${encodeURIComponent(texto)}`;
         ejecutarBusqueda(url, usuarioLogueado, comunaUsuario);
     };
 
@@ -75,12 +78,7 @@ async function ejecutarBusqueda(url, usuarioLogueado, comunaUsuario) {
     const grillaServicios = document.querySelector("#servicios");
     if (!grillaServicios) return;
 
-    if (!usuarioLogueado) {
-        mostrarAccesoRestringido();
-        return;
-    }
-
-    if (!comunaUsuario) {
+    if (usuarioLogueado && !comunaUsuario) {
         grillaServicios.innerHTML = `
             <div class="editorial-alerta alerta-advertencia">
                 <h2 class="alerta-titulo">DIRECCION INCOMPLETA</h2>
@@ -89,7 +87,7 @@ async function ejecutarBusqueda(url, usuarioLogueado, comunaUsuario) {
             </div>`;
         return;
     }
-
+    
     try {
         grillaServicios.innerHTML = crearEstadoBusqueda("Cargando servicios...");
         const response = await fetch(url);
@@ -250,17 +248,6 @@ function formatearTiempo(tiempoEstimado) {
     return numero === 1 ? "1 hora" : `${numero} horas`;
 }
 
-function mostrarAccesoRestringido() {
-    const grillaServicios = document.querySelector("#servicios");
-    if (!grillaServicios) return;
-
-    grillaServicios.innerHTML = `
-        <div class="editorial-alerta alerta-restringido">
-            <h2 class="alerta-titulo">ACCESO RESTRINGIDO</h2>
-            <p class="alerta-texto">Debes iniciar sesion para buscar servicios y profesionales en tu zona.</p>
-            <a href="inicioSesion.html" class="btn-outlined-pro">IR AL LOGIN</a>
-        </div>`;
-}
 
 function mostrarEstadoBusqueda(texto) {
     const grillaServicios = document.querySelector("#servicios");
