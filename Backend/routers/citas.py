@@ -129,8 +129,8 @@ async def obtener_horas_ocupadas(tecnico_id: str, fecha: str):
             estado = cita_data.get("estado", "").lower()
             hora = cita_data.get("hora")
             
-            # REGLA: Si la cita está cancelada, se ignora (el horario queda disponible)
-            if estado != "cancelada" and hora:
+            # REGLA: Si la cita está cancelada o reembolsada, se ignora (el horario queda disponible)
+            if estado != "cancelada" and estado != "reembolso_solicitado" and hora:
                 horas_ocupadas.append(hora)
                 
         return {"status": "success", "fecha": fecha, "horas_ocupadas": horas_ocupadas}
@@ -335,6 +335,157 @@ async def contar_citas_reservadas_cliente(cliente_id: str):
     except Exception as e:
         print(f"Error al contar notificaciones del cliente: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno al contar citas reservadas")
+
+
+# --- MODELO PARA CANCELACIÓN POR CLIENTE ---
+class CancelarCitaCliente(BaseModel):
+    idCliente: str
+
+# --- ENDPOINT: CANCELAR CITA POR EL CLIENTE (pendiente o reservada -> cancelada) ---
+@router.patch("/{id_cita}/cancelar-cliente")
+async def cancelar_cita_cliente(id_cita: str, payload: CancelarCitaCliente):
+    """
+    Permite al cliente cancelar una cita propia en estado 'pendiente' o 'reservada'.
+    Reglas:
+      - Solo el cliente dueño de la cita puede cancelarla.
+      - No se puede cancelar una cita cuya fecha sea el mismo día de hoy.
+      - Solo aplica a citas en estado 'pendiente' o 'reservada'.
+    """
+    try:
+        zona_horaria = pytz.timezone("America/Santiago")
+        hoy_str = datetime.now(zona_horaria).strftime("%Y-%m-%d")
+
+        cita_ref = db.collection("citas").document(id_cita)
+
+        @firestore.transactional
+        def procesar_cancelacion_cliente(transaction, ref):
+            snapshot = ref.get(transaction=transaction)
+
+            if not snapshot.exists:
+                raise HTTPException(status_code=404, detail="La cita no existe en la base de datos.")
+
+            cita_data = snapshot.to_dict()
+
+            # Validar que sea el cliente dueño de la cita
+            if cita_data.get("idCliente") != payload.idCliente:
+                raise HTTPException(
+                    status_code=403,
+                    detail="No tienes permisos para cancelar esta cita."
+                )
+
+            # Validar que la fecha de la cita no sea hoy ni anterior
+            fecha_cita = cita_data.get("fecha", "")
+            if fecha_cita <= hoy_str:
+                raise HTTPException(
+                    status_code=400,
+                    detail="No puedes cancelar una cita para el mismo día o con fecha pasada."
+                )
+
+            # Validar que el estado permita la cancelación
+            estado_actual = cita_data.get("estado", "").lower()
+            if estado_actual not in ("pendiente", "reservada"):
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Operación rechazada: Solo se pueden cancelar citas en estado 'pendiente' o 'reservada' (Estado actual: '{estado_actual}')."
+                )
+
+            transaction.update(ref, {
+                "estado": "cancelada",
+                "canceladoPor": "cliente",
+                "modificadoEn": datetime.now(timezone.utc)
+            })
+
+            return "cancelada"
+
+        transaction = db.transaction()
+        procesar_cancelacion_cliente(transaction, cita_ref)
+
+        return {
+            "status": "success",
+            "message": "La cita fue cancelada correctamente.",
+            "idCita": id_cita
+        }
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"ERROR AL CANCELAR CITA (CLIENTE): {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno al intentar cancelar la cita.")
+
+
+# --- MODELO PARA SOLICITAR REEMBOLSO ---
+class SolicitarReembolso(BaseModel):
+    idCliente: str
+
+# --- ENDPOINT: SOLICITAR REEMBOLSO POR EL CLIENTE (pendiente_pago -> reembolso_solicitado) ---
+@router.patch("/{id_cita}/solicitar-reembolso")
+async def solicitar_reembolso_cliente(id_cita: str, payload: SolicitarReembolso):
+    """
+    Permite al cliente solicitar un reembolso en una cita en estado 'pendiente_pago'.
+    Reglas:
+      - Solo el cliente dueño de la cita puede solicitarlo.
+      - No se puede solicitar reembolso si la fecha de la cita es hoy o ya pasó.
+      - Solo aplica a citas en estado 'pago_realizado'.
+    """
+    try:
+        zona_horaria = pytz.timezone("America/Santiago")
+        hoy_str = datetime.now(zona_horaria).strftime("%Y-%m-%d")
+
+        cita_ref = db.collection("citas").document(id_cita)
+
+        @firestore.transactional
+        def procesar_reembolso(transaction, ref):
+            snapshot = ref.get(transaction=transaction)
+
+            if not snapshot.exists:
+                raise HTTPException(status_code=404, detail="La cita no existe en la base de datos.")
+
+            cita_data = snapshot.to_dict()
+
+            # Validar que sea el cliente dueño de la cita
+            if cita_data.get("idCliente") != payload.idCliente:
+                raise HTTPException(
+                    status_code=403,
+                    detail="No tienes permisos para solicitar reembolso en esta cita."
+                )
+
+            # Validar que la fecha de la cita no sea hoy ni anterior
+            fecha_cita = cita_data.get("fecha", "")
+            if fecha_cita <= hoy_str:
+                raise HTTPException(
+                    status_code=400,
+                    detail="No puedes solicitar reembolso en una cita para el mismo día o con fecha pasada."
+                )
+
+            # Validar que el estado sea 'pago_realizado'
+            estado_actual = cita_data.get("estado", "").lower()
+            if estado_actual != "pago_realizado":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Operación rechazada: Solo se puede solicitar reembolso en citas con estado 'pago_realizado' (Estado actual: '{estado_actual}')."
+                )
+
+            transaction.update(ref, {
+                "estado": "reembolso_solicitado",
+                "modificadoEn": datetime.now(timezone.utc)
+            })
+
+            return "reembolso_solicitado"
+
+        transaction = db.transaction()
+        procesar_reembolso(transaction, cita_ref)
+
+        return {
+            "status": "success",
+            "message": "Solicitud de reembolso registrada correctamente. Será revisada por el equipo.",
+            "idCita": id_cita
+        }
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"ERROR AL SOLICITAR REEMBOLSO (CLIENTE): {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno al intentar solicitar el reembolso.")
 
 
 # --- MODELO PARA CONFIRMAR TRABAJO ---
