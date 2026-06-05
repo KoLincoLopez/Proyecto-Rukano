@@ -834,6 +834,21 @@ window.addEventListener("DOMContentLoaded", () => {
                     </button>`
                     : "";
 
+                // Botón "Cancelar Cita" para citas en estado "pendiente" o "reservada"
+                const puedeCancelar = estadoNorm === "pendiente" || estadoNorm === "reservada";
+                const accionCancelar = puedeCancelar
+                    ? `<button type="button" class="btn-link btn-cancelar-cita" data-cita-id="${citaId}" data-cita-fecha="${dia}">
+                        Cancelar Cita
+                    </button>`
+                    : "";
+
+                // Botón "Solicitar Reembolso" para citas en estado "pago_realizado"
+                const accionReembolso = estadoNorm === "pago_realizado"
+                    ? `<button type="button" class="btn-link btn-reembolso-cita" data-cita-id="${citaId}" data-cita-fecha="${dia}">
+                        Solicitar Reembolso
+                    </button>`
+                    : "";
+
                 const card = document.createElement("div");
                 card.className = "dato cita-card";
 
@@ -846,8 +861,10 @@ window.addEventListener("DOMContentLoaded", () => {
                         <p><span>Precio</span><b>${precio === "Precio no informado" ? precio : `$${precio}`}</b></p>
                         <p><span>Estado</span><b>${estado}</b></p>
                     </div>
-                    <div class="cita-acciones">
+                    <div class="cita-acciones" style="display:flex; flex-wrap:wrap; gap:8px;">
                         ${accionPago}
+                        ${accionCancelar}
+                        ${accionReembolso}
                         ${accionResena}
                     </div>
                 `;
@@ -871,6 +888,99 @@ window.addEventListener("DOMContentLoaded", () => {
                                 console.log("Error al registrar pago:", error);
                                 btnPagar.disabled = false;
                                 btnPagar.textContent = "Pagar Cita";
+                            }
+                        });
+                    }
+                }
+
+                // Lógica del botón Cancelar Cita
+                if (puedeCancelar) {
+                    const btnCancelar = card.querySelector(".btn-cancelar-cita");
+                    if (btnCancelar) {
+                        btnCancelar.addEventListener("click", async () => {
+                            // Validar que la fecha de la cita no sea hoy ni anterior (en el cliente)
+                            const fechaCita = btnCancelar.dataset.citaFecha || "";
+                            const hoyStr = new Date().toISOString().split("T")[0];
+                            if (fechaCita && fechaCita <= hoyStr) {
+                                alert("No puedes cancelar una cita para el mismo día o con fecha pasada.");
+                                return;
+                            }
+
+                            const confirmar = window.confirm("¿Estás seguro de que deseas cancelar esta cita? Esta acción no se puede deshacer.");
+                            if (!confirmar) return;
+
+                            btnCancelar.disabled = true;
+                            btnCancelar.textContent = "Cancelando...";
+
+                            try {
+                                const URL_API = window.API_BASE_URL
+                                    ? `${window.API_BASE_URL}/citas/${citaId}/cancelar-cliente`
+                                    : `http://localhost:8000/citas/${citaId}/cancelar-cliente`;
+
+                                const response = await fetch(URL_API, {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ idCliente: uidCliente })
+                                });
+
+                                if (!response.ok) {
+                                    const errorData = await response.json().catch(() => ({}));
+                                    throw new Error(errorData.detail || "Error al cancelar la cita.");
+                                }
+
+                                await cargarCitasCliente(uidCliente);
+                                await cargarBadgeCitasReservadas(uidCliente);
+                            } catch (error) {
+                                console.log("Error al cancelar cita:", error);
+                                alert(error.message || "No se pudo cancelar la cita. Intenta nuevamente.");
+                                btnCancelar.disabled = false;
+                                btnCancelar.textContent = "Cancelar Cita";
+                            }
+                        });
+                    }
+                }
+
+                // Lógica del botón Solicitar Reembolso
+                if (estadoNorm === "pago_realizado") {
+                    const btnReembolso = card.querySelector(".btn-reembolso-cita");
+                    if (btnReembolso) {
+                        btnReembolso.addEventListener("click", async () => {
+                            // Validar que la fecha de la cita no sea hoy ni anterior (en el cliente)
+                            const fechaCita = btnReembolso.dataset.citaFecha || "";
+                            const hoyStr = new Date().toISOString().split("T")[0];
+                            if (fechaCita && fechaCita <= hoyStr) {
+                                alert("No puedes solicitar reembolso en una cita para el mismo día o con fecha pasada.");
+                                return;
+                            }
+
+                            const confirmar = window.confirm("¿Deseas solicitar un reembolso por esta cita? Tu solicitud será revisada por el equipo.");
+                            if (!confirmar) return;
+
+                            btnReembolso.disabled = true;
+                            btnReembolso.textContent = "Enviando solicitud...";
+
+                            try {
+                                const URL_API = window.API_BASE_URL
+                                    ? `${window.API_BASE_URL}/citas/${citaId}/solicitar-reembolso`
+                                    : `http://localhost:8000/citas/${citaId}/solicitar-reembolso`;
+
+                                const response = await fetch(URL_API, {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ idCliente: uidCliente })
+                                });
+
+                                if (!response.ok) {
+                                    const errorData = await response.json().catch(() => ({}));
+                                    throw new Error(errorData.detail || "Error al solicitar el reembolso.");
+                                }
+
+                                await cargarCitasCliente(uidCliente);
+                            } catch (error) {
+                                console.log("Error al solicitar reembolso:", error);
+                                alert(error.message || "No se pudo enviar la solicitud. Intenta nuevamente.");
+                                btnReembolso.disabled = false;
+                                btnReembolso.textContent = "Solicitar Reembolso";
                             }
                         });
                     }
