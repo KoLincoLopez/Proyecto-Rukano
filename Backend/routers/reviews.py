@@ -1,18 +1,55 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from core.firebase_config import db
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
-from fastapi import Request
 from google.cloud.firestore_v1 import FieldFilter
-from datetime import timezone
 
 router = APIRouter()
+
+# ─── NUEVO ENDPOINT: VERIFICAR SI UNA CITA YA TIENE RESEÑA ───
+@router.get("/verificar_resena/{id_cita}")
+async def verificar_resena_cita(id_cita: str):
+    """
+    Permite al frontend verificar si una cita específica ya fue reseñada.
+    Útil para bloquear botones o vistas de edición/creación en la interfaz.
+    """
+    try:
+        # Buscamos en la colección 'resenas' usando el campo 'idCitas'
+        query = db.collection("resenas").where("citaId", "==", id_cita).stream()
+        docs = list(query)
+
+        if docs:
+            reseña_data = docs[0].to_dict()
+            return {
+                "status": "success",
+                "posee_resena": True,
+                "idResena": reseña_data.get("idResena"),
+                "message": "Esta cita ya cuenta con una reseña registrada."
+            }
+
+        return {
+            "status": "success",
+            "posee_resena": False,
+            "message": "La cita no tiene reseñas y está habilitada para calificar."
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al verificar reseña: {str(e)}")
+
 
 @router.post("/crear_resena")
 async def publicar_reseña(datos: dict):
     try:
         id_cita_referencia = str(datos.get("idCitas") or datos.get("idCita"))
         puntuacion = datos.get("puntuacion")
+
+        # ─── PROTECCIÓN BACKEND: Evitar duplicados directos ───
+        # El frontend guarda el campo como "citaId" (no "idCitas"), usamos ese mismo campo
+        query_existente = db.collection("resenas").where("citaId", "==", id_cita_referencia).stream()
+        if list(query_existente):
+            raise HTTPException(
+                status_code=400,
+                detail="Operación inválida: Ya existe una reseña registrada para esta cita."
+            )
 
         # El documento de cita guarda el campo "idCita" en la colección "citas".
         query = db.collection("citas").where("idCita", "==", id_cita_referencia).stream()
@@ -23,15 +60,15 @@ async def publicar_reseña(datos: dict):
 
         cita_data = docs[0].to_dict()
 
-        if cita_data.get("estado") != "realizado":
+        if cita_data.get("estado") != "concluida":
             raise HTTPException(
                 status_code=400,
-                detail="Solo puedes reseñar servicios marcados como 'realizado'"
+                detail="Solo puedes reseñar servicios marcados como 'concluida'."
             )
 
         nueva_reseña = {
             "idResena": str(uuid.uuid4()),
-            "idCitas": id_cita_referencia,
+            "citaId": id_cita_referencia,       # campo unificado (antes era "idCitas")
             "idServicio": cita_data.get("idServicio"),
             "idTecnico": cita_data.get("idTecnico"),
             "idCliente": cita_data.get("idCliente"),
@@ -42,8 +79,6 @@ async def publicar_reseña(datos: dict):
         }
 
         db.collection("resenas").add(nueva_reseña)
-
-        # ... (tu código actual que guarda la nueva reseña) ...
 
         # 1. Buscar todas las reseñas actualizadas de este técnico
         id_tecnico = cita_data.get("idTecnico")
@@ -63,6 +98,8 @@ async def publicar_reseña(datos: dict):
 
         return {"status": "success", "message": "Reseña guardada y promedio actualizado"}
 
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al procesar: {str(e)}")
 
