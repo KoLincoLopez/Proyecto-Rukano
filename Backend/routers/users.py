@@ -3,9 +3,19 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
+import unicodedata
 from core.firebase_config import db
+from models.enums import RolUsuario
 
 router = APIRouter()
+
+
+def normalizar_rol(rol: str) -> str:
+    texto = str(rol or "").strip().lower()
+    return "".join(
+        char for char in unicodedata.normalize("NFD", texto)
+        if unicodedata.category(char) != "Mn"
+    )
 
 # Modelo Base (Campos comunes)
 class UsuarioBase(BaseModel):
@@ -27,7 +37,7 @@ class RegistroCliente(UsuarioBase):
 
 # Modelo específico para Técnico (RF 8 y 21)
 class UsuarioTecnico(UsuarioBase):
-    rol: str = "técnico"
+    rol: str = RolUsuario.TECNICO.value
     especialidad: str
     titulo: str
     descripcion: str
@@ -66,7 +76,7 @@ async def registrar_tecnico(datos: UsuarioTecnico):
         # Convertimos el schema a diccionario y añadimos metadata del sistema
         user_data = datos.model_dump()
         user_data.update({
-            "rol": "técnico",
+            "rol": RolUsuario.TECNICO.value,
             "createdAt": datetime.now(timezone.utc)
         })
 
@@ -89,7 +99,8 @@ async def cambiar_verificacion_tecnico(tecnico_id: str, verificado: bool):
             raise HTTPException(status_code=404, detail="Técnico no encontrado")
 
         tecnico_data = tecnico_doc.to_dict()
-        if tecnico_data.get("rol") != "técnico":
+        rol_tecnico = normalizar_rol(tecnico_data.get("rol"))
+        if rol_tecnico != RolUsuario.TECNICO.value:
             raise HTTPException(status_code=400, detail="El ID proporcionado no pertenece a un técnico")
 
         tecnico_ref.update({"verificado": verificado})
@@ -159,14 +170,14 @@ async def obtener_usuario_publico(usuario_id: str):
         data = usuario_doc.to_dict()
 
         # Campos sensibles por rol
-        rol = (data.get("rol") or "").lower()
+        rol = normalizar_rol(data.get("rol"))
         public_data = dict(data)  # copia para modificar
 
         # Ocultar rut siempre
         public_data.pop("rut", None)
 
         # Si es técnico, también ocultar cuenta bancaria
-        if rol in ("técnico", "tecnico"):
+        if rol == RolUsuario.TECNICO.value:
             public_data.pop("cuenta_bancaria", None)
 
         return {"status": "success", "usuario": public_data}

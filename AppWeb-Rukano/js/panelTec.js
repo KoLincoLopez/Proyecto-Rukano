@@ -2,8 +2,7 @@ import { auth, db } from "./Firebase-config.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Asegúrate de que esta sea la URL base de tu backend FastAPI
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 document.addEventListener("DOMContentLoaded", () => {
     // ==========================================

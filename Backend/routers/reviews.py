@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request
 from core.firebase_config import db
+from models.enums import EstadoCita
 from datetime import datetime, timedelta, timezone
 import uuid
 from google.cloud.firestore_v1 import FieldFilter
@@ -39,8 +40,11 @@ async def verificar_resena_cita(id_cita: str):
 @router.post("/crear_resena")
 async def publicar_reseña(datos: dict):
     try:
-        id_cita_referencia = str(datos.get("idCitas") or datos.get("idCita"))
+        id_cita_referencia = str(datos.get("citaId") or datos.get("idCita") or datos.get("idCitas") or "")
         puntuacion = datos.get("puntuacion")
+
+        if not id_cita_referencia:
+            raise HTTPException(status_code=400, detail="Falta el identificador de la cita.")
 
         # ─── PROTECCIÓN BACKEND: Evitar duplicados directos ───
         # El frontend guarda el campo como "citaId" (no "idCitas"), usamos ese mismo campo
@@ -60,11 +64,15 @@ async def publicar_reseña(datos: dict):
 
         cita_data = docs[0].to_dict()
 
-        if cita_data.get("estado") != "concluida":
+        if cita_data.get("estado") != EstadoCita.CONCLUIDA.value:
             raise HTTPException(
                 status_code=400,
                 detail="Solo puedes reseñar servicios marcados como 'concluida'."
             )
+
+        id_cliente_payload = datos.get("idCliente")
+        if id_cliente_payload and cita_data.get("idCliente") != id_cliente_payload:
+            raise HTTPException(status_code=403, detail="No puedes reseñar una cita de otro cliente.")
 
         nueva_reseña = {
             "idResena": str(uuid.uuid4()),

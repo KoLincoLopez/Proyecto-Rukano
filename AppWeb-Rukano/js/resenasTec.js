@@ -1,6 +1,5 @@
 import { auth, db } from "./Firebase-config.js";
 import {
-    addDoc,
     collection,
     doc,
     getDoc,
@@ -20,6 +19,7 @@ const tecnicoId = params.get("tecnicoId") || "";
 const modalExito = document.getElementById("modalExitoResena");
 const btnVolverAhora = document.getElementById("btnVolverAhora");
 const destinoPanel = document.referrer || "panelCliente.html";
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 let rating = 0;
 let citaPuedeEvaluarse = false;
@@ -119,15 +119,29 @@ async function enviarResena(e) {
     }
 
     try {
-        await addDoc(collection(db, "resenas"), {
-            idCliente: user.uid,
-            citaId: citaId,
-            idServicio: servicioId,
-            idTecnico: tecnicoId,
-            estrellas: rating,
-            comentario: comentario.value.trim(),
-            fecha: new Date()
+        const response = await fetch(`${API_URL}/reviews/crear_resena`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                idCliente: user.uid,
+                citaId,
+                idServicio: servicioId,
+                idTecnico: tecnicoId,
+                puntuacion: rating,
+                estrellas: rating,
+                comentario: comentario.value.trim()
+            })
         });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || "Error al enviar resena");
+        }
+
+        /*
+        El backend valida que la cita este concluida, que pertenezca al cliente
+        y que no exista una resena previa antes de persistirla.
+        */
 
         mensaje.textContent = "";
         comentario.value = "";

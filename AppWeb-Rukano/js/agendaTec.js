@@ -16,6 +16,8 @@ const estadoAgenda = {
     citas: []
 };
 
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
+
 const MESES_ES = [
     "Enero",
     "Febrero",
@@ -289,7 +291,7 @@ function crearCardCita(cita) {
     card.className = "cita-tecnico-card";
     const fechaCitaISO = obtenerFechaCitaISO(cita);
     const hoyISO = formatearFecha(estadoAgenda.hoy);
-    const esPagoRealizadoHoy = cita.estado === "pago_realizado" && fechaCitaISO === hoyISO;
+    const puedeConcluir = cita.estado === "pago_realizado" && fechaCitaISO <= hoyISO;
 
     card.innerHTML = `
         <strong>${escaparHtml(servicio)}</strong>
@@ -304,7 +306,7 @@ function crearCardCita(cita) {
                 <button class="btn-cancelar" type="button">✕ Cancelar</button>
             </div>
         ` : ""}
-        ${esPagoRealizadoHoy ? `
+        ${puedeConcluir ? `
             <div class="cita-acciones">
                 <button class="btn-concluir" type="button">✔ Confirmar trabajo</button>
             </div>
@@ -322,7 +324,7 @@ function crearCardCita(cita) {
     }
 
     // Listener para concluir trabajo
-    if (esPagoRealizadoHoy) {
+    if (puedeConcluir) {
         card.querySelector(".btn-concluir").addEventListener("click", () =>
             manejarConcluirCita(cita.id, card)
         );
@@ -445,11 +447,9 @@ function escaparHtml(valor) {
 }
 
 async function cambiarEstadoCita(idCita, nuevoEstado) {
-    const BASE_URL = "http://localhost:8000"; // ← tu URL real de FastAPI
-
     let res;
     try {
-        res = await fetch(`${BASE_URL}/citas/${idCita}/estado`, {
+        res = await fetch(`${API_URL}/citas/${idCita}/estado`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -501,11 +501,9 @@ async function manejarConcluirCita(idCita, card) {
 }
 
 async function concluirCita(idCita) {
-    const BASE_URL = "http://localhost:8000";
-
     let res;
     try {
-        res = await fetch(`${BASE_URL}/citas/${idCita}/concluir`, {
+        res = await fetch(`${API_URL}/citas/${idCita}/concluir`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ idTecnico: estadoAgenda.uidTecnico })

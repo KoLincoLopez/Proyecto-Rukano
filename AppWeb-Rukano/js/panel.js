@@ -12,6 +12,8 @@ import {
     updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
+
 window.addEventListener("DOMContentLoaded", () => {
 
     let datosUsuarioActual = null;
@@ -725,6 +727,13 @@ window.addEventListener("DOMContentLoaded", () => {
             .replace(/[\u0300-\u036f]/g, "");
     }
 
+    function fechaEsHoyOPasada(fechaISO) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fechaISO || ""))) return false;
+        const hoy = new Date();
+        const hoyLocal = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+        return fechaISO <= hoyLocal;
+    }
+
     async function cargarBadgeCitasReservadas(uidCliente) {
         // Eliminar badge previo del DOM (para el caso de refrescos tras un pago)
         document.getElementById("badgeCitasReservadas")?.remove();
@@ -733,11 +742,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if (!heading) return;
 
         try {
-            const URL_API = window.API_BASE_URL
-                ? `${window.API_BASE_URL}/citas/notificaciones/cliente/${uidCliente}/reservadas`
-                : `http://localhost:8000/citas/notificaciones/cliente/${uidCliente}/reservadas`;
-
-            const response = await fetch(URL_API);
+            const response = await fetch(`${API_URL}/citas/notificaciones/cliente/${uidCliente}/reservadas`);
             if (!response.ok) throw new Error("Error al obtener notificaciones");
 
             const data = await response.json();
@@ -830,12 +835,12 @@ window.addEventListener("DOMContentLoaded", () => {
                 // Botón "Pagar Cita" solo cuando el estado es "reservada"
                 const accionPago = estadoNorm === "reservada"
                     ? `<button type="button" class="btn-link btn-pagar-cita" data-cita-id="${citaId}">
-                        Pagar Cita
+                        Pagar Cita (demo)
                     </button>`
                     : "";
 
                 // Botón "Cancelar Cita" para citas en estado "pendiente" o "reservada"
-                const puedeCancelar = estadoNorm === "pendiente" || estadoNorm === "reservada";
+                const puedeCancelar = estadoNorm === "reservada" && !fechaEsHoyOPasada(dia);
                 const accionCancelar = puedeCancelar
                     ? `<button type="button" class="btn-link btn-cancelar-cita" data-cita-id="${citaId}" data-cita-fecha="${dia}">
                         Cancelar Cita
@@ -877,17 +882,24 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnPagar.disabled = true;
                             btnPagar.textContent = "Procesando...";
                             try {
-                                await updateDoc(doc(db, "citas", citaId), {
-                                    estado: "pago_realizado",
-                                    pagadoEn: new Date()
+                                const response = await fetch(`${API_URL}/citas/${citaId}/registrar-pago-demo`, {
+                                    method: "PATCH",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ idCliente: uidCliente })
                                 });
+
+                                if (!response.ok) {
+                                    const errorData = await response.json().catch(() => ({}));
+                                    throw new Error(errorData.detail || "Error al registrar el pago demo.");
+                                }
+
                                 // Refrescar la lista y el badge para reflejar el nuevo estado
                                 await cargarCitasCliente(uidCliente);
                                 await cargarBadgeCitasReservadas(uidCliente);
                             } catch (error) {
                                 console.log("Error al registrar pago:", error);
                                 btnPagar.disabled = false;
-                                btnPagar.textContent = "Pagar Cita";
+                                btnPagar.textContent = "Pagar Cita (demo)";
                             }
                         });
                     }
@@ -899,9 +911,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     if (btnCancelar) {
                         btnCancelar.addEventListener("click", async () => {
                             // Validar que la fecha de la cita no sea hoy ni anterior (en el cliente)
-                            const fechaCita = btnCancelar.dataset.citaFecha || "";
-                            const hoyStr = new Date().toISOString().split("T")[0];
-                            if (fechaCita && fechaCita <= hoyStr) {
+                            if (fechaEsHoyOPasada(btnCancelar.dataset.citaFecha || "")) {
                                 alert("No puedes cancelar una cita para el mismo día o con fecha pasada.");
                                 return;
                             }
@@ -913,11 +923,7 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnCancelar.textContent = "Cancelando...";
 
                             try {
-                                const URL_API = window.API_BASE_URL
-                                    ? `${window.API_BASE_URL}/citas/${citaId}/cancelar-cliente`
-                                    : `http://localhost:8000/citas/${citaId}/cancelar-cliente`;
-
-                                const response = await fetch(URL_API, {
+                                const response = await fetch(`${API_URL}/citas/${citaId}/cancelar-cliente`, {
                                     method: "PATCH",
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({ idCliente: uidCliente })
@@ -945,14 +951,6 @@ window.addEventListener("DOMContentLoaded", () => {
                     const btnReembolso = card.querySelector(".btn-reembolso-cita");
                     if (btnReembolso) {
                         btnReembolso.addEventListener("click", async () => {
-                            // Validar que la fecha de la cita no sea hoy ni anterior (en el cliente)
-                            const fechaCita = btnReembolso.dataset.citaFecha || "";
-                            const hoyStr = new Date().toISOString().split("T")[0];
-                            if (fechaCita && fechaCita <= hoyStr) {
-                                alert("No puedes solicitar reembolso en una cita para el mismo día o con fecha pasada.");
-                                return;
-                            }
-
                             const confirmar = window.confirm("¿Deseas solicitar un reembolso por esta cita? Tu solicitud será revisada por el equipo.");
                             if (!confirmar) return;
 
@@ -960,11 +958,7 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnReembolso.textContent = "Enviando solicitud...";
 
                             try {
-                                const URL_API = window.API_BASE_URL
-                                    ? `${window.API_BASE_URL}/citas/${citaId}/solicitar-reembolso`
-                                    : `http://localhost:8000/citas/${citaId}/solicitar-reembolso`;
-
-                                const response = await fetch(URL_API, {
+                                const response = await fetch(`${API_URL}/citas/${citaId}/solicitar-reembolso`, {
                                     method: "PATCH",
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({ idCliente: uidCliente })
@@ -1019,7 +1013,7 @@ async function verificarCitasExpiradasSilencioso() {
 
     try {
         // 3. Cambia esto por tu URL real de producción cuando corresponda
-        const URL_API = 'http://localhost:8000/citas/cron/verificar-fechas-citas'; 
+        const URL_API = `${API_URL}/citas/cron/verificar-fechas-citas`;
 
         // Al ser un fetch silencioso, no bloqueamos la UI con loaders o spinners
         const response = await fetch(URL_API, {

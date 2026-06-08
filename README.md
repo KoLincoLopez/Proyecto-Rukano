@@ -25,7 +25,16 @@ Luego abre `http://127.0.0.1:8000/docs` y confirma que cargan los routers princi
 
 ## Alcance pagos para demo
 
-El flujo de pagos aprobado para demo cubre la conexion entre frontend, backend y Mercado Pago:
+El flujo de pagos queda dividido en dos caminos, para evitar mezclar la demo funcional con la integracion real pendiente:
+
+### Pago demo de citas
+
+- El panel del cliente usa un pago demo controlado por backend para pasar una cita `reservada` a `pago_realizado`.
+- La ruta usada es `/citas/{id_cita}/registrar-pago-demo`.
+- Este flujo existe solo para presentar el recorrido completo de la demo: solicitud, aceptacion, pago demo, conclusion y resena.
+- El frontend no debe marcar `pago_realizado` directamente en Firestore.
+
+### Checkout Mercado Pago
 
 - `detalleServicio.html` envia nombre y precio reales del servicio al frontend de pagos.
 - `js/pagos.js` llama al backend en `/payments/create_preference`.
@@ -33,4 +42,4 @@ El flujo de pagos aprobado para demo cubre la conexion entre frontend, backend y
 - Si Mercado Pago responde correctamente, el frontend redirige usando `sandbox_init_point` o `init_point`.
 - Si falta `MERCADOPAGO_ACCESS_TOKEN`, se muestra un error controlado.
 
-Este alcance no incluye confirmacion completa por webhook ni actualizacion automatica de la cita como pagada despues del pago.
+Este alcance no incluye confirmacion completa por webhook ni actualizacion automatica de la cita como pagada despues del pago. El webhook real de Mercado Pago debe trabajarse en una rama separada.
