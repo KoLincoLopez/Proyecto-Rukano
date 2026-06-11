@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Header, HTTPException, Request
 from core.firebase_config import db
-from models.enums import EstadoCita
+from models.enums import EstadoCita, RolUsuario
+from routers.auth import obtener_usuario_autenticado
 from datetime import datetime, timedelta, timezone
 import uuid
 from google.cloud.firestore_v1 import FieldFilter
@@ -38,8 +39,15 @@ async def verificar_resena_cita(id_cita: str):
 
 
 @router.post("/crear_resena")
-async def publicar_reseña(datos: dict):
+async def publicar_reseña(
+    datos: dict,
+    authorization: str | None = Header(default=None)
+):
     try:
+        uid_cliente, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.CLIENTE.value
+        )
         id_cita_referencia = str(datos.get("citaId") or datos.get("idCita") or datos.get("idCitas") or "")
         puntuacion = datos.get("puntuacion")
 
@@ -70,8 +78,7 @@ async def publicar_reseña(datos: dict):
                 detail="Solo puedes reseñar servicios marcados como 'concluida'."
             )
 
-        id_cliente_payload = datos.get("idCliente")
-        if id_cliente_payload and cita_data.get("idCliente") != id_cliente_payload:
+        if cita_data.get("idCliente") != uid_cliente:
             raise HTTPException(status_code=403, detail="No puedes reseñar una cita de otro cliente.")
 
         nueva_reseña = {

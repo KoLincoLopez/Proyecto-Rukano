@@ -1,4 +1,5 @@
 import { auth, db } from "./Firebase-config.js";
+import { apiFetch } from "./apiFetch.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
     doc,
@@ -13,6 +14,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const API_URL = window.RukanoApiConfig.getApiBaseUrl();
+const PAYMENT_MODE = window.RukanoApiConfig.getPaymentMode();
 
 window.addEventListener("DOMContentLoaded", () => {
 
@@ -367,6 +369,11 @@ window.addEventListener("DOMContentLoaded", () => {
         const idTecnico = params.get("idTecnico");
         const idServicio = params.get("idServicio");
 
+        if (idServicio) {
+            window.location.replace(`detalleServicio.html?id=${encodeURIComponent(idServicio)}`);
+            return;
+        }
+
         const dashboardCliente = document.getElementById("dashboardCliente");
         const seccionReserva = document.getElementById("seccionReserva");
 
@@ -395,14 +402,6 @@ window.addEventListener("DOMContentLoaded", () => {
         cargarCitasCliente(uidCliente);
         cargarUltimoReporteCliente(uidCliente);
         cargarBadgeCitasReservadas(uidCliente);
-
-        const btnConfirmarReserva = document.getElementById("btnConfirmarReserva");
-
-        if (btnConfirmarReserva) {
-            btnConfirmarReserva.addEventListener("click", () => {
-                crearReservaCliente(uidCliente);
-            });
-        }
 
         const btnEnviarReporte = document.getElementById("btnEnviarReporte");
 
@@ -492,52 +491,6 @@ window.addEventListener("DOMContentLoaded", () => {
         } catch (error) {
             console.log(error);
             contenedor.innerHTML = "<p>Error al cargar horarios.</p>";
-        }
-    }
-
-    async function crearReservaCliente(uidCliente) {
-        const mensajeReserva = document.getElementById("mensajeReserva");
-
-        if (!mensajeReserva) return;
-
-        const params = new URLSearchParams(window.location.search);
-
-        const servicio = params.get("servicio") || "Servicio seleccionado";
-        const tecnico = params.get("tecnico") || "Tecnico seleccionado";
-        const precio = params.get("precio") || "0";
-        const idTecnico = params.get("idTecnico") || "sin-id-tecnico";
-        const idServicio = params.get("idServicio") || "sin-id-servicio";
-
-        const horarioSeleccionado = document.querySelector("input[name='horarioSeleccionado']:checked");
-
-        if (!horarioSeleccionado) {
-            mensajeReserva.textContent = "Selecciona un horario disponible.";
-            return;
-        }
-
-        const [dia, inicio, fin] = horarioSeleccionado.value.split("|");
-
-        try {
-            await addDoc(collection(db, "citas"), {
-                idCliente: uidCliente,
-                idTecnico: idTecnico,
-                idServicio: idServicio,
-                servicio: servicio,
-                tecnico: tecnico,
-                precio: Number(precio),
-                dia: dia,
-                horaInicio: inicio,
-                horaFin: fin,
-                estado: "pendiente",
-                createdAt: new Date()
-            });
-
-            mensajeReserva.textContent = "Reserva creada correctamente.";
-            cargarCitasCliente(uidCliente);
-
-        } catch (error) {
-            console.log(error);
-            mensajeReserva.textContent = "Error al crear la reserva.";
         }
     }
 
@@ -835,7 +788,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 // Botón "Pagar Cita" solo cuando el estado es "reservada"
                 const accionPago = estadoNorm === "reservada"
                     ? `<button type="button" class="btn-link btn-pagar-cita" data-cita-id="${citaId}">
-                        Pagar Cita (demo)
+                        ${PAYMENT_MODE === "demo" ? "Pagar Cita (demo)" : "Pagar Cita"}
                     </button>`
                     : "";
 
@@ -882,24 +835,42 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnPagar.disabled = true;
                             btnPagar.textContent = "Procesando...";
                             try {
-                                const response = await fetch(`${API_URL}/citas/${citaId}/registrar-pago-demo`, {
-                                    method: "PATCH",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ idCliente: uidCliente })
+                                if (PAYMENT_MODE === "demo") {
+                                    const response = await apiFetch(`${API_URL}/citas/${citaId}/registrar-pago-demo`, {
+                                        method: "PATCH",
+                                        headers: { "Content-Type": "application/json" }
+                                    });
+
+                                    if (!response.ok) {
+                                        const errorData = await response.json().catch(() => ({}));
+                                        throw new Error(errorData.detail || "Error al registrar el pago demo.");
+                                    }
+
+                                    await cargarCitasCliente(uidCliente);
+                                    await cargarBadgeCitasReservadas(uidCliente);
+                                    return;
+                                }
+
+                                const response = await apiFetch(`${API_URL}/payments/create_preference/${citaId}`, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" }
                                 });
 
                                 if (!response.ok) {
                                     const errorData = await response.json().catch(() => ({}));
-                                    throw new Error(errorData.detail || "Error al registrar el pago demo.");
+                                    throw new Error(errorData.detail || "Error al crear la preferencia de pago.");
                                 }
 
-                                // Refrescar la lista y el badge para reflejar el nuevo estado
-                                await cargarCitasCliente(uidCliente);
-                                await cargarBadgeCitasReservadas(uidCliente);
+                                const data = await response.json();
+                                const checkoutUrl = data.init_point || data.sandbox_init_point;
+                                if (!checkoutUrl) throw new Error("El backend no devolvió una URL de pago.");
+
+                                window.location.href = checkoutUrl;
                             } catch (error) {
                                 console.log("Error al registrar pago:", error);
+                                alert(error.message || "No se pudo iniciar el pago. Intenta nuevamente.");
                                 btnPagar.disabled = false;
-                                btnPagar.textContent = "Pagar Cita (demo)";
+                                btnPagar.textContent = PAYMENT_MODE === "demo" ? "Pagar Cita (demo)" : "Pagar Cita";
                             }
                         });
                     }
@@ -923,10 +894,9 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnCancelar.textContent = "Cancelando...";
 
                             try {
-                                const response = await fetch(`${API_URL}/citas/${citaId}/cancelar-cliente`, {
+                                const response = await apiFetch(`${API_URL}/citas/${citaId}/cancelar-cliente`, {
                                     method: "PATCH",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ idCliente: uidCliente })
+                                    headers: { "Content-Type": "application/json" }
                                 });
 
                                 if (!response.ok) {
@@ -958,10 +928,9 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnReembolso.textContent = "Enviando solicitud...";
 
                             try {
-                                const response = await fetch(`${API_URL}/citas/${citaId}/solicitar-reembolso`, {
+                                const response = await apiFetch(`${API_URL}/citas/${citaId}/solicitar-reembolso`, {
                                     method: "PATCH",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ idCliente: uidCliente })
+                                    headers: { "Content-Type": "application/json" }
                                 });
 
                                 if (!response.ok) {

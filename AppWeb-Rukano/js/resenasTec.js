@@ -1,4 +1,5 @@
 import { auth, db } from "./Firebase-config.js";
+import { apiFetch } from "./apiFetch.js";
 import {
     collection,
     doc,
@@ -119,11 +120,10 @@ async function enviarResena(e) {
     }
 
     try {
-        const response = await fetch(`${API_URL}/reviews/crear_resena`, {
+        const response = await apiFetch(`${API_URL}/reviews/crear_resena`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                idCliente: user.uid,
                 citaId,
                 idServicio: servicioId,
                 idTecnico: tecnicoId,

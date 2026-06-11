@@ -234,17 +234,7 @@
 
                 cargarDisponibilidad(servicio.disponibilidad);
 
-                const nombreServicio = servicio.nombre || servicio.titulo || "Servicio";
-                const nombreVisibleTecnico = servicio.nombreTecnico || `Técnico ${servicio.idTecnico || ""}`;
-
-                const linkReserva =
-                    `panelCliente.html?servicio=${encodeURIComponent(nombreServicio)}` +
-                    `&tecnico=${encodeURIComponent(nombreVisibleTecnico)}` +
-                    `&precio=${encodeURIComponent(Math.round(servicio.precio || 0))}` +
-                    `&idTecnico=${encodeURIComponent(servicio.idTecnico || "")}` +
-                    `&idServicio=${encodeURIComponent(idServicio)}`;
-
-                btnReservarServicio.href = linkReserva;
+                btnReservarServicio.href = `detalleServicio.html?id=${encodeURIComponent(idServicio)}`;
 
             } catch (error) {
                 console.log(error);

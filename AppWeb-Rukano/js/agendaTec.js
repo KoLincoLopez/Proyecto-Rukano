@@ -1,4 +1,5 @@
 import { auth, db } from "./Firebase-config.js";
+import { apiFetch } from "./apiFetch.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
     collection,
@@ -449,11 +450,10 @@ function escaparHtml(valor) {
 async function cambiarEstadoCita(idCita, nuevoEstado) {
     let res;
     try {
-        res = await fetch(`${API_URL}/citas/${idCita}/estado`, {
+        res = await apiFetch(`${API_URL}/citas/${idCita}/estado`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                idTecnico: estadoAgenda.uidTecnico,
                 nuevo_estado: nuevoEstado
             })
         });
@@ -503,10 +503,9 @@ async function manejarConcluirCita(idCita, card) {
 async function concluirCita(idCita) {
     let res;
     try {
-        res = await fetch(`${API_URL}/citas/${idCita}/concluir`, {
+        res = await apiFetch(`${API_URL}/citas/${idCita}/concluir`, {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idTecnico: estadoAgenda.uidTecnico })
+            headers: { "Content-Type": "application/json" }
         });
     } catch (networkError) {
         throw new Error(`Error de red: no se pudo conectar con el servidor (${networkError.message})`);

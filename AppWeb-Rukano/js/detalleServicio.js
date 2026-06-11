@@ -1,5 +1,6 @@
 // ─── IMPORTS DE FIREBASE (igual que en index.js) ───
 import { auth, db } from "./Firebase-config.js";
+import { apiFetch } from "./apiFetch.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -240,30 +241,14 @@ function configurarPagoServicio(servicio, idServicio) {
     const mensajePago = document.getElementById("pago-mensaje");
     if (!btnPago) return;
 
-    const nombreServicio = String(servicio.nombre || "").trim();
-    const precioServicio = Number(servicio.precio);
-    const idTecnico = String(servicio.idTecnico || "").trim();
-    const pagoDisponible = Boolean(nombreServicio) && Number.isFinite(precioServicio) && precioServicio > 0;
-
-    window.RukanoPago = {
-        title: nombreServicio,
-        quantity: 1,
-        price: precioServicio,
-        idServicio,
-        idTecnico
-    };
-
-    btnPago.dataset.title = nombreServicio;
-    btnPago.dataset.quantity = "1";
-    btnPago.dataset.price = pagoDisponible ? String(precioServicio) : "";
-    btnPago.dataset.servicioId = idServicio || "";
-    btnPago.dataset.tecnicoId = idTecnico;
-    btnPago.disabled = !pagoDisponible;
+    const reservaDisponible = Boolean(idServicio && servicio.idTecnico);
+    btnPago.disabled = !reservaDisponible;
+    btnPago.addEventListener("click", openModal);
 
     if (mensajePago) {
-        mensajePago.textContent = pagoDisponible
-            ? ""
-            : "El pago no esta disponible para este servicio.";
+        mensajePago.textContent = reservaDisponible
+            ? "Primero reserva una cita. El pago se habilita cuando el tecnico la acepta."
+            : "La reserva no esta disponible para este servicio.";
     }
 }
 
@@ -369,7 +354,6 @@ async function procesarContratacion() {
     // 3. Payload exacto que espera ReservaCita del backend
     const payload = {
         idServicio:            servicioId,
-        idCliente:             usuarioLogueado.uid,
         fecha:                 fecha,          // "YYYY-MM-DD"
         hora:                  hora,           // "HH:MM"
         respuestas_formulario: respuestasCliente,
@@ -380,7 +364,7 @@ async function procesarContratacion() {
     if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = "Enviando..."; }
 
     try {
-        const response = await fetch(`${API_URL}/citas/reservar`, {
+        const response = await apiFetch(`${API_URL}/citas/reservar`, {
             method:  "POST",
             headers: { "Content-Type": "application/json" },
             body:    JSON.stringify(payload),
