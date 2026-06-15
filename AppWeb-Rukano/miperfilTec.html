@@ -7,6 +7,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/miperfilTec.css">
+    <link rel="stylesheet" href="css/certificacion.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/tecnicoNav.css">
 
@@ -39,7 +40,20 @@
             </div>
         </section>
 
-        <section class="perfil-grid" aria-label="Información del técnico">
+        <!-- ====== TABS ====== -->
+        <nav class="perfil-tabs" aria-label="Secciones del perfil" role="tablist">
+            <button class="perfil-tab perfil-tab--active" data-tab="informacion" role="tab" aria-selected="true" aria-controls="tab-informacion">
+                <ion-icon name="person-outline"></ion-icon>
+                Información
+            </button>
+            <button class="perfil-tab" data-tab="certificacion" role="tab" aria-selected="false" aria-controls="tab-certificacion">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                Certificación
+            </button>
+        </nav>
+
+        <!-- ====== PANEL: Información ====== -->
+        <section id="tab-informacion" class="perfil-grid" aria-label="Información del técnico" role="tabpanel">
             <article class="perfil-card perfil-card--identidad">
                 <div class="perfil-img">
                     <img id="perfilFoto" alt="Foto del técnico" hidden>
@@ -100,10 +114,6 @@
                         <strong id="perfilExperiencia">Sin experiencia registrada</strong>
                     </div>
 
-                    <div class="perfil-dato">
-                        <span>Verificación</span>
-                        <strong id="perfilVerificado">Pendiente de verificación</strong>
-                    </div>
                 </div>
             </article>
 
@@ -116,6 +126,66 @@
                 <p id="perfilDescripcion">Sin descripción</p>
             </article>
         </section>
+
+        <!-- ====== PANEL: Certificación ====== -->
+        <section id="tab-certificacion" class="perfil-cert" aria-label="Certificación del técnico" role="tabpanel" hidden>
+
+            <!-- Estado actual del certificado -->
+            <article class="cert-estado-card" id="certEstadoCard">
+                <div class="cert-estado-icono" id="certEstadoIcono" aria-hidden="true">
+                    <ion-icon name="time-outline"></ion-icon>
+                </div>
+                <div class="cert-estado-texto">
+                    <span class="perfil-eyebrow" id="certEstadoLabel">Cargando estado...</span>
+                    <p id="certEstadoDescripcion">Verificando tu certificación actual.</p>
+                </div>
+                <div class="cert-estado-meta" id="certEstadoMeta" hidden>
+                    <span class="cert-fecha-label">Subida el</span>
+                    <strong id="certFechaSubida">—</strong>
+                    <span class="cert-docs-label" id="certDocsCount"></span>
+                </div>
+            </article>
+
+            <!-- Zona de carga -->
+            <article class="cert-uploader-card">
+                <header class="perfil-card__header">
+                    <span class="perfil-eyebrow">Documentación</span>
+                    <h2>Subir certificados</h2>
+                </header>
+
+                <p class="cert-uploader-info">
+                    Sube tus documentos de certificación (títulos, diplomas, licencias). 
+                    Máximo <strong>5 archivos</strong>. Formatos aceptados: PDF, imágenes (JPG, PNG) y Word.
+                </p>
+
+                <!-- Drop zone -->
+                <div class="cert-dropzone" id="certDropzone" role="button" tabindex="0" aria-label="Zona de carga de documentos">
+                    <ion-icon name="cloud-upload-outline" class="cert-dropzone-icon" aria-hidden="true"></ion-icon>
+                    <p class="cert-dropzone-titulo">Arrastra tus archivos aquí</p>
+                    <p class="cert-dropzone-sub">o haz clic para seleccionarlos</p>
+                    <input type="file" id="certInput" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple hidden aria-label="Seleccionar archivos">
+                </div>
+
+                <!-- Lista de archivos seleccionados -->
+                <ul class="cert-archivos-lista" id="certArchivosList" aria-label="Archivos seleccionados" hidden></ul>
+
+                <!-- Contador -->
+                <p class="cert-contador" id="certContador" aria-live="polite"></p>
+
+                <!-- Alerta de error -->
+                <div class="cert-alerta cert-alerta--error" id="certAlertaError" role="alert" hidden></div>
+
+                <!-- Botón de subida -->
+                <button class="cert-btn-subir" id="certBtnSubir" type="button" disabled>
+                    <ion-icon name="arrow-up-circle-outline"></ion-icon>
+                    Subir certificación
+                </button>
+
+                <!-- Toast de éxito/error -->
+                <div class="cert-toast" id="certToast" role="status" aria-live="polite" hidden></div>
+            </article>
+        </section>
+
     </main>
     <!-- ================= FIN CONTENIDO ================= -->
 
@@ -183,8 +253,10 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 <!-- ================= JS ================= -->
+<script src="js/apiConfig.js"></script>
 <script src="js/navbar.js" defer></script>
     <script type="module" src="js/miperfilTec.js"></script>
+    <script type="module" src="js/certificacion.js"></script>
 
 </body>
 </html>

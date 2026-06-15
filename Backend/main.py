@@ -7,6 +7,7 @@ from routers import reports  # Importa el router de reportes
 from routers import servicios  # Importa el router de servicios
 from routers import auth  # Importa el router de autenticación
 from routers import payments
+from routers import certificados
 from fastapi.middleware.cors import CORSMiddleware
 # Aqui hay que ir importando los routers de cada microservicio || from routers import router_users, router_products, etc.
 
@@ -42,6 +43,7 @@ app.include_router(users.router, prefix="/users")  # Agrega el router de usuario
 app.include_router(citas.router, prefix="/citas")  # Agrega el router de citas con el prefijo "/citas"
 app.include_router(reports.router, prefix="/reports")  # Agrega el router de reportes con el prefijo "/reports"
 app.include_router(servicios.router, prefix="/servicios")  # Agrega el router de servicios con el prefijo "/servicios"
+app.include_router(certificados.router)  # El router ya define su prefijo /certificados
 app.include_router(auth.router)
 app.include_router(payments.router)
 
