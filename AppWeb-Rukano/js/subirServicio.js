@@ -1,4 +1,5 @@
 import { auth, db } from "./Firebase-config.js";
+import { apiFetch } from "./apiFetch.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -341,7 +342,7 @@ async function publishService(event) {
     const servicioNuevo = construirServicio();
 
     try {
-        const response = await fetch(`${API_URL}/servicios/crear`, {
+        const response = await apiFetch(`${API_URL}/servicios/crear`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

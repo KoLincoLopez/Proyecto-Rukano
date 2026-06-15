@@ -372,6 +372,11 @@ async function procesarContratacion() {
 
         const resultado = await response.json();
 
+        if (response.status === 409) {
+            await cargarHorasOcupadas(fecha);
+            throw new Error("Este horario ya fue reservado por otro cliente. Selecciona otro bloque disponible.");
+        }
+
         if (!response.ok) {
             throw new Error(resultado.detail || `Error ${response.status}`);
         }
@@ -678,12 +683,16 @@ async function cargarHorasOcupadas(fechaStr) {
             cal.horasOcupadas = [];
         } else {
             const res  = await fetch(`${API_URL}/citas/horas_ocupadas/${cal.idTecnico}/${fechaStr}`);
+            if (!res.ok) throw new Error(`Error ${res.status} al consultar disponibilidad`);
             const data = await res.json();
             cal.horasOcupadas = data.horas_ocupadas || [];
         }
     } catch (e) {
-        console.warn("No se pudo consultar horas ocupadas, mostrando todos los slots:", e);
+        console.warn("No se pudo consultar la disponibilidad:", e);
         cal.horasOcupadas = [];
+        slotGrid.innerHTML = `<div class="slot-loading">No pudimos verificar la disponibilidad. Intenta nuevamente.</div>`;
+        slotNote.textContent = "La agenda no está disponible temporalmente.";
+        return;
     }
 
     renderSlots();
@@ -1030,7 +1039,7 @@ async function submitReport() {
     }
 
     try {
-        const response = await fetch(`${API_URL}/reports/reportar_servicio`, {
+        const response = await apiFetch(`${API_URL}/reports/reportar_servicio`, {
             method:  "POST",
             headers: { "Content-Type": "application/json" },
             body:    JSON.stringify(payload),

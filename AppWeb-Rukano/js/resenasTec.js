@@ -1,13 +1,5 @@
-import { auth, db } from "./Firebase-config.js";
+import { auth } from "./Firebase-config.js";
 import { apiFetch } from "./apiFetch.js";
-import {
-    collection,
-    doc,
-    getDoc,
-    getDocs,
-    query,
-    where
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const estrellas = document.querySelectorAll('input[name="rating"]');
 const comentario = document.getElementById("comentario");
@@ -59,21 +51,15 @@ async function validarCitaFinalizada() {
     if (!citaId) return "No se encontró el identificador de la cita.";
 
     try {
-        const citaSnap = await getDoc(doc(db, "citas", citaId));
-        if (!citaSnap.exists()) return "La cita no existe.";
-
-        const cita = citaSnap.data();
-        const estado = normalizarTexto(cita.estado);
-        const coincideServicio = !servicioId || cita.idServicio === servicioId;
-        const coincideTecnico = !tecnicoId || cita.idTecnico === tecnicoId;
-
-        if (!coincideServicio || !coincideTecnico) return "Los datos de la cita no coinciden.";
-        if (estado !== "concluida") return "No puedes evaluar esta cita porque aún no está marcada como concluida.";
-
-        // Verificar que no tenga ya una reseña
-        const q = query(collection(db, "resenas"), where("citaId", "==", citaId));
-        const snap = await getDocs(q);
-        if (!snap.empty) return "Esta cita ya fue evaluada. Solo se permite una reseña por servicio.";
+        const response = await apiFetch(`${API_URL}/reviews/verificar_resena/${encodeURIComponent(citaId)}`);
+        const resultado = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            return resultado.detail || "No se pudo validar esta cita.";
+        }
+        if (resultado.posee_resena) return "Ya reseñado. Solo se permite una reseña por servicio.";
+        if (!resultado.puede_resenar) {
+            return "No puedes evaluar esta cita porque aún no está marcada como concluida.";
+        }
 
         return true;
     } catch (error) {
@@ -109,8 +95,8 @@ async function enviarResena(e) {
         return;
     }
 
-    if (!citaId || !servicioId || !tecnicoId) {
-        mensaje.textContent = "No se pudo identificar la cita, el servicio o el tecnico a valorar.";
+    if (!citaId) {
+        mensaje.textContent = "No se pudo identificar la cita a valorar.";
         console.warn("Faltan parametros para guardar la resena", {
             citaId,
             servicioId,
@@ -135,7 +121,10 @@ async function enviarResena(e) {
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.detail || "Error al enviar resena");
+            if (response.status === 409) {
+                bloquearFormulario("Ya reseñado. Esta cita solo admite una reseña.");
+            }
+            throw new Error(errorData.detail || "Error al enviar reseña");
         }
 
         /*
@@ -157,15 +146,7 @@ async function enviarResena(e) {
 
         setTimeout(volverAlPanel, 2800);
     } catch (error) {
-        mensaje.textContent = "Error al enviar resena";
+        mensaje.textContent = error.message || "Error al enviar reseña";
         console.error(error);
     }
-}
-
-function normalizarTexto(texto) {
-    return String(texto || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
 }

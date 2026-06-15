@@ -1,6 +1,8 @@
-import { auth, db } from "./Firebase-config.js";
+import { auth } from "./Firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { apiFetch } from "./apiFetch.js";
+
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 let estadoConfiguracion = {
     notificaciones: true,
@@ -16,54 +18,33 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     try {
-        const usuarioRef = doc(db, "usuarios", user.uid);
-        const usuarioSnap = await getDoc(usuarioRef);
-
-        if (!usuarioSnap.exists()) {
-            window.location.href = "inicioSesion.html";
-            return;
-        }
-
-        const datosUsuario = usuarioSnap.data();
-        const rol = normalizarRol(datosUsuario.rol);
-
-        if (rol === "cliente") {
+        const response = await apiFetch(`${API_URL}/users/usuario/configuracion`);
+        if (response.status === 403) {
             window.location.href = "panelCliente.html";
             return;
         }
-
-        if (rol !== "tecnico") {
-            window.location.href = "inicioSesion.html";
-            return;
+        const resultado = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(resultado.detail || "No se pudo cargar la configuracion");
         }
 
-        inicializarConfiguracion(usuarioRef, datosUsuario);
+        inicializarConfiguracion(resultado.configuracion || {});
     } catch (error) {
         console.log("Error al validar acceso tecnico:", error);
         window.location.href = "inicioSesion.html";
     }
 });
 
-function normalizarRol(rol) {
-    return String(rol || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-}
-
-function inicializarConfiguracion(usuarioRef, datosUsuario) {
-    estadoConfiguracion = obtenerConfiguracionInicial(datosUsuario);
+function inicializarConfiguracion(configuracion) {
+    estadoConfiguracion = obtenerConfiguracionInicial(configuracion);
     aplicarEstadoVisual();
     inicializarNotificaciones();
     inicializarDisponibilidad();
     inicializarIdioma();
-    inicializarGuardarPreferencias(usuarioRef);
+    inicializarGuardarPreferencias();
 }
 
-function obtenerConfiguracionInicial(datosUsuario) {
-    const configuracion = datosUsuario.configuracion || {};
-
+function obtenerConfiguracionInicial(configuracion) {
     return {
         notificaciones: obtenerBooleano(configuracion.notificaciones, true),
         disponibilidad: normalizarDisponibilidad(configuracion.disponibilidad),
@@ -130,7 +111,7 @@ function inicializarIdioma() {
     });
 }
 
-function inicializarGuardarPreferencias(usuarioRef) {
+function inicializarGuardarPreferencias() {
     const botonGuardar = document.getElementById("btnGuardarPreferencias");
     const preferencias = document.getElementById("preferenciasTexto");
 
@@ -151,14 +132,20 @@ function inicializarGuardarPreferencias(usuarioRef) {
 
             estadoConfiguracion.preferencias = preferencias.value.trim();
 
-            await updateDoc(usuarioRef, {
-                configuracion: {
+            const response = await apiFetch(`${API_URL}/users/usuario/configuracion`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                     notificaciones: estadoConfiguracion.notificaciones,
                     disponibilidad: estadoConfiguracion.disponibilidad,
                     idioma: estadoConfiguracion.idioma,
                     preferencias: estadoConfiguracion.preferencias
-                }
+                })
             });
+            const resultado = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(resultado.detail || "No se pudo guardar la configuracion");
+            }
 
             mostrarMensajeEstado("Configuración guardada correctamente.", "exito");
         } catch (error) {

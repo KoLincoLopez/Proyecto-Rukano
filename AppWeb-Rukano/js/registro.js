@@ -1,6 +1,11 @@
-import { auth, db } from "./Firebase-config.js";
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { auth } from "./Firebase-config.js";
+import {
+    createUserWithEmailAndPassword,
+    deleteUser
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { apiFetch } from "./apiFetch.js";
+
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 window.addEventListener("DOMContentLoaded", () => {
     const checkbox = document.getElementById("showPassword");
@@ -10,6 +15,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const campoEspecialidad = document.getElementById("campoEspecialidad");
     const inputEspecialidad = document.getElementById("especialidad");
     const radiosRol = document.querySelectorAll('input[name="rol"]');
+    const rolSolicitado = new URLSearchParams(window.location.search).get("rol");
 
     if (checkbox) {
         checkbox.addEventListener("change", () => {
@@ -22,6 +28,12 @@ window.addEventListener("DOMContentLoaded", () => {
     radiosRol.forEach((radio) => {
         radio.addEventListener("change", actualizarCampoEspecialidad);
     });
+
+    if (rolSolicitado === "cliente" || rolSolicitado === "tecnico") {
+        const radioInicial = document.querySelector(`input[name="rol"][value="${rolSolicitado}"]`);
+        if (radioInicial) radioInicial.checked = true;
+    }
+    actualizarCampoEspecialidad();
 
     function actualizarCampoEspecialidad() {
         const rol = document.querySelector('input[name="rol"]:checked')?.value || "";
@@ -69,30 +81,37 @@ window.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        let user = null;
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
-            const user = userCredential.user;
+            user = userCredential.user;
 
             const usuarioNuevo = {
-                id: user.uid,
                 nombre: nombres,
                 apellido: apellidos,
-                nombres,
-                apellidos,
                 telefono,
                 comuna,
                 correo: email,
-                email,
                 rol,
-                especialidad: rol === "tecnico" ? especialidad : "",
-                fechaRegistro: new Date()
+                especialidad: rol === "tecnico" ? especialidad : ""
             };
 
-            await setDoc(doc(db, "usuarios", user.uid), usuarioNuevo);
+            const response = await apiFetch(`${API_URL}/users/registro/${rol}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(usuarioNuevo)
+            });
+            const resultado = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(resultado.detail || "No se pudo completar el registro");
+            }
 
             alert("Usuario registrado correctamente");
             window.location.href = "inicioSesion.html";
         } catch (error) {
+            if (user) {
+                await deleteUser(user).catch(() => {});
+            }
             alert("Error: " + error.message);
         }
     });

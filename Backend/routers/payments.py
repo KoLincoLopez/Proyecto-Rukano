@@ -3,9 +3,11 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Header, HTTPException, Request
 
 from core.firebase_config import db
+from google.cloud import firestore
 from google.cloud.firestore import FieldFilter
 from models.enums import EstadoCita, RolUsuario
 from routers.auth import obtener_usuario_autenticado
+from services.availability_service import ocupar_bloque
 from services.mercadopago_service import MercadoPagoService
 
 router = APIRouter(
@@ -77,23 +79,39 @@ async def create_payment_preference_for_cita(
     cita_id: str,
     authorization: str | None = Header(default=None)
 ):
-    cita_ref, cita_doc = obtener_cita_ref(cita_id)
-    cita_data = cita_doc.to_dict()
-    estado_actual = (cita_data.get("estado") or "").lower()
     id_cliente_solicitante, _ = obtener_usuario_autenticado(
         authorization,
         RolUsuario.CLIENTE.value
     )
+    cita_ref, cita_doc = obtener_cita_ref(cita_id)
 
-    if cita_data.get("idCliente") != id_cliente_solicitante:
-        raise HTTPException(status_code=403, detail="No tienes permisos para pagar esta cita")
+    @firestore.transactional
+    def validar_y_bloquear_checkout(transaction):
+        snapshot = cita_ref.get(transaction=transaction)
+        if not snapshot.exists:
+            raise HTTPException(status_code=404, detail="La cita no existe")
 
-    if estado_actual != EstadoCita.RESERVADA.value:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Solo se puede pagar una cita reservada (Estado actual: '{estado_actual}')."
+        cita_actual = snapshot.to_dict()
+        if cita_actual.get("idCliente") != id_cliente_solicitante:
+            raise HTTPException(status_code=403, detail="No tienes permisos para pagar esta cita")
+
+        estado_actual = (cita_actual.get("estado") or "").lower()
+        if estado_actual != EstadoCita.RESERVADA.value:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Solo se puede pagar una cita reservada (Estado actual: '{estado_actual}')."
+            )
+
+        ocupar_bloque(
+            transaction,
+            cita_actual.get("idTecnico"),
+            cita_actual.get("fecha"),
+            cita_actual.get("hora"),
+            cita_ref.id,
         )
+        return cita_actual
 
+    cita_data = validar_y_bloquear_checkout(db.transaction())
     precio, titulo = obtener_precio_y_titulo_cita(cita_data, cita_id)
 
     try:

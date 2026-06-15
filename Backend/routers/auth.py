@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Header, HTTPException
 from firebase_admin import auth
+import unicodedata
 
 from core.firebase_config import db
 
@@ -41,8 +42,13 @@ def obtener_usuario_autenticado(
         raise HTTPException(status_code=403, detail="El usuario autenticado no esta registrado")
 
     user_data = user_doc.to_dict()
-    rol_actual = str(user_data.get("rol") or "").strip().lower()
-    rol_actual = rol_actual.replace("é", "e")
+    rol_actual = "".join(
+        char for char in unicodedata.normalize(
+            "NFD",
+            str(user_data.get("rol") or "").strip().lower()
+        )
+        if unicodedata.category(char) != "Mn"
+    )
 
     if rol_requerido and rol_actual != rol_requerido:
         raise HTTPException(status_code=403, detail="El usuario no tiene el rol requerido")
