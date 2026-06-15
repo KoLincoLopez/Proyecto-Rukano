@@ -30,6 +30,10 @@ onAuthStateChanged(auth, async (user) => {
         }
 
         renderizarPerfilTecnico(datosUsuario, user);
+        
+        // ACTIVACIÓN DE PESTAÑAS: Se ejecuta justo después de cargar los datos del técnico
+        inicializarTabsPerfil();
+
     } catch (error) {
         console.log("Error al validar acceso tecnico:", error);
         window.location.href = "inicioSesion.html";
@@ -44,6 +48,53 @@ function normalizarRol(rol) {
         .replace(/[\u0300-\u036f]/g, "");
 }
 
+// FUNCIÓN CORREGIDA Y REFORZADA CONTRA ERRORES DE CSS
+function inicializarTabsPerfil() {
+    const panelInformacion = document.getElementById("tab-informacion");
+    const panelCertificacion = document.getElementById("tab-certificacion");
+
+    if (!panelInformacion || !panelCertificacion) return;
+
+    const botonesTabs = document.querySelectorAll(".perfil-tab");
+
+    botonesTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+            const target = tab.dataset.tab;
+
+            // 1. Manejar el estado visual de los botones superiores
+            botonesTabs.forEach((btn) => {
+                btn.classList.remove("perfil-tab--active");
+                btn.setAttribute("aria-selected", "false");
+            });
+
+            tab.classList.add("perfil-tab--active");
+            tab.setAttribute("aria-selected", "true");
+
+            // 2. Forzar visualización con !important para romper cualquier restricción del CSS
+            if (target === "informacion") {
+                panelInformacion.style.setProperty("display", "grid", "important"); // Perfil usa diseño grid
+                panelInformacion.removeAttribute("hidden");
+                
+                panelCertificacion.style.setProperty("display", "none", "important");
+                panelCertificacion.setAttribute("hidden", "true");
+            } else if (target === "certificacion") {
+                panelInformacion.style.setProperty("display", "none", "important");
+                panelInformacion.setAttribute("hidden", "true");
+                
+                panelCertificacion.style.setProperty("display", "block", "important"); // Muestra la certificación limpia
+                panelCertificacion.removeAttribute("hidden");
+            }
+        });
+    });
+
+    // 3. ESTADO INICIAL: Mostrar Información y ocultar Certificación al cargar la página
+    panelInformacion.style.setProperty("display", "grid", "important");
+    panelInformacion.removeAttribute("hidden");
+    
+    panelCertificacion.style.setProperty("display", "none", "important");
+    panelCertificacion.setAttribute("hidden", "true");
+}
+
 function renderizarPerfilTecnico(datosUsuario, user) {
     const nombre = obtenerDato(datosUsuario.nombre ?? datosUsuario.nombres, "No registrado");
     const apellido = obtenerDato(datosUsuario.apellido ?? datosUsuario.apellidos, "No registrado");
@@ -56,7 +107,6 @@ function renderizarPerfilTecnico(datosUsuario, user) {
         "Sin descripción"
     );
     const experiencia = obtenerDato(datosUsuario.experiencia, "Sin experiencia registrada");
-    const estadoVerificacion = obtenerEstadoVerificacion(datosUsuario);
 
     asignarValor("perfilNombre", nombre);
     asignarValor("perfilApellido", apellido);
@@ -65,7 +115,6 @@ function renderizarPerfilTecnico(datosUsuario, user) {
     asignarValor("perfilComuna", comuna);
     asignarValor("perfilEspecialidad", especialidad);
     asignarValor("perfilExperiencia", experiencia);
-    asignarValor("perfilVerificado", estadoVerificacion);
     asignarValor("perfilDescripcion", descripcion);
     renderizarFotoPerfil(datosUsuario, user, nombre, apellido);
 }

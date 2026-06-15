@@ -7,6 +7,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/index.css">
     <link rel="stylesheet" href="css/miperfilTec.css">
+    <link rel="stylesheet" href="css/certificacion.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/tecnicoNav.css">
 
@@ -39,7 +40,20 @@
             </div>
         </section>
 
-        <section class="perfil-grid" aria-label="Información del técnico">
+        <!-- ====== TABS ====== -->
+        <nav class="perfil-tabs" aria-label="Secciones del perfil" role="tablist">
+            <button class="perfil-tab perfil-tab--active" data-tab="informacion" role="tab" aria-selected="true" aria-controls="tab-informacion">
+                <ion-icon name="person-outline"></ion-icon>
+                Información
+            </button>
+            <button class="perfil-tab" data-tab="certificacion" role="tab" aria-selected="false" aria-controls="tab-certificacion">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                Certificación
+            </button>
+        </nav>
+
+        <!-- ====== PANEL: Información ====== -->
+        <section id="tab-informacion" class="perfil-grid" aria-label="Información del técnico" role="tabpanel">
             <article class="perfil-card perfil-card--identidad">
                 <div class="perfil-img">
                     <img id="perfilFoto" alt="Foto del técnico" hidden>
@@ -100,10 +114,6 @@
                         <strong id="perfilExperiencia">Sin experiencia registrada</strong>
                     </div>
 
-                    <div class="perfil-dato">
-                        <span>Verificación</span>
-                        <strong id="perfilVerificado">Pendiente de verificación</strong>
-                    </div>
                 </div>
             </article>
 
@@ -116,6 +126,67 @@
                 <p id="perfilDescripcion">Sin descripción</p>
             </article>
         </section>
+
+        <!-- ====== PANEL: Certificación ====== -->
+        <div id="tab-certificacion" class="perfil-cert" hidden="true" style="display: none;">
+    
+    <div class="cert-header">
+        <h2>Certificación Técnica</h2>
+        <p>Gestiona los documentos que acreditan tu experiencia y conocimientos.</p>
+    </div>
+
+    <div id="contenedorEstadosCertificado">
+
+        <div id="certEstadoInexistente" style="display: none;">
+            <div class="cert-alerta cert-alerta--info" style="background-color: #f0f4f9; padding: 15px; border-left: 4px solid #0b57d0; border-radius: 4px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <ion-icon name="alert-circle-outline" style="font-size: 24px; color: #0b57d0;"></ion-icon>
+                <p style="margin: 0; color: #1f1f1f;">Aún no has cargado documentación para certificar tu perfil técnico. Sube tus archivos para iniciar el proceso de revisión.</p>
+            </div>
+        </div>
+
+        <div id="certEstadoSubido" style="display: none;">
+            <div class="cert-alerta cert-alerta--pendiente" style="background-color: #fef7e0; padding: 15px; border-left: 4px solid #b06000; border-radius: 4px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+                <ion-icon name="time-outline" style="font-size: 24px; color: #b06000;"></ion-icon>
+                <div>
+                    <strong style="color: #b06000;">Documentación en revisión</strong>
+                    <p style="margin: 4px 0 0 0; color: #1f1f1f; font-size: 14px;">Tu documentación está siendo evaluada. Puedes volver a subir archivos abajo si necesitas actualizarlos.</p>
+                </div>
+            </div>
+            <p style="font-weight: 500; color: #5f6368; margin-bottom: 20px;">Última subida: <span id="certFechaSubidaValor" style="color: #1f1f1f; font-weight: 600;">No registrada</span></p>
+        </div>
+
+        <div id="certEstadoVerificado" style="display: none;">
+            <div class="cert-alerta cert-alerta--exito" style="background-color: #e6f4ea; padding: 18px; border-left: 4px solid #137333; border-radius: 6px; display: flex; align-items: center; gap: 12px; margin-bottom: 20px;">
+                <ion-icon name="checkmark-circle" style="font-size: 28px; color: #137333;"></ion-icon>
+                <div>
+                    <strong style="color: #137333; font-size: 16px;">¡Perfil Verificado Exitosamente!</strong>
+                    <p style="margin: 4px 0 0 0; color: #202124; font-size: 14px;">Tu documentación ha sido aprobada. Cuentas con el sello oficial de profesional verificado.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <form id="certDropzoneForm" class="cert-dropzone-form">
+        <div class="cert-dropzone" id="certDropzone">
+            <ion-icon name="cloud-upload-outline" class="cert-dropzone-icon"></ion-icon>
+            <p>Arrastra y suelta tus archivos aquí, o <label for="certInput" class="cert-label-file">explora</label></p>
+            <p class="cert-formato">Formatos permitidos: PDF, Word, JPG, PNG (Máx 5 archivos)</p>
+            <input type="file" id="certInput" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" hidden>
+        </div>
+
+        <div id="certArchivosList" class="cert-archivos-list"></div>
+        <p id="certContador" class="cert-contador">0 / 5 archivos</p>
+        <p id="certAlertaError" class="cert-alerta-error" hidden></p>
+        
+        <button type="submit" id="certBtnSubir" class="cert-btn cert-btn--submit" disabled>
+            <ion-icon name="arrow-up-circle-outline"></ion-icon> Subir certificación
+        </button>
+    </form>
+    
+    <div id="certToast" class="cert-toast" hidden></div>
+</div>
+
     </main>
     <!-- ================= FIN CONTENIDO ================= -->
 
@@ -183,8 +254,10 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
 <!-- ================= JS ================= -->
+<script src="js/apiConfig.js"></script>
 <script src="js/navbar.js" defer></script>
     <script type="module" src="js/miperfilTec.js"></script>
+    <script type="module" src="js/certificacion.js"></script>
 
 </body>
 </html>
