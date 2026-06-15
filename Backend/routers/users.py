@@ -89,7 +89,7 @@ async def cambiar_verificacion_tecnico(tecnico_id: str, verificado: bool):
             raise HTTPException(status_code=404, detail="Técnico no encontrado")
 
         tecnico_data = tecnico_doc.to_dict()
-        if tecnico_data.get("rol") != "técnico":
+        if tecnico_data.get("rol") == "cliente":
             raise HTTPException(status_code=400, detail="El ID proporcionado no pertenece a un técnico")
 
         tecnico_ref.update({"verificado": verificado})

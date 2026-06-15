@@ -52,40 +52,82 @@ onAuthStateChanged(auth, async (user) => {
         uidActual = user.uid;
         tokenActual = await user.getIdToken();
 
-        const usuarioSnap = await getDoc(doc(db, "usuarios", user.uid));
-        const datosUsuario = usuarioSnap.exists() ? usuarioSnap.data() : {};
-        const estaVerificado = Boolean(datosUsuario.verificado === true);
-
-        if (!estaVerificado) {
-            renderizarEstado(null, false, "Aun no estas verificado, sube tus documentos para obtener la verificacion de Rukano.");
-            return;
-        }
-
+        // Cargar el estado de certificación (independiente de si está verificado o no)
         await cargarEstadoCertificado();
     } catch (err) {
-        console.error("Error al obtener token o estado de verificación:", err);
-        renderizarEstado(null, true);
+        console.error("Error al obtener token o estado de certificación:", err);
     }
 });
 
 // ─── Cargar estado actual del certificado ─────────────────────────────────────
 
 async function cargarEstadoCertificado() {
-    if (!uidActual || !tokenActual) return;
+    const divInexistente = document.getElementById("certEstadoInexistente");
+    const divSubido      = document.getElementById("certEstadoSubido");
+    const divVerificado  = document.getElementById("certEstadoVerificado");
+    const txtFecha       = document.getElementById("certFechaSubidaValor");
+    const formularioSubida = document.getElementById("certDropzoneForm");
 
     try {
-        const res = await fetch(`${API_BASE}/certificados/mis-certificados`, {
+        // 1. Obtener el estado de verificación real desde Firestore
+        const usuarioSnap = await getDoc(doc(db, "usuarios", uidActual));
+        const datosUsuario = usuarioSnap.exists() ? usuarioSnap.data() : {};
+        const esVerificado = datosUsuario.verificado === true;
+
+        // 2. Obtener los documentos cargados desde el Backend
+        const response = await fetch(`${API_BASE}/certificados/mis-certificados`, {
             method: "GET",
-            headers: { Authorization: `Bearer ${tokenActual}` },
+            headers: {
+                "Authorization": `Bearer ${tokenActual}`
+            }
         });
 
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!response.ok) {
+            throw new Error("Error al consultar el servicio de certificados");
+        }
 
-        const data = await res.json();
-        renderizarEstado(data?.certificado ?? null);
-    } catch (err) {
-        console.error("Error al cargar certificado:", err);
-        renderizarEstado(null, true);
+        const data = await response.json();
+        const estadoActual = data.estado; // ← Usar el estado que calcula el backend
+
+        // Limpieza absoluta de vistas previas
+        if (divInexistente) divInexistente.style.display = "none";
+        if (divSubido)      divSubido.style.display = "none";
+        if (divVerificado)  divVerificado.style.display = "none";
+
+        // 🔥 REGLA DE NEGOCIO: El formulario de subida SIEMPRE debe estar visible
+        if (formularioSubida) {
+            formularioSubida.style.display = "block"; // O "" si usas estilos CSS nativos (Flexbox/Grid)
+        }
+
+        // 2. Usar el estado que viene del backend
+        if (estadoActual === "verificado") {
+            // --- ESTADO: Técnico Verificado ---
+            if (divVerificado) divVerificado.style.display = "block";
+
+        } else if (estadoActual === "subido") {
+            // --- ESTADO: Documentación en revisión ---
+            if (divSubido) {
+                divSubido.style.display = "block";
+                if (data.certificado && data.certificado.fecha_subida) {
+                    const fecha = new Date(data.certificado.fecha_subida);
+                    txtFecha.textContent = fecha.toLocaleString("es-CL", {
+                        day: "2-digit", month: "2-digit", year: "numeric",
+                        hour: "2-digit", minute: "2-digit"
+                    });
+                }
+            }
+
+        } else if (estadoActual === "inexistente") {
+            // --- ESTADO: Sin documentos previos ---
+            if (divInexistente) divInexistente.style.display = "block";
+            archivosSeleccionados = [];
+        }
+
+    } catch (error) {
+        console.error("Error crítico al procesar estados de certificación:", error);
+        // Fallback de rescate: Si la API cae, jamás bloqueamos el formulario de subida
+        if (divInexistente) divInexistente.style.display = "block";
+        if (formularioSubida) formularioSubida.style.display = "";
     }
 }
 

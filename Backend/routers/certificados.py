@@ -145,20 +145,45 @@ async def obtener_certificado_tecnico(id_usuario: str):
 @router.get("/mis-certificados", response_model=dict, summary="Obtener mis certificados (técnico autenticado)")
 async def obtener_mis_certificados(uid_actual: str = Depends(obtener_uid_actual)):
     """
-    Permite al técnico autenticado consultar el estado de su propia certificación.
+    Consulta el estado de certificación del técnico autenticado.
+    Determina dinámicamente tres estados: 'inexistente', 'subido' o 'verificado'.
     """
     try:
-        certificados = db.collection("certificados").where("id_usuario", "==", uid_actual).limit(1).stream()
+        # 1. Consultar el perfil del usuario para verificar si está aprobado ('verificado')
+        usuario_ref = db.collection("usuarios").document(uid_actual)
+        usuario_doc = usuario_ref.get()
+        
+        if not usuario_doc.exists:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+            
+        usuario_data = usuario_doc.to_dict()
+        esta_verificado = usuario_data.get("verificado", False)
 
+        # 2. Consultar si existen documentos en la colección 'certificados'
+        certificados = db.collection("certificados").where("id_usuario", "==", uid_actual).limit(1).stream()
         certificado_data = None
         for cert in certificados:
             certificado_data = cert.to_dict()
             break
 
-        if not certificado_data:
-            return {"status": "success", "certificado": None}
+        # --- EVALUACIÓN DE LOS 3 ESTADOS ---
+        # Estado 3: El usuario ya posee la marca de verificado en True
+        if esta_verificado:
+            estado_actual = "verificado"
+            
+        # Estado 1: No está verificado y tampoco posee documentación en el sistema
+        elif not certificado_data:
+            estado_actual = "inexistente"
+            
+        # Estado 2: Posee documentación subida, pero 'verificado' aún es False
+        else:
+            estado_actual = "subido"
 
-        return {"status": "success", "certificado": certificado_data}
+        return {
+            "status": "success",
+            "estado": estado_actual,
+            "certificado": certificado_data
+        }
 
     except HTTPException:
         raise
