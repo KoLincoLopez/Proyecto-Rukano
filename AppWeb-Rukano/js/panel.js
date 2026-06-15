@@ -1,22 +1,22 @@
 import { auth, db } from "./Firebase-config.js";
+import { apiFetch } from "./apiFetch.js";
+import { crearTimelineEstado, obtenerEtiquetaEstadoCita } from "./timelineCita.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
     doc,
     getDoc,
-    addDoc,
     collection,
     query,
     where,
-    getDocs,
-    deleteDoc,
-    updateDoc
+    getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
+const PAYMENT_MODE = window.RukanoApiConfig.getPaymentMode();
 
 window.addEventListener("DOMContentLoaded", () => {
 
     let datosUsuarioActual = null;
-
-    verificarCitasExpiradasSilencioso();   // Verificar citas expiradas al cargar el panel, sin mostrar errores al usuario en caso de fallo
 
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
@@ -314,7 +314,13 @@ window.addEventListener("DOMContentLoaded", () => {
                     if (!confirmar) return;
 
                     try {
-                        await deleteDoc(doc(db, "servicios", docServicio.id));
+                        const response = await apiFetch(`${API_URL}/servicios/${docServicio.id}`, {
+                            method: "DELETE"
+                        });
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({}));
+                            throw new Error(errorData.detail || "No se pudo eliminar el servicio.");
+                        }
                         await cargarMisServicios(uidTecnico, "Actualizando tus servicios...");
                         modalPanel?.notificar("Servicio eliminado correctamente.");
                     } catch (error) {
@@ -332,10 +338,18 @@ window.addEventListener("DOMContentLoaded", () => {
                     if (!nuevoTitulo) return;
 
                     try {
-                        await updateDoc(doc(db, "servicios", docServicio.id), {
-                            nombre: nuevoTitulo,
-                            titulo: nuevoTitulo
+                        const response = await apiFetch(`${API_URL}/servicios/editar/${docServicio.id}`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                nombre: nuevoTitulo,
+                                titulo: nuevoTitulo
+                            })
                         });
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({}));
+                            throw new Error(errorData.detail || "No se pudo actualizar el servicio.");
+                        }
 
                         await cargarMisServicios(uidTecnico, "Actualizando tus servicios...");
                         modalPanel?.notificar("Servicio actualizado correctamente.");
@@ -365,6 +379,11 @@ window.addEventListener("DOMContentLoaded", () => {
         const idTecnico = params.get("idTecnico");
         const idServicio = params.get("idServicio");
 
+        if (idServicio) {
+            window.location.replace(`detalleServicio.html?id=${encodeURIComponent(idServicio)}`);
+            return;
+        }
+
         const dashboardCliente = document.getElementById("dashboardCliente");
         const seccionReserva = document.getElementById("seccionReserva");
 
@@ -393,14 +412,6 @@ window.addEventListener("DOMContentLoaded", () => {
         cargarCitasCliente(uidCliente);
         cargarUltimoReporteCliente(uidCliente);
         cargarBadgeCitasReservadas(uidCliente);
-
-        const btnConfirmarReserva = document.getElementById("btnConfirmarReserva");
-
-        if (btnConfirmarReserva) {
-            btnConfirmarReserva.addEventListener("click", () => {
-                crearReservaCliente(uidCliente);
-            });
-        }
 
         const btnEnviarReporte = document.getElementById("btnEnviarReporte");
 
@@ -493,52 +504,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    async function crearReservaCliente(uidCliente) {
-        const mensajeReserva = document.getElementById("mensajeReserva");
-
-        if (!mensajeReserva) return;
-
-        const params = new URLSearchParams(window.location.search);
-
-        const servicio = params.get("servicio") || "Servicio seleccionado";
-        const tecnico = params.get("tecnico") || "Tecnico seleccionado";
-        const precio = params.get("precio") || "0";
-        const idTecnico = params.get("idTecnico") || "sin-id-tecnico";
-        const idServicio = params.get("idServicio") || "sin-id-servicio";
-
-        const horarioSeleccionado = document.querySelector("input[name='horarioSeleccionado']:checked");
-
-        if (!horarioSeleccionado) {
-            mensajeReserva.textContent = "Selecciona un horario disponible.";
-            return;
-        }
-
-        const [dia, inicio, fin] = horarioSeleccionado.value.split("|");
-
-        try {
-            await addDoc(collection(db, "citas"), {
-                idCliente: uidCliente,
-                idTecnico: idTecnico,
-                idServicio: idServicio,
-                servicio: servicio,
-                tecnico: tecnico,
-                precio: Number(precio),
-                dia: dia,
-                horaInicio: inicio,
-                horaFin: fin,
-                estado: "pendiente",
-                createdAt: new Date()
-            });
-
-            mensajeReserva.textContent = "Reserva creada correctamente.";
-            cargarCitasCliente(uidCliente);
-
-        } catch (error) {
-            console.log(error);
-            mensajeReserva.textContent = "Error al crear la reserva.";
-        }
-    }
-
     async function enviarReporteCliente(uidCliente) {
         const tipoReporte = document.getElementById("tipoReporte");
         const tecnicoRelacionado = document.getElementById("tecnicoRelacionado");
@@ -551,23 +516,6 @@ window.addEventListener("DOMContentLoaded", () => {
         const tipo = tipoReporte.value.trim();
         const tecnico = tecnicoRelacionado?.value.trim() || "";
         const descripcion = textarea.value.trim();
-        const obtenerDatoReporte = (...valores) => {
-            const valor = valores.find((item) => item !== undefined && item !== null && String(item).trim() !== "");
-            return valor !== undefined ? String(valor).trim() : "";
-        };
-        const nombreCliente = obtenerDatoReporte(
-            [datosUsuarioActual?.nombres || datosUsuarioActual?.nombre, datosUsuarioActual?.apellidos || datosUsuarioActual?.apellido]
-                .filter((item) => item !== undefined && item !== null && String(item).trim() !== "")
-                .join(" "),
-            datosUsuarioActual?.displayName,
-            user?.displayName
-        ) || "Cliente";
-        const correoCliente = obtenerDatoReporte(
-            datosUsuarioActual?.email,
-            datosUsuarioActual?.correo,
-            user?.email
-        ) || "No registrado";
-
         if (!user) {
             estadoReporte.textContent = "Debes iniciar sesion para enviar un reporte.";
             return;
@@ -584,17 +532,19 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            await addDoc(collection(db, "reportes"), {
-                idCliente: uidCliente,
+            const response = await apiFetch(`${API_URL}/reports/reportar_general`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
                 tipoReporte: tipo,
                 tecnicoRelacionado: tecnico,
-                descripcion: descripcion,
-                mensaje: descripcion,
-                nombreCliente: nombreCliente,
-                correoCliente: correoCliente,
-                fecha: new Date(),
-                estado: "pendiente"
+                    descripcion
+                })
             });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || "No se pudo enviar el reporte.");
+            }
 
             tipoReporte.value = "";
             if (tecnicoRelacionado) tecnicoRelacionado.value = "";
@@ -638,7 +588,7 @@ window.addEventListener("DOMContentLoaded", () => {
         try {
             const consulta = query(
                 collection(db, "reportes"),
-                where("idCliente", "==", uidCliente)
+                where("idReportante", "==", uidCliente)
             );
 
             const resultado = await getDocs(consulta);
@@ -725,6 +675,13 @@ window.addEventListener("DOMContentLoaded", () => {
             .replace(/[\u0300-\u036f]/g, "");
     }
 
+    function fechaEsHoyOPasada(fechaISO) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fechaISO || ""))) return false;
+        const hoy = new Date();
+        const hoyLocal = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, "0")}-${String(hoy.getDate()).padStart(2, "0")}`;
+        return fechaISO <= hoyLocal;
+    }
+
     async function cargarBadgeCitasReservadas(uidCliente) {
         // Eliminar badge previo del DOM (para el caso de refrescos tras un pago)
         document.getElementById("badgeCitasReservadas")?.remove();
@@ -733,11 +690,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if (!heading) return;
 
         try {
-            const URL_API = window.API_BASE_URL
-                ? `${window.API_BASE_URL}/citas/notificaciones/cliente/${uidCliente}/reservadas`
-                : `http://localhost:8000/citas/notificaciones/cliente/${uidCliente}/reservadas`;
-
-            const response = await fetch(URL_API);
+            const response = await apiFetch(`${API_URL}/citas/notificaciones/cliente/${uidCliente}/reservadas`);
             if (!response.ok) throw new Error("Error al obtener notificaciones");
 
             const data = await response.json();
@@ -805,37 +758,44 @@ window.addEventListener("DOMContentLoaded", () => {
                 const horaFin = obtenerDato(cita.horaFin, "");
                 const horario = horaInicio && horaFin ? `${horaInicio} - ${horaFin}` : obtenerDato(cita.hora, "Horario no definido");
                 const precio = obtenerDato(cita.precio, "Precio no informado");
-                const estado = obtenerDato(cita.estado, "pendiente");
-                const estadoNorm = estado.toLowerCase().trim();
+                const estadoNorm = String(cita.estado || "").toLowerCase().trim();
+                const estadoVisible = obtenerEtiquetaEstadoCita(estadoNorm);
 
-                // El botón de reseña solo aplica a citas concluidas con datos completos
-                // y que no tengan ya una reseña registrada
                 let yaResenada = false;
+                let puedeResenar = false;
+                let validacionResenaDisponible = true;
                 if (estadoNorm === "concluida" && !faltanDatosResena) {
                     try {
-                        const qResena = query(collection(db, "resenas"), where("citaId", "==", citaId));
-                        const snapResena = await getDocs(qResena);
-                        yaResenada = !snapResena.empty;
-                    } catch (_) { /* si falla la consulta, mostramos el botón de todas formas */ }
+                        const response = await apiFetch(`${API_URL}/reviews/verificar_resena/${encodeURIComponent(citaId)}`);
+                        if (!response.ok) throw new Error("No se pudo validar la reseña");
+                        const validacion = await response.json();
+                        yaResenada = Boolean(validacion.posee_resena);
+                        puedeResenar = Boolean(validacion.puede_resenar);
+                    } catch (error) {
+                        validacionResenaDisponible = false;
+                        console.warn("No se pudo validar si la cita admite reseña:", error);
+                    }
                 }
-
-                const puedeResenar = estadoNorm === "concluida" && !faltanDatosResena && !yaResenada;
 
                 const accionResena = puedeResenar
                     ? `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}&tecnicoId=${encodeURIComponent(tecnicoId)}" class="btn-link btn-reservar">
-                        Valorar servicio
+                        Reseñar
                     </a>`
-                    : "";
+                    : yaResenada
+                        ? `<span class="btn-link" aria-disabled="true">Ya reseñado</span>`
+                        : estadoNorm === "concluida" && !validacionResenaDisponible
+                            ? `<span class="btn-link" aria-disabled="true">Reseña no disponible</span>`
+                            : "";
 
                 // Botón "Pagar Cita" solo cuando el estado es "reservada"
                 const accionPago = estadoNorm === "reservada"
                     ? `<button type="button" class="btn-link btn-pagar-cita" data-cita-id="${citaId}">
-                        Pagar Cita
+                        ${PAYMENT_MODE === "demo" ? "Pagar Cita (demo)" : "Pagar Cita"}
                     </button>`
                     : "";
 
                 // Botón "Cancelar Cita" para citas en estado "pendiente" o "reservada"
-                const puedeCancelar = estadoNorm === "pendiente" || estadoNorm === "reservada";
+                const puedeCancelar = estadoNorm === "reservada" && !fechaEsHoyOPasada(dia);
                 const accionCancelar = puedeCancelar
                     ? `<button type="button" class="btn-link btn-cancelar-cita" data-cita-id="${citaId}" data-cita-fecha="${dia}">
                         Cancelar Cita
@@ -859,8 +819,9 @@ window.addEventListener("DOMContentLoaded", () => {
                         <p><span>Fecha</span><b>${dia}</b></p>
                         <p><span>Horario</span><b>${horario}</b></p>
                         <p><span>Precio</span><b>${precio === "Precio no informado" ? precio : `$${precio}`}</b></p>
-                        <p><span>Estado</span><b>${estado}</b></p>
+                        <p><span>Estado</span><b>${estadoVisible}</b></p>
                     </div>
+                    ${crearTimelineEstado(estadoNorm)}
                     <div class="cita-acciones" style="display:flex; flex-wrap:wrap; gap:8px;">
                         ${accionPago}
                         ${accionCancelar}
@@ -877,17 +838,42 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnPagar.disabled = true;
                             btnPagar.textContent = "Procesando...";
                             try {
-                                await updateDoc(doc(db, "citas", citaId), {
-                                    estado: "pago_realizado",
-                                    pagadoEn: new Date()
+                                if (PAYMENT_MODE === "demo") {
+                                    const response = await apiFetch(`${API_URL}/citas/${citaId}/registrar-pago-demo`, {
+                                        method: "PATCH",
+                                        headers: { "Content-Type": "application/json" }
+                                    });
+
+                                    if (!response.ok) {
+                                        const errorData = await response.json().catch(() => ({}));
+                                        throw new Error(errorData.detail || "Error al registrar el pago demo.");
+                                    }
+
+                                    await cargarCitasCliente(uidCliente);
+                                    await cargarBadgeCitasReservadas(uidCliente);
+                                    return;
+                                }
+
+                                const response = await apiFetch(`${API_URL}/payments/create_preference/${citaId}`, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" }
                                 });
-                                // Refrescar la lista y el badge para reflejar el nuevo estado
-                                await cargarCitasCliente(uidCliente);
-                                await cargarBadgeCitasReservadas(uidCliente);
+
+                                if (!response.ok) {
+                                    const errorData = await response.json().catch(() => ({}));
+                                    throw new Error(errorData.detail || "Error al crear la preferencia de pago.");
+                                }
+
+                                const data = await response.json();
+                                const checkoutUrl = data.init_point || data.sandbox_init_point;
+                                if (!checkoutUrl) throw new Error("El backend no devolvió una URL de pago.");
+
+                                window.location.href = checkoutUrl;
                             } catch (error) {
                                 console.log("Error al registrar pago:", error);
+                                alert(error.message || "No se pudo iniciar el pago. Intenta nuevamente.");
                                 btnPagar.disabled = false;
-                                btnPagar.textContent = "Pagar Cita";
+                                btnPagar.textContent = PAYMENT_MODE === "demo" ? "Pagar Cita (demo)" : "Pagar Cita";
                             }
                         });
                     }
@@ -899,9 +885,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     if (btnCancelar) {
                         btnCancelar.addEventListener("click", async () => {
                             // Validar que la fecha de la cita no sea hoy ni anterior (en el cliente)
-                            const fechaCita = btnCancelar.dataset.citaFecha || "";
-                            const hoyStr = new Date().toISOString().split("T")[0];
-                            if (fechaCita && fechaCita <= hoyStr) {
+                            if (fechaEsHoyOPasada(btnCancelar.dataset.citaFecha || "")) {
                                 alert("No puedes cancelar una cita para el mismo día o con fecha pasada.");
                                 return;
                             }
@@ -913,14 +897,9 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnCancelar.textContent = "Cancelando...";
 
                             try {
-                                const URL_API = window.API_BASE_URL
-                                    ? `${window.API_BASE_URL}/citas/${citaId}/cancelar-cliente`
-                                    : `http://localhost:8000/citas/${citaId}/cancelar-cliente`;
-
-                                const response = await fetch(URL_API, {
+                                const response = await apiFetch(`${API_URL}/citas/${citaId}/cancelar-cliente`, {
                                     method: "PATCH",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ idCliente: uidCliente })
+                                    headers: { "Content-Type": "application/json" }
                                 });
 
                                 if (!response.ok) {
@@ -945,14 +924,6 @@ window.addEventListener("DOMContentLoaded", () => {
                     const btnReembolso = card.querySelector(".btn-reembolso-cita");
                     if (btnReembolso) {
                         btnReembolso.addEventListener("click", async () => {
-                            // Validar que la fecha de la cita no sea hoy ni anterior (en el cliente)
-                            const fechaCita = btnReembolso.dataset.citaFecha || "";
-                            const hoyStr = new Date().toISOString().split("T")[0];
-                            if (fechaCita && fechaCita <= hoyStr) {
-                                alert("No puedes solicitar reembolso en una cita para el mismo día o con fecha pasada.");
-                                return;
-                            }
-
                             const confirmar = window.confirm("¿Deseas solicitar un reembolso por esta cita? Tu solicitud será revisada por el equipo.");
                             if (!confirmar) return;
 
@@ -960,14 +931,9 @@ window.addEventListener("DOMContentLoaded", () => {
                             btnReembolso.textContent = "Enviando solicitud...";
 
                             try {
-                                const URL_API = window.API_BASE_URL
-                                    ? `${window.API_BASE_URL}/citas/${citaId}/solicitar-reembolso`
-                                    : `http://localhost:8000/citas/${citaId}/solicitar-reembolso`;
-
-                                const response = await fetch(URL_API, {
+                                const response = await apiFetch(`${API_URL}/citas/${citaId}/solicitar-reembolso`, {
                                     method: "PATCH",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ idCliente: uidCliente })
+                                    headers: { "Content-Type": "application/json" }
                                 });
 
                                 if (!response.ok) {
@@ -996,52 +962,3 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 });
-
-/**
- * Ejecuta una actualización silenciosa de los estados de las citas vencidas.
- * Utiliza localStorage para asegurarse de que solo se llame una vez al día por usuario,
- * sin importar cuántas pestañas tenga abiertas.
- */
-async function verificarCitasExpiradasSilencioso() {
-    // 1. Obtener la fecha local de hoy en formato YYYY-MM-DD
-    const hoy = new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' }).split('-').reverse().join('-'); 
-    // Nota: El split/reverse adapta el formato según cómo devuelva el string tu región local, 
-    // una alternativa limpia es: new Date().toISOString().split('T')[0];
-
-    const fechaHoyFormateada = new Date().toISOString().split('T')[0];
-    const ultimaVerificacion = localStorage.getItem('backend_cron_citas_fecha');
-
-    // 2. Si ya se ejecutó con éxito el día de hoy, saltar la petición
-    if (ultimaVerificacion === fechaHoyFormateada) {
-        console.log('[Sistema] Los estados de las citas ya están sincronizados hoy.');
-        return;
-    }
-
-    try {
-        // 3. Cambia esto por tu URL real de producción cuando corresponda
-        const URL_API = 'http://localhost:8000/citas/cron/verificar-fechas-citas'; 
-
-        // Al ser un fetch silencioso, no bloqueamos la UI con loaders o spinners
-        const response = await fetch(URL_API, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            console.log(`[Cron Silencioso] Éxito: ${data.message}`);
-            
-            // Guardamos en el almacenamiento del navegador que hoy ya se cumplió la tarea
-            localStorage.setItem('backend_cron_citas_fecha', fechaHoyFormateada);
-        } else {
-            // Error de respuesta del servidor (ej: 500), no guardamos en localStorage para reintentar luego
-            console.warn('[Cron Silencioso] El servidor respondió con un error al procesar fechas.');
-        }
-
-    } catch (error) {
-        // Al ser silencioso, capturamos el error en consola para desarrollo sin interrumpir al cliente
-        console.error('[Cron Silencioso] Error de red o servidor caído:', error);
-    }
-}

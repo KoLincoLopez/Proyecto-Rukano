@@ -1,39 +1,98 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Header, HTTPException
+from pydantic import BaseModel, Field
 from datetime import datetime, timezone
 import uuid
 from core.firebase_config import db
+from models.enums import EstadoCita, RolUsuario
+from routers.auth import obtener_usuario_autenticado
 from google.cloud import firestore # Para transacciones de concurrencia
 from google.cloud.firestore import FieldFilter
 import pytz # Para manejo de zonas horarias en el cron job de actualización de estados
+from services.availability_service import (
+    estado_bloquea_horario,
+    liberar_bloque,
+    ocupar_bloque,
+)
 
 router = APIRouter()
 
 # --- MODELO DE DATOS PARA LA RESERVA ---
 class ReservaCita(BaseModel):
     idServicio: str
-    idCliente: str
     fecha: str  # Formato "YYYY-MM-DD"
     hora: str   # Formato "HH:MM"
     # Aquí es donde el cliente envía el formulario ya respondido
-    respuestas_formulario: dict 
+    respuestas_formulario: dict = Field(default_factory=dict)
 
 # ---MODELO DE DATOS PARA ACTUALIZAR ESTADO DE CITA (RESERVADA/CANCELADA)---
 class ActualizarEstadoCita(BaseModel):
-    idTecnico: str
     nuevo_estado: str  # Solo permitiremos "reservada" o "cancelada"
 
 # --- ENDPOINT: RESERVAR CON VALIDACIÓN DE FORMULARIO ---
 @router.post("/reservar")
-async def reservar_cita(datos: ReservaCita):
+async def reservar_cita(
+    datos: ReservaCita,
+    authorization: str | None = Header(default=None)
+):
     try:
+        uid_cliente, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.CLIENTE.value
+        )
         servicio_ref = db.collection("servicios").document(datos.idServicio)
         servicio_doc = servicio_ref.get()
 
         if not servicio_doc.exists:
             raise HTTPException(status_code=404, detail="El servicio no existe")
-        
+
         datos_servicio = servicio_doc.to_dict()
+        id_tecnico = datos_servicio.get("idTecnico")
+        if not id_tecnico:
+            raise HTTPException(status_code=400, detail="El servicio no tiene tecnico asociado")
+
+        tecnico_doc = db.collection("usuarios").document(id_tecnico).get()
+        if not tecnico_doc.exists:
+            raise HTTPException(status_code=400, detail="El tecnico asociado no existe")
+
+        zona_horaria = pytz.timezone("America/Santiago")
+        try:
+            fecha_hora = zona_horaria.localize(
+                datetime.strptime(f"{datos.fecha} {datos.hora}", "%Y-%m-%d %H:%M")
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=400,
+                detail="Fecha u hora invalida. Usa YYYY-MM-DD y HH:MM"
+            ) from exc
+
+        if fecha_hora <= datetime.now(zona_horaria):
+            raise HTTPException(status_code=400, detail="La cita debe programarse en una fecha futura")
+
+        dias_semana = {
+            0: "lunes",
+            1: "martes",
+            2: "miercoles",
+            3: "jueves",
+            4: "viernes",
+            5: "sabado",
+            6: "domingo"
+        }
+        dia_cita = dias_semana[fecha_hora.weekday()]
+        disponibilidad = datos_servicio.get("disponibilidad") or []
+        horario_valido = any(
+            str(item.get("dia") or "").strip().lower()
+            .replace("é", "e").replace("á", "a")
+            == dia_cita
+            and str(item.get("inicio") or item.get("hora_inicio") or "") <= datos.hora
+            and datos.hora < str(item.get("fin") or item.get("hora_fin") or "")
+            for item in disponibilidad
+        )
+        if not horario_valido:
+            raise HTTPException(
+                status_code=400,
+                detail="El horario seleccionado no esta dentro de la disponibilidad del tecnico"
+            )
+
         esquema = datos_servicio.get("esquema_formulario", [])
 
         # --- CORRECCIÓN DE VALIDACIÓN (RF 3) ---
@@ -44,7 +103,7 @@ async def reservar_cita(datos: ReservaCita):
             p_id = str(pregunta["id_pregunta"]) # Forzamos a string
             if pregunta.get("obligatorio") and p_id not in respuestas_str:
                 raise HTTPException(
-                    status_code=400, 
+                    status_code=400,
                     detail=f"Falta pregunta obligatoria: {pregunta.get('pregunta')}"
                 )
 
@@ -53,18 +112,26 @@ async def reservar_cita(datos: ReservaCita):
         def ejecutar_reserva(transaction):
             id_cita = str(uuid.uuid4())
             ahora = datetime.now(timezone.utc)
+            ocupar_bloque(
+                transaction,
+                id_tecnico,
+                datos.fecha,
+                datos.hora,
+                id_cita,
+            )
 
             # Usamos .get con valores por defecto para evitar Error 500
             cita_data = {
                 "idCita": id_cita,
                 "idServicio": datos.idServicio,
-                "idCliente": datos.idCliente,
-                "idTecnico": datos_servicio.get("idTecnico", "N/A"),
+                "idCliente": uid_cliente,
+                "idTecnico": id_tecnico,
                 "tituloServicio": datos_servicio.get("nombre", "Servicio sin nombre"),
+                "precio": datos_servicio.get("precio"),
                 "fecha": datos.fecha,
                 "hora": datos.hora,
                 "respuestas_formulario": respuestas_str,
-                "estado": "pendiente",
+                "estado": EstadoCita.PENDIENTE.value,
                 "pagoRetenido": True,
                 "createdAt": ahora
             }
@@ -83,12 +150,11 @@ async def reservar_cita(datos: ReservaCita):
         # Esto te dirá el error real en la terminal (ej. falta un import)
         print(f"ERROR CRÍTICO: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-    
+
 """
 Ejemplo de payload para reservar una cita con el formulario respondido:
 {
   "idServicio": "f1d0abce-82cf-4943-85c7-c67eae9a57c0",
-  "idCliente": "1",
   "fecha": "string",
   "hora": "string",
   "respuestas_formulario": {
@@ -100,7 +166,16 @@ Ejemplo de payload para reservar una cita con el formulario respondido:
 
 # --- OBTENER CITAS DEL TÉCNICO (AGUDA VIRTUAL) ---
 @router.get("/agenda/{tecnico_id}")
-async def obtener_agenda(tecnico_id: str):
+async def obtener_agenda(
+    tecnico_id: str,
+    authorization: str | None = Header(default=None)
+):
+    uid_tecnico, _ = obtener_usuario_autenticado(
+        authorization,
+        RolUsuario.TECNICO.value
+    )
+    if tecnico_id != uid_tecnico:
+        raise HTTPException(status_code=403, detail="No puedes consultar la agenda de otro técnico")
     # RF 4: El técnico puede visualizar sus compromisos de forma ordenada
     docs = db.collection("citas").where(filter=FieldFilter("idTecnico", "==", tecnico_id)).stream()
     agenda = [doc.to_dict() for doc in docs]
@@ -110,8 +185,8 @@ async def obtener_agenda(tecnico_id: str):
 @router.get("/horas_ocupadas/{tecnico_id}/{fecha}")
 async def obtener_horas_ocupadas(tecnico_id: str, fecha: str):
     """
-    Devuelve las horas ya reservadas para un técnico en una fecha específica.
-    Excluye las citas con estado 'cancelada' para que esos horarios queden libres.
+    Devuelve las horas bloqueadas por citas activas de un técnico en una fecha.
+    Solo pendiente, reservada y pago_realizado ocupan el horario.
     Formato fecha esperado: YYYY-MM-DD
     """
     try:
@@ -121,25 +196,33 @@ async def obtener_horas_ocupadas(tecnico_id: str, fecha: str):
             .where(filter=FieldFilter("fecha", "==", fecha))
             .stream()
         )
-        
+
         horas_ocupadas = []
-        
+
         for doc in docs:
             cita_data = doc.to_dict()
             estado = cita_data.get("estado", "").lower()
             hora = cita_data.get("hora")
-            
-            # REGLA: Si la cita está cancelada o reembolsada, se ignora (el horario queda disponible)
-            if estado != "cancelada" and estado != "reembolso_solicitado" and hora:
+
+            if estado_bloquea_horario(estado) and hora:
                 horas_ocupadas.append(hora)
-                
+
         return {"status": "success", "fecha": fecha, "horas_ocupadas": horas_ocupadas}
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al consultar agenda: {str(e)}")
 
 @router.get("/agenda/cliente/{cliente_id}")
-async def obtener_citas_cliente(cliente_id: str):
+async def obtener_citas_cliente(
+    cliente_id: str,
+    authorization: str | None = Header(default=None)
+):
+    uid_cliente, _ = obtener_usuario_autenticado(
+        authorization,
+        RolUsuario.CLIENTE.value
+    )
+    if cliente_id != uid_cliente:
+        raise HTTPException(status_code=403, detail="No puedes consultar las citas de otro cliente")
     # Devuelve las citas asociadas a un cliente (idCliente)
     docs = db.collection("citas").where(filter=FieldFilter("idCliente", "==", cliente_id)).stream()
     citas = [doc.to_dict() for doc in docs]
@@ -147,13 +230,21 @@ async def obtener_citas_cliente(cliente_id: str):
 
 # --- ENDPOINT: CAMBIAR ESTADO DE LA CITA (DE PENDIENTE A RESERVADA/CANCELADA) ---
 @router.patch("/{id_cita}/estado")
-async def cambiar_estado_cita(id_cita: str, payload: ActualizarEstadoCita):
+async def cambiar_estado_cita(
+    id_cita: str,
+    payload: ActualizarEstadoCita,
+    authorization: str | None = Header(default=None)
+):
     try:
+        uid_tecnico, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.TECNICO.value
+        )
         # 1. Validar que el nuevo estado sea estrictamente uno de los permitidos
-        estados_permitidos = ["reservada", "cancelada", "pago_realizado"]
+        estados_permitidos = [EstadoCita.RESERVADA.value, EstadoCita.CANCELADA.value]
         if payload.nuevo_estado not in estados_permitidos:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="El estado proporcionado no es válido. Debe ser 'reservada' o 'cancelada'."
             )
 
@@ -170,29 +261,22 @@ async def cambiar_estado_cita(id_cita: str, payload: ActualizarEstadoCita):
             cita_data = snapshot.to_dict()
 
             # 3. Validar que el técnico que pide el cambio sea el dueño de la cita
-            if cita_data.get("idTecnico") != payload.idTecnico:
+            if cita_data.get("idTecnico") != uid_tecnico:
                 raise HTTPException(
-                    status_code=403, 
+                    status_code=403,
                     detail="No tienes permisos para modificar esta cita porque pertenece a otro técnico."
                 )
 
             # 4. REGLA DE NEGOCIO: Solo se puede cambiar si el estado actual es "pendiente" o "reservada"
             estado_actual = cita_data.get("estado", "").lower()
-            if estado_actual == "pendiente" and payload.nuevo_estado == "pago_realizado":
+            if estado_actual != EstadoCita.PENDIENTE.value:
                 raise HTTPException(
                     status_code=400,
-                    detail="Operación rechazada: La cita debe estar 'reservada' antes de poder pagar."
+                    detail=f"Operación rechazada: Solo las citas pendientes pueden ser aceptadas o rechazadas por el técnico (Estado actual: '{estado_actual}')."
                 )
-            if estado_actual not in ("pendiente", "reservada"):
-                raise HTTPException(
-                    status_code=400, 
-                    detail=f"Operación rechazada: La cita ya no está en un estado modificable (Estado actual: '{estado_actual}')."
-                )
-            if estado_actual == "reservada" and payload.nuevo_estado not in ("cancelada", "pago_realizado"):
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Operación rechazada: Desde 'reservada' solo se puede cancelar o pagar."
-                )
+
+            if payload.nuevo_estado == EstadoCita.CANCELADA.value:
+                liberar_bloque(transaction, cita_data, id_cita)
 
             # 5. Ejecutar la actualización
             transaction.update(ref, {
@@ -206,7 +290,7 @@ async def cambiar_estado_cita(id_cita: str, payload: ActualizarEstadoCita):
         nuevo_estado_aplicado = procesar_cambio_estado(transaction, cita_ref)
 
         return {
-            "status": "success", 
+            "status": "success",
             "message": f"El estado de la cita se actualizó correctamente a '{nuevo_estado_aplicado}'.",
             "idCita": id_cita
         }
@@ -216,61 +300,64 @@ async def cambiar_estado_cita(id_cita: str, payload: ActualizarEstadoCita):
     except Exception as e:
         print(f"ERROR AL ACTUALIZAR ESTADO DE CITA: {str(e)}")
         raise HTTPException(status_code=500, detail="Ocurrió un error interno al intentar actualizar la cita.")
-    
+
 # --- ENDPOINT CRON: ACTUALIZACIÓN AUTOMÁTICA DE ESTADOS POR FECHA ---
 @router.post("/cron/verificar-fechas-citas")
-async def verificar_y_actualizar_citas():
+async def verificar_y_actualizar_citas(
+    authorization: str | None = Header(default=None)
+):
     """
     Este endpoint está diseñado para ejecutarse de forma automática (ej. cada noche a las 00:00, aunque de momento lo lanzaremos manualmente de forma silencionsa).
     Revisa las citas cuya fecha ya llegó o expiró y ajusta sus estados:
-    - 'pendiente' -> 'cancelada'
-    - 'reservada' -> 'pendiente_pago'
+    - 'pendiente' -> 'caducada'
+    - 'reservada' -> 'caducada'
     """
     try:
+        obtener_usuario_autenticado(authorization, RolUsuario.ADMIN.value)
         # 1. Obtener la fecha de hoy en la zona horaria correcta (ej: America/Santiago)
         # Esto evita que por desfase de UTC se cancelen citas antes de tiempo.
         zona_horaria = pytz.timezone("America/Santiago")
         hoy_str = datetime.now(zona_horaria).strftime("%Y-%m-%d")
 
-        batch = db.batch()
         contador_actualizaciones = 0
 
-        # --- CASO 1: Citas 'pendiente' que llegaron al día de la cita -> 'cancelada' ---
-        citas_pendientes_query = (
-            db.collection("citas")
-            .where(filter=FieldFilter("estado", "==", "pendiente"))
-            .where(filter=FieldFilter("fecha", "<=", hoy_str)) # "<=" por si alguna del pasado quedó colgada
-            .stream()
-        )
+        for estado in (EstadoCita.PENDIENTE.value, EstadoCita.RESERVADA.value):
+            citas_vencidas_query = (
+                db.collection("citas")
+                .where(filter=FieldFilter("estado", "==", estado))
+                .where(filter=FieldFilter("fecha", "<=", hoy_str)) # "<=" por si alguna del pasado quedó colgada
+                .stream()
+            )
 
-        for doc in citas_pendientes_query:
-            doc_ref = db.collection("citas").document(doc.id)
-            batch.update(doc_ref, {
-                "estado": "cancelada",
-                "motivo_sistema": "Cancelación automática por falta de confirmación al llegar la fecha límite.",
-                "updatedAt": datetime.utcnow()
-            })
-            contador_actualizaciones += 1
+            for doc in citas_vencidas_query:
+                doc_ref = db.collection("citas").document(doc.id)
 
-        # --- CASO 2: Citas 'reservada' que llegaron al día de la cita -> 'pendiente_pago' ---
-        citas_reservadas_query = (
-            db.collection("citas")
-            .where(filter=FieldFilter("estado", "==", "reservada"))
-            .where(filter=FieldFilter("fecha", "<=", hoy_str))
-            .stream()
-        )
+                @firestore.transactional
+                def caducar_cita(transaction, ref, id_cita):
+                    snapshot = ref.get(transaction=transaction)
+                    if not snapshot.exists:
+                        return False
 
-        for doc in citas_reservadas_query:
-            doc_ref = db.collection("citas").document(doc.id)
-            batch.update(doc_ref, {
-                "estado": "pendiente_pago",
-                "updatedAt": datetime.utcnow()
-            })
-            contador_actualizaciones += 1
+                    cita_data = snapshot.to_dict()
+                    if (
+                        cita_data.get("estado") not in {
+                            EstadoCita.PENDIENTE.value,
+                            EstadoCita.RESERVADA.value,
+                        }
+                        or cita_data.get("fecha", "") > hoy_str
+                    ):
+                        return False
 
-        # 2. Confirmar los cambios en Firestore si se encontró algo
-        if contador_actualizaciones > 0:
-            batch.commit()
+                    liberar_bloque(transaction, cita_data, id_cita)
+                    transaction.update(ref, {
+                        "estado": EstadoCita.CADUCADA.value,
+                        "motivo_sistema": "Caducidad automática al llegar la fecha límite sin completar el flujo.",
+                        "updatedAt": datetime.now(timezone.utc)
+                    })
+                    return True
+
+                if caducar_cita(db.transaction(), doc_ref, doc.id):
+                    contador_actualizaciones += 1
 
         return {
             "status": "success",
@@ -278,33 +365,46 @@ async def verificar_y_actualizar_citas():
             "fecha_evaluada": hoy_str
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"ERROR EN CRON DE CITAS: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error interno en el procesamiento por lote: {str(e)}")
 
 # --- ENDPOINT NOTIFICACIONES: CITAS PENDIENTES (TÉCNICO) ---
 @router.get("/notificaciones/tecnico/{tecnico_id}/pendientes")
-async def contar_citas_pendientes_tecnico(tecnico_id: str):
+async def contar_citas_pendientes_tecnico(
+    tecnico_id: str,
+    authorization: str | None = Header(default=None)
+):
     """
     Devuelve la cantidad de citas en estado 'pendiente' para un técnico.
     Ideal para mostrar globos de notificación en el dashboard.
     """
     try:
+        uid_tecnico, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.TECNICO.value
+        )
+        if tecnico_id != uid_tecnico:
+            raise HTTPException(status_code=403, detail="No puedes consultar notificaciones de otro técnico")
         query = (
             db.collection("citas")
             .where(filter=FieldFilter("idTecnico", "==", tecnico_id))
-            .where(filter=FieldFilter("estado", "==", "pendiente"))
+            .where(filter=FieldFilter("estado", "==", EstadoCita.PENDIENTE.value))
             .stream()
         )
-        
+
         # sum() iterará el generador de forma muy eficiente sin cargar grandes listas
         cantidad = sum(1 for _ in query)
-        
+
         return {
-            "status": "success", 
+            "status": "success",
             "tecnico_id": tecnico_id,
             "cantidad_pendientes": cantidad
         }
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error al contar notificaciones del técnico: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno al contar citas pendientes")
@@ -312,46 +412,128 @@ async def contar_citas_pendientes_tecnico(tecnico_id: str):
 
 # --- ENDPOINT NOTIFICACIONES: CITAS RESERVADAS (CLIENTE) ---
 @router.get("/notificaciones/cliente/{cliente_id}/reservadas")
-async def contar_citas_reservadas_cliente(cliente_id: str):
+async def contar_citas_reservadas_cliente(
+    cliente_id: str,
+    authorization: str | None = Header(default=None)
+):
     """
     Devuelve la cantidad de citas en estado 'reservada' para un cliente.
     Ideal para avisarle que tiene que realizar el pago o tomar acción.
     """
     try:
+        uid_cliente, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.CLIENTE.value
+        )
+        if cliente_id != uid_cliente:
+            raise HTTPException(status_code=403, detail="No puedes consultar notificaciones de otro cliente")
         query = (
             db.collection("citas")
             .where(filter=FieldFilter("idCliente", "==", cliente_id))
-            .where(filter=FieldFilter("estado", "==", "reservada"))
+            .where(filter=FieldFilter("estado", "==", EstadoCita.RESERVADA.value))
             .stream()
         )
-        
+
         cantidad = sum(1 for _ in query)
-        
+
         return {
-            "status": "success", 
+            "status": "success",
             "cliente_id": cliente_id,
             "cantidad_reservadas": cantidad
         }
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Error al contar notificaciones del cliente: {str(e)}")
         raise HTTPException(status_code=500, detail="Error interno al contar citas reservadas")
 
 
 # --- MODELO PARA CANCELACIÓN POR CLIENTE ---
-class CancelarCitaCliente(BaseModel):
-    idCliente: str
-
-# --- ENDPOINT: CANCELAR CITA POR EL CLIENTE (pendiente o reservada -> cancelada) ---
-@router.patch("/{id_cita}/cancelar-cliente")
-async def cancelar_cita_cliente(id_cita: str, payload: CancelarCitaCliente):
+# --- ENDPOINT: REGISTRAR PAGO DEMO (reservada -> pago_realizado) ---
+@router.patch("/{id_cita}/registrar-pago-demo")
+async def registrar_pago_demo(
+    id_cita: str,
+    authorization: str | None = Header(default=None)
+):
     """
-    Permite al cliente cancelar una cita propia en estado 'pendiente' o 'reservada'.
+    Registra un pago simulado para demo. La integración real con Mercado Pago
+    debe actualizar este estado desde el webhook, no desde el frontend.
+    """
+    try:
+        uid_cliente, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.CLIENTE.value
+        )
+        cita_ref = db.collection("citas").document(id_cita)
+
+        @firestore.transactional
+        def procesar_pago_demo(transaction, ref):
+            snapshot = ref.get(transaction=transaction)
+
+            if not snapshot.exists:
+                raise HTTPException(status_code=404, detail="La cita no existe en la base de datos.")
+
+            cita_data = snapshot.to_dict()
+
+            if cita_data.get("idCliente") != uid_cliente:
+                raise HTTPException(status_code=403, detail="No tienes permisos para pagar esta cita.")
+
+            estado_actual = cita_data.get("estado", "").lower()
+            if estado_actual != EstadoCita.RESERVADA.value:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Solo se puede pagar una cita reservada (Estado actual: '{estado_actual}')."
+                )
+
+            ocupar_bloque(
+                transaction,
+                cita_data.get("idTecnico"),
+                cita_data.get("fecha"),
+                cita_data.get("hora"),
+                id_cita,
+            )
+            transaction.update(ref, {
+                "estado": EstadoCita.PAGO_REALIZADO.value,
+                "pagadoEn": datetime.now(timezone.utc),
+                "modoPago": "demo",
+                "modificadoEn": datetime.now(timezone.utc)
+            })
+
+        transaction = db.transaction()
+        procesar_pago_demo(transaction, cita_ref)
+
+        return {
+            "status": "success",
+            "message": "Pago demo registrado correctamente.",
+            "idCita": id_cita,
+            "modoPago": "demo"
+        }
+
+    except HTTPException as he:
+        raise he
+    except Exception as e:
+        print(f"ERROR AL REGISTRAR PAGO DEMO: {str(e)}")
+        raise HTTPException(status_code=500, detail="Error interno al registrar el pago demo.")
+
+
+# --- ENDPOINT: CANCELAR CITA POR EL CLIENTE (reservada -> cancelada) ---
+@router.patch("/{id_cita}/cancelar-cliente")
+async def cancelar_cita_cliente(
+    id_cita: str,
+    authorization: str | None = Header(default=None)
+):
+    """
+    Permite al cliente cancelar una cita propia en estado 'reservada'.
     Reglas:
       - Solo el cliente dueño de la cita puede cancelarla.
       - No se puede cancelar una cita cuya fecha sea el mismo día de hoy.
-      - Solo aplica a citas en estado 'pendiente' o 'reservada'.
+      - Si la cita ya fue pagada, debe solicitar reembolso.
     """
     try:
+        uid_cliente, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.CLIENTE.value
+        )
         zona_horaria = pytz.timezone("America/Santiago")
         hoy_str = datetime.now(zona_horaria).strftime("%Y-%m-%d")
 
@@ -367,7 +549,7 @@ async def cancelar_cita_cliente(id_cita: str, payload: CancelarCitaCliente):
             cita_data = snapshot.to_dict()
 
             # Validar que sea el cliente dueño de la cita
-            if cita_data.get("idCliente") != payload.idCliente:
+            if cita_data.get("idCliente") != uid_cliente:
                 raise HTTPException(
                     status_code=403,
                     detail="No tienes permisos para cancelar esta cita."
@@ -383,19 +565,26 @@ async def cancelar_cita_cliente(id_cita: str, payload: CancelarCitaCliente):
 
             # Validar que el estado permita la cancelación
             estado_actual = cita_data.get("estado", "").lower()
-            if estado_actual not in ("pendiente", "reservada"):
+            if estado_actual == EstadoCita.PAGO_REALIZADO.value:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Operación rechazada: Solo se pueden cancelar citas en estado 'pendiente' o 'reservada' (Estado actual: '{estado_actual}')."
+                    detail="La cita ya está pagada. Para este caso debes solicitar un reembolso."
                 )
 
+            if estado_actual != EstadoCita.RESERVADA.value:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Operación rechazada: Solo se pueden cancelar citas reservadas (Estado actual: '{estado_actual}')."
+                )
+
+            liberar_bloque(transaction, cita_data, id_cita)
             transaction.update(ref, {
-                "estado": "cancelada",
+                "estado": EstadoCita.CANCELADA.value,
                 "canceladoPor": "cliente",
                 "modificadoEn": datetime.now(timezone.utc)
             })
 
-            return "cancelada"
+            return EstadoCita.CANCELADA.value
 
         transaction = db.transaction()
         procesar_cancelacion_cliente(transaction, cita_ref)
@@ -414,23 +603,23 @@ async def cancelar_cita_cliente(id_cita: str, payload: CancelarCitaCliente):
 
 
 # --- MODELO PARA SOLICITAR REEMBOLSO ---
-class SolicitarReembolso(BaseModel):
-    idCliente: str
-
-# --- ENDPOINT: SOLICITAR REEMBOLSO POR EL CLIENTE (pendiente_pago -> reembolso_solicitado) ---
+# --- ENDPOINT: SOLICITAR REEMBOLSO POR EL CLIENTE (pago_realizado -> reembolso_solicitado) ---
 @router.patch("/{id_cita}/solicitar-reembolso")
-async def solicitar_reembolso_cliente(id_cita: str, payload: SolicitarReembolso):
+async def solicitar_reembolso_cliente(
+    id_cita: str,
+    authorization: str | None = Header(default=None)
+):
     """
-    Permite al cliente solicitar un reembolso en una cita en estado 'pendiente_pago'.
+    Permite al cliente solicitar un reembolso en una cita pagada.
     Reglas:
       - Solo el cliente dueño de la cita puede solicitarlo.
-      - No se puede solicitar reembolso si la fecha de la cita es hoy o ya pasó.
       - Solo aplica a citas en estado 'pago_realizado'.
     """
     try:
-        zona_horaria = pytz.timezone("America/Santiago")
-        hoy_str = datetime.now(zona_horaria).strftime("%Y-%m-%d")
-
+        uid_cliente, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.CLIENTE.value
+        )
         cita_ref = db.collection("citas").document(id_cita)
 
         @firestore.transactional
@@ -443,34 +632,27 @@ async def solicitar_reembolso_cliente(id_cita: str, payload: SolicitarReembolso)
             cita_data = snapshot.to_dict()
 
             # Validar que sea el cliente dueño de la cita
-            if cita_data.get("idCliente") != payload.idCliente:
+            if cita_data.get("idCliente") != uid_cliente:
                 raise HTTPException(
                     status_code=403,
                     detail="No tienes permisos para solicitar reembolso en esta cita."
                 )
 
-            # Validar que la fecha de la cita no sea hoy ni anterior
-            fecha_cita = cita_data.get("fecha", "")
-            if fecha_cita <= hoy_str:
-                raise HTTPException(
-                    status_code=400,
-                    detail="No puedes solicitar reembolso en una cita para el mismo día o con fecha pasada."
-                )
-
             # Validar que el estado sea 'pago_realizado'
             estado_actual = cita_data.get("estado", "").lower()
-            if estado_actual != "pago_realizado":
+            if estado_actual != EstadoCita.PAGO_REALIZADO.value:
                 raise HTTPException(
                     status_code=400,
                     detail=f"Operación rechazada: Solo se puede solicitar reembolso en citas con estado 'pago_realizado' (Estado actual: '{estado_actual}')."
                 )
 
+            liberar_bloque(transaction, cita_data, id_cita)
             transaction.update(ref, {
-                "estado": "reembolso_solicitado",
+                "estado": EstadoCita.REEMBOLSO_SOLICITADO.value,
                 "modificadoEn": datetime.now(timezone.utc)
             })
 
-            return "reembolso_solicitado"
+            return EstadoCita.REEMBOLSO_SOLICITADO.value
 
         transaction = db.transaction()
         procesar_reembolso(transaction, cita_ref)
@@ -489,12 +671,12 @@ async def solicitar_reembolso_cliente(id_cita: str, payload: SolicitarReembolso)
 
 
 # --- MODELO PARA CONFIRMAR TRABAJO ---
-class ConfirmarTrabajo(BaseModel):
-    idTecnico: str
-
 # --- ENDPOINT: CONFIRMAR TRABAJO (pago_realizado -> concluida) ---
 @router.patch("/{id_cita}/concluir")
-async def concluir_cita(id_cita: str, payload: ConfirmarTrabajo):
+async def concluir_cita(
+    id_cita: str,
+    authorization: str | None = Header(default=None)
+):
     """
     Permite al técnico marcar una cita como 'concluida'.
     Requisitos:
@@ -503,6 +685,10 @@ async def concluir_cita(id_cita: str, payload: ConfirmarTrabajo):
       - Solo el técnico dueño de la cita puede concluirla.
     """
     try:
+        uid_tecnico, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.TECNICO.value
+        )
         zona_horaria = pytz.timezone("America/Santiago")
         hoy_str = datetime.now(zona_horaria).strftime("%Y-%m-%d")
 
@@ -518,7 +704,7 @@ async def concluir_cita(id_cita: str, payload: ConfirmarTrabajo):
             cita_data = snapshot.to_dict()
 
             # Validar que sea el técnico dueño
-            if cita_data.get("idTecnico") != payload.idTecnico:
+            if cita_data.get("idTecnico") != uid_tecnico:
                 raise HTTPException(
                     status_code=403,
                     detail="No tienes permisos para concluir esta cita."
@@ -526,7 +712,7 @@ async def concluir_cita(id_cita: str, payload: ConfirmarTrabajo):
 
             # Validar estado
             estado_actual = cita_data.get("estado", "").lower()
-            if estado_actual != "pago_realizado":
+            if estado_actual != EstadoCita.PAGO_REALIZADO.value:
                 raise HTTPException(
                     status_code=400,
                     detail=f"Operación rechazada: La cita debe estar en 'pago_realizado' para poder concluirse (Estado actual: '{estado_actual}')."
@@ -540,8 +726,9 @@ async def concluir_cita(id_cita: str, payload: ConfirmarTrabajo):
                     detail=f"Operación rechazada: No puedes concluir una cita que aún no ha ocurrido (Fecha de la cita: '{fecha_cita}')."
                 )
 
+            liberar_bloque(transaction, cita_data, id_cita)
             transaction.update(ref, {
-                "estado": "concluida",
+                "estado": EstadoCita.CONCLUIDA.value,
                 "modificadoEn": datetime.now(timezone.utc)
             })
 

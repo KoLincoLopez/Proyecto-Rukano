@@ -120,3 +120,5 @@ window.addEventListener("DOMContentLoaded", () => {
         alert("Perfil guardado correctamente");
     });
 });
+// LEGACY: controlador de perfil técnico anterior.
+// El perfil técnico oficial usa miperfilTec.html con js/miperfilTec.js.

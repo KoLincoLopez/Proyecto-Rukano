@@ -1,6 +1,7 @@
 (function () {
     const LOCAL_API_URL = "http://127.0.0.1:8000";
     const RENDER_API_URL = "https://rukano-sph.onrender.com";
+    const PAYMENT_MODE = window.RUKANO_PAYMENT_MODE || "real";
 
     function getApiBaseUrl() {
         if (window.RUKANO_API_BASE_URL) {
@@ -19,6 +20,10 @@
     window.RukanoApiConfig = {
         LOCAL_API_URL,
         RENDER_API_URL,
+        PAYMENT_MODE,
+        getPaymentMode() {
+            return PAYMENT_MODE;
+        },
         getApiBaseUrl
     };
 })();

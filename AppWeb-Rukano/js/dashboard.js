@@ -1,4 +1,5 @@
 import { auth, db } from "./Firebase-config.js";
+import { crearTimelineEstadoCompacto } from "./timelineCita.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
     collection,
@@ -190,7 +191,7 @@ function renderizarProximasCitas(citas, clientes) {
     ordenarCitasPorFecha(citas).slice(0, 6).forEach((cita) => {
         const fila = document.createElement("tr");
         const cliente = clientes.get(cita.idCliente);
-        const estado = obtenerDato(cita.estado, "Estado pendiente");
+        const estado = String(cita.estado || "").trim().toLowerCase();
 
         agregarCelda(fila, obtenerNombreCliente(cliente));
         agregarCelda(fila, obtenerDato(cita.servicio ?? cita.tituloServicio ?? cita.nombreServicio, "Servicio no especificado"));
@@ -198,10 +199,7 @@ function renderizarProximasCitas(citas, clientes) {
         agregarCelda(fila, obtenerHorarioCita(cita));
 
         const celdaEstado = document.createElement("td");
-        const etiquetaEstado = document.createElement("span");
-        etiquetaEstado.className = `estatus ${obtenerClaseEstado(estado)}`;
-        etiquetaEstado.textContent = estado;
-        celdaEstado.appendChild(etiquetaEstado);
+        celdaEstado.innerHTML = crearTimelineEstadoCompacto(estado);
         fila.appendChild(celdaEstado);
 
         tabla.appendChild(fila);

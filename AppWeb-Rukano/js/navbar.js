@@ -91,7 +91,7 @@
             inicioSesion: crearHref(appRoot, "inicioSesion.html"),
             registro: crearHref(appRoot, "registro.html"),
             servicios: crearHref(appRoot, "index.html#servicios"),
-            nosotros: crearHref(appRoot, "index.html#nosotros"),
+            nosotros: crearHref(appRoot, "sobreNosotros.html"),
             testimonios: crearHref(appRoot, "index.html#testimonios"),
             ubicacion: crearHref(appRoot, "index.html#ubicacion")
         };

@@ -1,4 +1,10 @@
 import { auth, db } from "./Firebase-config.js";
+import { apiFetch } from "./apiFetch.js";
+import {
+    actualizarTimelineCita,
+    crearTimelineEstado,
+    obtenerEtiquetaEstadoCita
+} from "./timelineCita.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
     collection,
@@ -15,6 +21,8 @@ const estadoAgenda = {
     fechaSeleccionada: "",
     citas: []
 };
+
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 const MESES_ES = [
     "Enero",
@@ -282,29 +290,30 @@ function crearCardCita(cita) {
     const cliente = obtenerDato(cita.nombreCliente || cita.idCliente, "Cliente no especificado");
     const fecha = obtenerFechaCita(cita);
     const horario = obtenerHorarioCita(cita);
-    const estado = obtenerDato(cita.estado, "Estado pendiente");
+    const estado = String(cita.estado || "").toLowerCase().trim();
     const precio = obtenerDato(cita.precio, "");
     const card = document.createElement("article");
 
     card.className = "cita-tecnico-card";
     const fechaCitaISO = obtenerFechaCitaISO(cita);
     const hoyISO = formatearFecha(estadoAgenda.hoy);
-    const esPagoRealizadoHoy = cita.estado === "pago_realizado" && fechaCitaISO === hoyISO;
+    const puedeConcluir = estado === "pago_realizado" && fechaCitaISO <= hoyISO;
 
     card.innerHTML = `
         <strong>${escaparHtml(servicio)}</strong>
         <p><span>Cliente</span><b>${escaparHtml(cliente)}</b></p>
         <p><span>Fecha</span><b>${escaparHtml(fecha)}</b></p>
         <p><span>Horario</span><b>${escaparHtml(horario)}</b></p>
-        <p><span>Estado</span><b class="estado-badge estado-${escaparHtml(estado)}">${escaparHtml(estado)}</b></p>
+        <p><span>Estado</span><b class="estado-badge estado-${escaparHtml(estado)}">${escaparHtml(obtenerEtiquetaEstadoCita(estado))}</b></p>
         ${precio ? `<p><span>Precio</span><b>$${escaparHtml(precio)}</b></p>` : ""}
-        ${cita.estado === "pendiente" ? `
+        ${crearTimelineEstado(estado)}
+        ${estado === "pendiente" ? `
             <div class="cita-acciones">
                 <button class="btn-confirmar" type="button">✓ Confirmar</button>
                 <button class="btn-cancelar" type="button">✕ Cancelar</button>
             </div>
         ` : ""}
-        ${esPagoRealizadoHoy ? `
+        ${puedeConcluir ? `
             <div class="cita-acciones">
                 <button class="btn-concluir" type="button">✔ Confirmar trabajo</button>
             </div>
@@ -312,7 +321,7 @@ function crearCardCita(cita) {
     `;
 
     // Adjuntar listeners solo si la cita es pendiente
-    if (cita.estado === "pendiente") {
+    if (estado === "pendiente") {
         card.querySelector(".btn-confirmar").addEventListener("click", () =>
             manejarCambioCita(cita.id, "reservada", card)
         );
@@ -322,7 +331,7 @@ function crearCardCita(cita) {
     }
 
     // Listener para concluir trabajo
-    if (esPagoRealizadoHoy) {
+    if (puedeConcluir) {
         card.querySelector(".btn-concluir").addEventListener("click", () =>
             manejarConcluirCita(cita.id, card)
         );
@@ -349,9 +358,10 @@ async function manejarCambioCita(idCita, nuevoEstado, card) {
         // Actualizar badge y remover botones
         const badge = card.querySelector(".estado-badge");
         if (badge) {
-            badge.textContent = nuevoEstado;
+            badge.textContent = obtenerEtiquetaEstadoCita(nuevoEstado);
             badge.className = `estado-badge estado-${nuevoEstado}`;
         }
+        actualizarTimelineCita(card, nuevoEstado);
         const acciones = card.querySelector(".cita-acciones");
         if (acciones) acciones.remove();
 
@@ -445,15 +455,12 @@ function escaparHtml(valor) {
 }
 
 async function cambiarEstadoCita(idCita, nuevoEstado) {
-    const BASE_URL = "http://localhost:8000"; // ← tu URL real de FastAPI
-
     let res;
     try {
-        res = await fetch(`${BASE_URL}/citas/${idCita}/estado`, {
+        res = await apiFetch(`${API_URL}/citas/${idCita}/estado`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                idTecnico: estadoAgenda.uidTecnico,
                 nuevo_estado: nuevoEstado
             })
         });
@@ -484,9 +491,10 @@ async function manejarConcluirCita(idCita, card) {
         // Actualizar badge y quitar botón
         const badge = card.querySelector(".estado-badge");
         if (badge) {
-            badge.textContent = "concluida";
+            badge.textContent = obtenerEtiquetaEstadoCita("concluida");
             badge.className = "estado-badge estado-concluida";
         }
+        actualizarTimelineCita(card, "concluida");
         const acciones = card.querySelector(".cita-acciones");
         if (acciones) acciones.remove();
 
@@ -501,14 +509,11 @@ async function manejarConcluirCita(idCita, card) {
 }
 
 async function concluirCita(idCita) {
-    const BASE_URL = "http://localhost:8000";
-
     let res;
     try {
-        res = await fetch(`${BASE_URL}/citas/${idCita}/concluir`, {
+        res = await apiFetch(`${API_URL}/citas/${idCita}/concluir`, {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idTecnico: estadoAgenda.uidTecnico })
+            headers: { "Content-Type": "application/json" }
         });
     } catch (networkError) {
         throw new Error(`Error de red: no se pudo conectar con el servidor (${networkError.message})`);

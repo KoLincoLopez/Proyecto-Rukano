@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function ownsAppointment() {
+      return signedIn()
+        && (
+          resource.data.idCliente == request.auth.uid
+          || resource.data.idTecnico == request.auth.uid
+        );
+    }
+
+    match /servicios/{servicioId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /usuarios/{usuarioId} {
+      // The current frontend still needs authenticated profile reads.
+      // Sensitive writes are exclusively handled by FastAPI/Admin SDK.
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /citas/{citaId} {
+      allow read: if ownsAppointment();
+      allow write: if false;
+    }
+
+    match /resenas/{resenaId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /reportes/{reporteId} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    match /bloques_horarios/{bloqueId} {
+      allow read, write: if false;
+    }
+
+    match /resenas_por_cita/{marcadorId} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

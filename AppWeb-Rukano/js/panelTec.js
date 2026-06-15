@@ -1,9 +1,9 @@
 import { auth, db } from "./Firebase-config.js";
+import { apiFetch } from "./apiFetch.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// Asegúrate de que esta sea la URL base de tu backend FastAPI
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 
 document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (confirmar) {
                         try {
                             // Conecta con tu ruta @router.delete("/{servicio_id}")
-                            const resDelete = await fetch(`${API_URL}/api/servicios/${servicio.id}`, {
+                            const resDelete = await apiFetch(`${API_URL}/servicios/${servicio.id}`, {
                                 method: "DELETE"
                             });
                             
@@ -222,7 +222,7 @@ card.querySelector(".btnEditar").addEventListener("click", () => {
         try {
             // Mandamos los datos actualizados a FastAPI (Usa PATCH o PUT según tu backend)
             // Asumiendo que tu ruta de actualizar es: PATCH /api/servicios/{servicio_id}
-            const resUpdate = await fetch(`${API_URL}/servicios/editar/${servicio.id}`, {
+            const resUpdate = await apiFetch(`${API_URL}/servicios/editar/${servicio.id}`, {
                 method: "PATCH", 
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(nuevosDatos)
@@ -256,3 +256,5 @@ card.querySelector(".btnEditar").addEventListener("click", () => {
         }
     }
 });
+// LEGACY: implementación anterior del panel técnico.
+// panelTecnico.html usa js/panel.js como controlador oficial.

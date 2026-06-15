@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Header, HTTPException, Query
 from pydantic import BaseModel
 from datetime import datetime, timezone
 from typing import Any
 import uuid
 import re 
 from core.firebase_config import db
+from models.enums import RolUsuario
+from routers.auth import obtener_usuario_autenticado
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 router = APIRouter()
@@ -92,13 +94,15 @@ def normalizar_disponibilidad(disponibilidad):
 # --- ENDPOINTS ---
 
 @router.post("/crear") 
-async def crear_servicio(datos: Servicio): 
+async def crear_servicio(
+    datos: Servicio,
+    authorization: str | None = Header(default=None)
+):
     try: 
-        # 1. VALIDACIÓN DE IDENTIDAD (RF 8)
-        tecnico_doc = db.collection("usuarios").document(datos.idTecnico).get()
-        tecnico_ref = db.collection("usuarios").where(filter=FieldFilter("id", "==", datos.idTecnico)).get()
-        if not tecnico_doc.exists and not tecnico_ref:
-            raise HTTPException(status_code=404, detail="El técnico no está registrado en la plataforma")
+        uid_tecnico, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.TECNICO.value
+        )
 
         id_generado = str(uuid.uuid4())
         ahora = datetime.now(timezone.utc)
@@ -108,7 +112,7 @@ async def crear_servicio(datos: Servicio):
         # 2. MAPEO DE DATOS INCLUYENDO EL FORMULARIO
         servicio_doc = {
             "idServicio": id_generado,
-            "idTecnico": datos.idTecnico,
+            "idTecnico": uid_tecnico,
             "nombre": datos.nombre,
             "categoria": datos.categoria.lower(),
             "comuna": datos.comuna,
@@ -167,8 +171,16 @@ async def obtener_todos():
 # --- ENDPOINTS DE EDICIÓN Y ELIMINACIÓN DE 'MAIN' ---
 
 @router.patch("/editar/{servicio_id}") 
-async def editar_servicio(servicio_id: str, updates: dict): 
+async def editar_servicio(
+    servicio_id: str,
+    updates: dict,
+    authorization: str | None = Header(default=None)
+):
     try: 
+        uid_tecnico, _ = obtener_usuario_autenticado(
+            authorization,
+            RolUsuario.TECNICO.value
+        )
         servicio_ref = db.collection("servicios").document(servicio_id) 
         doc = servicio_ref.get()
 
@@ -176,6 +188,10 @@ async def editar_servicio(servicio_id: str, updates: dict):
             raise HTTPException(status_code=404, detail="Servicio no encontrado")
 
         datos_actuales = doc.to_dict()
+        if datos_actuales.get("idTecnico") != uid_tecnico:
+            raise HTTPException(status_code=403, detail="No puedes editar un servicio de otro técnico")
+
+        updates.pop("idTecnico", None)
 
         # Recalcular keywords si cambian campos críticos (RF 2)
         if any(k in updates for k in ["nombre", "categoria", "descripcion"]):
@@ -192,14 +208,29 @@ async def editar_servicio(servicio_id: str, updates: dict):
         servicio_ref.update(updates)
         return {"status": "success", "msg": "Servicio y formulario actualizados"}
 
+    except HTTPException:
+        raise
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/{servicio_id}") 
-async def eliminar_servicio(servicio_id: str): 
+async def eliminar_servicio(
+    servicio_id: str,
+    authorization: str | None = Header(default=None)
+):
+    uid_tecnico, _ = obtener_usuario_autenticado(
+        authorization,
+        RolUsuario.TECNICO.value
+    )
     ref = db.collection("servicios").document(servicio_id) 
-    if not ref.get().exists: 
+    servicio_doc = ref.get()
+    if not servicio_doc.exists:
         raise HTTPException(status_code=404, detail="Servicio no encontrado")
+
+    if servicio_doc.to_dict().get("idTecnico") != uid_tecnico:
+        raise HTTPException(status_code=403, detail="No puedes eliminar un servicio de otro técnico")
     
     ref.delete()
     return {"msg": "Servicio eliminado permanentemente"}
