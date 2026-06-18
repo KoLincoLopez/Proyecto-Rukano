@@ -718,26 +718,31 @@ window.addEventListener("DOMContentLoaded", () => {
         lista.innerHTML = "<p>Cargando tus citas...</p>";
 
         try {
-            const consulta = query(
-                collection(db, "citas"),
-                where("idCliente", "==", uidCliente)
-            );
+            // ── SEGURIDAD: se consume el endpoint del backend, que resuelve el
+            //    nombre del técnico server-side y elimina idTecnico / idCliente
+            //    de la respuesta. Nunca se lee "citas" directamente desde Firestore. ──
+            const response = await apiFetch(`${API_URL}/citas/agenda/cliente/${uidCliente}`);
 
-            const resultado = await getDocs(consulta);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.detail || "Error al cargar tus citas.");
+            }
 
-            if (resultado.empty) {
+            const citasData = await response.json();
+
+            if (!Array.isArray(citasData) || citasData.length === 0) {
                 lista.innerHTML = "<p>Aun no tienes citas registradas.</p>";
                 return;
             }
 
             lista.innerHTML = "";
 
-            for (const docCita of resultado.docs) {
-                const cita = docCita.data();
-                const citaId = docCita.id;
+            for (const cita of citasData) {
+                const citaId = cita.idCita || "";
                 const servicioId = cita.idServicio || "";
-                const tecnicoId = cita.idTecnico || "";
-                const faltanDatosResena = !citaId || !servicioId || !tecnicoId;
+                // El backend no devuelve idTecnico; la URL de reseña se valida por idCita
+                const tecnicoId = "";
+                const faltanDatosResena = !citaId || !servicioId;
 
                 const obtenerDato = (valor, fallback) => {
                     if (valor === undefined || valor === null || String(valor).trim() === "") {
@@ -750,8 +755,8 @@ window.addEventListener("DOMContentLoaded", () => {
                 // y citas creadas desde el backend Python (cita.tituloServicio)
                 const servicio = obtenerDato(cita.tituloServicio, obtenerDato(cita.servicio, "Servicio no especificado"));
 
-                // Compatibilidad: el backend guarda solo idTecnico, sin nombre
-                const tecnico = obtenerDato(cita.tecnico, obtenerDato(cita.idTecnico, "Tecnico no asignado"));
+                // El backend resuelve el nombre del técnico server-side (campo nombreTecnico)
+                const tecnico = obtenerDato(cita.nombreTecnico, obtenerDato(cita.tecnico, "Tecnico no asignado"));
 
                 const dia = obtenerDato(cita.dia, obtenerDato(cita.fecha, "Fecha no definida"));
                 const horaInicio = obtenerDato(cita.horaInicio, "");
@@ -778,7 +783,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 }
 
                 const accionResena = puedeResenar
-                    ? `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}&tecnicoId=${encodeURIComponent(tecnicoId)}" class="btn-link btn-reservar">
+                    ? `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}" class="btn-link btn-reservar">
                         Reseñar
                     </a>`
                     : yaResenada
