@@ -1,0 +1,249 @@
+:root {
+    /* Paleta exacta traída desde index.css para coherencia total */
+    --c-licorice: #1E0D0A;
+    --c-rosewood: #550006;
+    --c-mahogany: #BF353B;
+    --c-froly: #EE666A;
+    --c-deep-moss: #3D4421;
+    --c-blanco: #FFFFFF;
+    --c-arena: #F5EFEA;
+    --c-border: #D9D0C8;
+    --c-text-muted: #6f625c;
+    
+    /* Variables dinámicas por defecto */
+    --payment-state: var(--c-mahogany);
+    --payment-state-soft: rgba(191, 53, 59, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    box-sizing: border-box; /* Crucial para que el padding no expanda el 100vh */
+    min-height: 100vh;
+    margin: 0;
+    display: flex; /* Flex centra de forma más controlada que Grid para evitar scroll */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Solo padding superior igual al header (74px) para evitar superposición. Sin padding inferior. */
+    padding: 74px var(--pad-lateral, 80px) 0;
+    font-family: Arial, sans-serif;
+    color: var(--c-licorice);
+    background:
+        linear-gradient(180deg, var(--payment-state-soft), rgba(245, 239, 234, 0) 46%),
+        var(--c-arena);
+    /* Solo aparecerá scroll si la pantalla es extremadamente pequeña (celulares en horizontal) */
+    overflow-y: auto; 
+}
+
+/* ================= COLORES DE ESTADOS ================= */
+
+/* ÉXITO: Verde Musgo */
+body[data-payment-state="success"] {
+    --payment-state: var(--c-deep-moss);
+    --payment-state-soft: rgba(61, 68, 33, 0.1); /* rgb de deep-moss */
+}
+
+/* PENDIENTE: Rojo Estándar */
+body[data-payment-state="pending"] {
+    --payment-state: var(--c-mahogany);
+    --payment-state-soft: rgba(191, 53, 59, 0.08); /* rgb de mahogany */
+}
+
+/* ERROR: Rojo Oscuro / Vino */
+body[data-payment-state="error"] {
+    --payment-state: var(--c-rosewood);
+    --payment-state-soft: rgba(85, 0, 6, 0.09); /* rgb de rosewood */
+}
+
+/* ================= HEADER ================= */
+
+.payment-shell-header {
+    align-items: center;
+    background: rgba(245, 239, 234, 0.96);
+    border-bottom: 1px solid rgba(30, 13, 10, 0.1);
+    display: flex;
+    justify-content: space-between;
+    left: 0;
+    height: 74px; /* Cambiado a height fijo en lugar de min-height */
+    padding: 0 var(--pad-lateral, 80px);
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 5;
+}
+
+.payment-brand {
+    color: var(--c-licorice);
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 50px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1;
+    padding-bottom: 5px;
+    text-decoration: none !important;
+    text-shadow: none;
+    transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.payment-brand:hover {
+    color: var(--c-rosewood);
+    opacity: 0.82;
+}
+
+.payment-header-note {
+    color: var(--payment-state);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ================= CONTENEDOR PRINCIPAL ================= */
+
+.payment-status {
+    width: min(100%, 720px); 
+    padding: 35px 50px; 
+    border: 3px solid var(--c-licorice); 
+    border-top: 8px solid var(--payment-state); 
+    background: var(--c-blanco);
+    text-align: center;
+    box-shadow: 12px 12px 0px var(--c-licorice); 
+    margin: 0;
+}
+
+.payment-state-mark {
+    align-items: center;
+    background: var(--payment-state-soft);
+    border: 3px solid var(--payment-state);
+    border-radius: 50%;
+    color: var(--payment-state);
+    display: inline-flex;
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 24px; 
+    height: 65px;    
+    width: 65px;
+    justify-content: center;
+    margin-bottom: 16px; 
+    box-shadow: 4px 4px 0px var(--c-licorice); 
+}
+
+.payment-kicker {
+    margin: 0 0 8px;
+    color: var(--payment-state);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.payment-status h1 {
+    margin: 0;
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: clamp(32px, 6vw, 48px); 
+    line-height: 1.06;
+    letter-spacing: -2px; 
+    text-transform: uppercase;
+    color: var(--payment-state); 
+}
+
+.payment-status p {
+    margin: 12px auto 0;
+    color: var(--c-text-muted);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.6;
+    max-width: 600px; 
+}
+/* ================= BOTONES ================= */
+
+.payment-actions {
+    display: flex;
+    flex-wrap: nowrap; 
+    justify-content: center;
+    gap: 16px; 
+    margin-top: 24px; 
+}
+
+.payment-actions a {
+    align-items: center;
+    background: var(--c-licorice);
+    border: 2px solid var(--c-licorice);
+    border-radius: 50px; 
+    color: var(--c-blanco);
+    display: inline-flex;
+    font-size: 13px; 
+    font-weight: 900;
+    justify-content: center;
+    letter-spacing: 2px; 
+    min-height: 48px;
+    padding: 0 28px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.payment-actions a:hover {
+    background: var(--payment-state);
+    border-color: var(--c-licorice);
+    color: var(--c-blanco);
+    box-shadow: 4px 4px 0px var(--c-licorice); 
+    transform: translate(-3px, -3px);
+}
+
+.payment-actions .payment-link-secondary {
+    background: transparent;
+    color: var(--c-licorice);
+}
+
+.payment-actions .payment-link-secondary:hover {
+    background: var(--c-licorice);
+    color: var(--c-blanco);
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+    body {
+        /* Ajuste de padding para móviles, sin generar scroll falso */
+        padding: 66px var(--pad-lateral, 30px) 20px;
+    }
+
+    .payment-shell-header {
+        height: 66px;
+        padding: 0 var(--pad-lateral, 30px);
+    }
+
+    .payment-brand {
+        font-size: 40px;
+    }
+
+    .payment-status {
+        padding: 34px 24px;
+        box-shadow: 7px 7px 0 var(--c-licorice);
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-brand {
+        font-size: 30px;
+    }
+
+    .payment-header-note {
+        font-size: 10px;
+        letter-spacing: 0.7px;
+        text-align: right;
+    }
+
+    .payment-actions {
+        flex-direction: column; 
+    }
+
+    .payment-actions a {
+        width: 100%; 
+        max-width: 100%;
+    }
+}

@@ -265,6 +265,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 });
             });
 
+            serviciosPublicados.sort((a, b) => obtenerTimestampOrden(b.data) - obtenerTimestampOrden(a.data));
             actualizarResumenServicios(serviciosPublicados.map((servicio) => servicio.data));
 
             if (serviciosPublicados.length === 0) {
@@ -675,6 +676,49 @@ window.addEventListener("DOMContentLoaded", () => {
             .replace(/[\u0300-\u036f]/g, "");
     }
 
+    function obtenerFechaComoDate(valor) {
+        if (!valor) return null;
+        if (valor instanceof Date) return valor;
+        if (typeof valor.toDate === "function") return valor.toDate();
+        if (typeof valor.seconds === "number") return new Date(valor.seconds * 1000);
+        if (typeof valor._seconds === "number") return new Date(valor._seconds * 1000);
+
+        const fecha = new Date(valor);
+        return Number.isNaN(fecha.getTime()) ? null : fecha;
+    }
+
+    function obtenerTimestampOrden(data = {}) {
+        const candidatos = [
+            data.createdAt,
+            data.fechaCreacion,
+            data.creadoEn,
+            data.modificadoEn,
+            data.updatedAt,
+            data.fechaActualizacion,
+            data.fecha
+        ];
+
+        for (const candidato of candidatos) {
+            const fecha = obtenerFechaComoDate(candidato);
+            if (fecha) return fecha.getTime();
+        }
+
+        return 0;
+    }
+
+    function obtenerTimestampCita(cita = {}) {
+        const fechaBase = cita.fecha || cita.dia || cita.fechaCita || cita.fechaReserva;
+        const horaBase = cita.hora || cita.horaInicio || "";
+
+        if (fechaBase && /^\d{4}-\d{2}-\d{2}$/.test(String(fechaBase))) {
+            const horaNormalizada = /^\d{2}:\d{2}$/.test(String(horaBase)) ? horaBase : "00:00";
+            const fechaHora = new Date(`${fechaBase}T${horaNormalizada}:00`);
+            if (!Number.isNaN(fechaHora.getTime())) return fechaHora.getTime();
+        }
+
+        return obtenerTimestampOrden(cita);
+    }
+
     function fechaEsHoyOPasada(fechaISO) {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(String(fechaISO || ""))) return false;
         const hoy = new Date();
@@ -710,10 +754,303 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    async function cargarCitasClienteOrdenadas(uidCliente, lista) {
+        const historial = document.getElementById("historialCitasCliente");
+        const historialLista = document.getElementById("listaHistorialCitasCliente");
+        const historialResumen = document.getElementById("historialCitasResumen");
+        const btnToggleHistorial = document.getElementById("btnToggleHistorial");
+
+        lista.innerHTML = "<p>Cargando tus citas...</p>";
+        if (historialLista) historialLista.innerHTML = "";
+        if (historial) historial.hidden = true;
+        if (btnToggleHistorial) btnToggleHistorial.hidden = true;
+
+        const obtenerDato = (valor, fallback) => {
+            if (valor === undefined || valor === null || String(valor).trim() === "") {
+                return fallback;
+            }
+
+            return String(valor).trim();
+        };
+
+        const consulta = query(
+            collection(db, "citas"),
+            where("idCliente", "==", uidCliente)
+        );
+
+        const resultado = await getDocs(consulta);
+
+        if (resultado.empty) {
+            lista.innerHTML = '<p class="citas-vacias">Aun no tienes citas registradas.</p>';
+            return true;
+        }
+
+        const citas = [];
+
+        for (const docCita of resultado.docs) {
+            const cita = docCita.data();
+            const citaId = docCita.id;
+            const servicioId = cita.idServicio || "";
+            const tecnicoId = cita.idTecnico || "";
+            const estadoNorm = normalizarTexto(cita.estado);
+            const faltanDatosResena = !citaId || !servicioId || !tecnicoId;
+            let yaResenada = false;
+            let puedeResenar = false;
+            let validacionResenaDisponible = true;
+
+            if (estadoNorm === "concluida" && !faltanDatosResena) {
+                try {
+                    const response = await apiFetch(`${API_URL}/reviews/verificar_resena/${encodeURIComponent(citaId)}`);
+                    if (!response.ok) throw new Error("No se pudo validar la reseña");
+                    const validacion = await response.json();
+                    yaResenada = Boolean(validacion.posee_resena);
+                    puedeResenar = Boolean(validacion.puede_resenar);
+                } catch (error) {
+                    validacionResenaDisponible = false;
+                    console.warn("No se pudo validar si la cita admite reseña:", error);
+                }
+            }
+
+            const servicio = obtenerDato(cita.tituloServicio, obtenerDato(cita.servicio, "Servicio no especificado"));
+            const tecnico = obtenerDato(cita.tecnico, obtenerDato(cita.idTecnico, "Tecnico no asignado"));
+            const dia = obtenerDato(cita.dia, obtenerDato(cita.fecha, "Fecha no definida"));
+            const horaInicio = obtenerDato(cita.horaInicio, "");
+            const horaFin = obtenerDato(cita.horaFin, "");
+            const horario = horaInicio && horaFin ? `${horaInicio} - ${horaFin}` : obtenerDato(cita.hora, "Horario no definido");
+            const precio = obtenerDato(cita.precio, "Precio no informado");
+            const estadoVisible = obtenerEtiquetaEstadoCita(estadoNorm);
+            const esActual = ["pendiente", "reservada", "pago_realizado"].includes(estadoNorm)
+                || (estadoNorm === "concluida" && puedeResenar);
+
+            citas.push({
+                citaId,
+                servicioId,
+                tecnicoId,
+                servicio,
+                tecnico,
+                dia,
+                horario,
+                precio,
+                estadoNorm,
+                estadoVisible,
+                puedeResenar,
+                yaResenada,
+                validacionResenaDisponible,
+                esActual,
+                fechaOrden: obtenerTimestampCita(cita)
+            });
+        }
+
+        citas.sort((a, b) => b.fechaOrden - a.fechaOrden);
+
+        const actuales = citas.filter((cita) => cita.esActual);
+        const historicas = citas.filter((cita) => !cita.esActual);
+
+        lista.innerHTML = "";
+        if (actuales.length === 0) {
+            lista.innerHTML = '<p class="citas-vacias">No tienes citas activas por ahora. Las citas cerradas quedan disponibles en el historial.</p>';
+        } else {
+            actuales.forEach((cita) => {
+                const card = crearCardCitaCliente(cita);
+                lista.appendChild(card);
+                conectarAccionesCitaCliente(card, cita, uidCliente);
+            });
+        }
+
+        if (historialLista && historial && btnToggleHistorial) {
+            historialLista.innerHTML = "";
+            historicas.forEach((cita) => {
+                const card = document.createElement("article");
+                card.className = "historial-cita-card";
+                card.innerHTML = `
+                    <strong>${cita.servicio}</strong>
+                    <span>${cita.tecnico}</span>
+                    <b>${cita.estadoVisible}</b>
+                `;
+                historialLista.appendChild(card);
+            });
+
+            if (historicas.length === 0) {
+                historialLista.innerHTML = '<p class="historial-vacio">Aun no hay citas cerradas para mostrar.</p>';
+            }
+
+            if (historialResumen) {
+                historialResumen.textContent = `${historicas.length} registros`;
+            }
+
+            btnToggleHistorial.hidden = false;
+            btnToggleHistorial.textContent = "Ver historial";
+            btnToggleHistorial.onclick = () => {
+                historial.hidden = !historial.hidden;
+                btnToggleHistorial.textContent = historial.hidden ? "Ver historial" : "Ocultar historial";
+            };
+        }
+
+        return true;
+    }
+
+    function crearCardCitaCliente(cita) {
+        const accionResena = cita.puedeResenar
+            ? `<a href="resenasTec.html?citaId=${encodeURIComponent(cita.citaId)}&servicioId=${encodeURIComponent(cita.servicioId)}&tecnicoId=${encodeURIComponent(cita.tecnicoId)}" class="btn-link btn-reservar">Reseñar</a>`
+            : cita.yaResenada
+                ? `<span class="btn-link" aria-disabled="true">Ya reseñado</span>`
+                : cita.estadoNorm === "concluida" && !cita.validacionResenaDisponible
+                    ? `<span class="btn-link" aria-disabled="true">Reseña no disponible</span>`
+                    : "";
+        const accionPago = cita.estadoNorm === "reservada"
+            ? `<button type="button" class="btn-link btn-pagar-cita">${PAYMENT_MODE === "demo" ? "Pagar Cita (demo)" : "Pagar Cita"}</button>`
+            : "";
+        const accionCancelar = cita.estadoNorm === "reservada" && !fechaEsHoyOPasada(cita.dia)
+            ? `<button type="button" class="btn-link btn-cancelar-cita" data-cita-fecha="${cita.dia}">Cancelar Cita</button>`
+            : "";
+        const accionReembolso = cita.estadoNorm === "pago_realizado"
+            ? `<button type="button" class="btn-link btn-reembolso-cita">Solicitar Reembolso</button>`
+            : "";
+        const card = document.createElement("div");
+        card.className = "dato cita-card";
+
+        card.innerHTML = `
+            <strong>${cita.servicio}</strong>
+            <div class="cita-meta">
+                <p><span>Tecnico</span><b>${cita.tecnico}</b></p>
+                <p><span>Fecha</span><b>${cita.dia}</b></p>
+                <p><span>Horario</span><b>${cita.horario}</b></p>
+                <p><span>Precio</span><b>${cita.precio === "Precio no informado" ? cita.precio : `$${cita.precio}`}</b></p>
+                <p><span>Estado</span><b>${cita.estadoVisible}</b></p>
+            </div>
+            ${crearTimelineEstado(cita.estadoNorm)}
+            <div class="cita-acciones" style="display:flex; flex-wrap:wrap; gap:8px;">
+                ${accionPago}
+                ${accionCancelar}
+                ${accionReembolso}
+                ${accionResena}
+            </div>
+        `;
+
+        return card;
+    }
+
+    function conectarAccionesCitaCliente(card, cita, uidCliente) {
+        const btnPagar = card.querySelector(".btn-pagar-cita");
+        const btnCancelar = card.querySelector(".btn-cancelar-cita");
+        const btnReembolso = card.querySelector(".btn-reembolso-cita");
+
+        if (btnPagar) {
+            btnPagar.addEventListener("click", async () => {
+                btnPagar.disabled = true;
+                btnPagar.textContent = "Procesando...";
+                try {
+                    if (PAYMENT_MODE === "demo") {
+                        const response = await apiFetch(`${API_URL}/citas/${cita.citaId}/registrar-pago-demo`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" }
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json().catch(() => ({}));
+                            throw new Error(errorData.detail || "Error al registrar el pago demo.");
+                        }
+
+                        await cargarCitasCliente(uidCliente);
+                        await cargarBadgeCitasReservadas(uidCliente);
+                        return;
+                    }
+
+                    const response = await apiFetch(`${API_URL}/payments/create_preference/${cita.citaId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.detail || "Error al crear la preferencia de pago.");
+                    }
+
+                    const data = await response.json();
+                    const checkoutUrl = data.init_point || data.sandbox_init_point;
+                    if (!checkoutUrl) throw new Error("El backend no devolvio una URL de pago.");
+
+                    window.location.href = checkoutUrl;
+                } catch (error) {
+                    console.log("Error al registrar pago:", error);
+                    alert(error.message || "No se pudo iniciar el pago. Intenta nuevamente.");
+                    btnPagar.disabled = false;
+                    btnPagar.textContent = PAYMENT_MODE === "demo" ? "Pagar Cita (demo)" : "Pagar Cita";
+                }
+            });
+        }
+
+        if (btnCancelar) {
+            btnCancelar.addEventListener("click", async () => {
+                if (fechaEsHoyOPasada(btnCancelar.dataset.citaFecha || "")) {
+                    alert("No puedes cancelar una cita para el mismo dia o con fecha pasada.");
+                    return;
+                }
+
+                const confirmar = window.confirm("¿Estas seguro de que deseas cancelar esta cita? Esta accion no se puede deshacer.");
+                if (!confirmar) return;
+
+                btnCancelar.disabled = true;
+                btnCancelar.textContent = "Cancelando...";
+
+                try {
+                    const response = await apiFetch(`${API_URL}/citas/${cita.citaId}/cancelar-cliente`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.detail || "Error al cancelar la cita.");
+                    }
+
+                    await cargarCitasCliente(uidCliente);
+                    await cargarBadgeCitasReservadas(uidCliente);
+                } catch (error) {
+                    console.log("Error al cancelar cita:", error);
+                    alert(error.message || "No se pudo cancelar la cita. Intenta nuevamente.");
+                    btnCancelar.disabled = false;
+                    btnCancelar.textContent = "Cancelar Cita";
+                }
+            });
+        }
+
+        if (btnReembolso) {
+            btnReembolso.addEventListener("click", async () => {
+                const confirmar = window.confirm("¿Deseas solicitar un reembolso por esta cita? Tu solicitud sera revisada por el equipo.");
+                if (!confirmar) return;
+
+                btnReembolso.disabled = true;
+                btnReembolso.textContent = "Enviando solicitud...";
+
+                try {
+                    const response = await apiFetch(`${API_URL}/citas/${cita.citaId}/solicitar-reembolso`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        throw new Error(errorData.detail || "Error al solicitar el reembolso.");
+                    }
+
+                    await cargarCitasCliente(uidCliente);
+                } catch (error) {
+                    console.log("Error al solicitar reembolso:", error);
+                    alert(error.message || "No se pudo enviar la solicitud. Intenta nuevamente.");
+                    btnReembolso.disabled = false;
+                    btnReembolso.textContent = "Solicitar Reembolso";
+                }
+            });
+        }
+    }
+
     async function cargarCitasCliente(uidCliente) {
         const lista = document.getElementById("listaCitasCliente");
 
         if (!lista) return;
+
+        if (await cargarCitasClienteOrdenadas(uidCliente, lista)) return;
 
         lista.innerHTML = "<p>Cargando tus citas...</p>";
 

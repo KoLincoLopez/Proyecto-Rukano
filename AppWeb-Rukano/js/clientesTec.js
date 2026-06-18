@@ -146,7 +146,7 @@ async function cargarClientesTecnico(uidTecnico) {
             })
         );
 
-        clientesTecnicoActuales = clientes;
+        clientesTecnicoActuales = clientes.sort((a, b) => b.fechaOrden - a.fechaOrden);
         renderizarClientes(clientesTecnicoActuales);
     } catch (error) {
         console.log("Error al cargar clientes del tecnico:", error);
@@ -181,7 +181,8 @@ function construirFilaCliente(cita, cliente) {
         servicio,
         fecha,
         horario,
-        estado
+        estado,
+        fechaOrden: obtenerTimestampCita(cita)
     };
 }
 
@@ -290,8 +291,36 @@ function convertirFecha(valor) {
         return valor.toDate();
     }
 
+    if (typeof valor.seconds === "number") {
+        return new Date(valor.seconds * 1000);
+    }
+
+    if (typeof valor._seconds === "number") {
+        return new Date(valor._seconds * 1000);
+    }
+
     const fecha = new Date(valor);
     return Number.isNaN(fecha.getTime()) ? null : fecha;
+}
+
+function obtenerTimestampCita(cita = {}) {
+    const fechaBase = cita.fecha || cita.dia || cita.fechaCita || cita.fechaReserva;
+    const horaBase = cita.hora || cita.horaInicio || "";
+
+    if (fechaBase && /^\d{4}-\d{2}-\d{2}$/.test(String(fechaBase))) {
+        const horaNormalizada = /^\d{2}:\d{2}$/.test(String(horaBase)) ? horaBase : "00:00";
+        const fechaHora = new Date(`${fechaBase}T${horaNormalizada}:00`);
+        if (!Number.isNaN(fechaHora.getTime())) return fechaHora.getTime();
+    }
+
+    const candidatos = [cita.createdAt, cita.fechaCreacion, cita.modificadoEn, cita.updatedAt, fechaBase];
+
+    for (const candidato of candidatos) {
+        const fecha = convertirFecha(candidato);
+        if (fecha) return fecha.getTime();
+    }
+
+    return 0;
 }
 
 function obtenerClaseEstado(estado) {

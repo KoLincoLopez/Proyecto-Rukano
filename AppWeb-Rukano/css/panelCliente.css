@@ -109,6 +109,27 @@ body {
     max-width: 700px;
 }
 
+.section-heading-row {
+    align-items: flex-start;
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+}
+
+.btn-historial-citas {
+    background: transparent;
+    border: 2px solid var(--c-arena) !important;
+    color: var(--c-arena);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.btn-historial-citas:hover {
+    background: var(--c-arena);
+    color: var(--c-licorice);
+    transform: translateY(-2px);
+}
+
 .detalle-reserva {
     display: grid;
     gap: 22px;
@@ -366,6 +387,18 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+.citas-vacias,
+.historial-vacio {
+    background: rgba(245, 239, 234, 0.1);
+    border: 1px solid rgba(245, 239, 234, 0.22);
+    color: var(--c-arena);
+    font-weight: 900;
+    grid-column: 1 / -1;
+    line-height: 1.5;
+    margin: 0;
+    padding: 18px 20px;
+}
+
 .cita-card {
     background: var(--c-blanco);
     border: 2px solid transparent;
@@ -425,6 +458,81 @@ body {
 .cita-acciones .btn-link,
 .cita-acciones .btn-reservar {
     width: 100%;
+}
+
+.historial-citas-cliente {
+    border-top: 1px solid rgba(245, 239, 234, 0.28);
+    margin-top: 30px;
+    padding-top: 24px;
+}
+
+.historial-citas-header {
+    align-items: baseline;
+    display: flex;
+    gap: 14px;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.historial-citas-header strong {
+    color: var(--c-arena);
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 18px;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+}
+
+.historial-citas-header span {
+    color: rgba(245, 239, 234, 0.72);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.historial-citas-lista {
+    display: grid;
+    gap: 12px;
+}
+
+.historial-cita-card {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.94);
+    border-left: 5px solid var(--c-froly);
+    color: var(--c-licorice);
+    display: grid;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+    padding: 16px 18px;
+}
+
+.historial-cita-card strong {
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 14px;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.historial-cita-card span,
+.historial-cita-card b {
+    overflow-wrap: anywhere;
+}
+
+.historial-cita-card span {
+    color: rgba(30, 13, 10, 0.72);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.historial-cita-card b {
+    background: var(--c-arena);
+    color: var(--c-rosewood);
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 7px 10px;
+    text-align: center;
+    text-transform: uppercase;
 }
 
 .reportes-section {
@@ -753,6 +861,22 @@ body {
 
     #listaCitasCliente {
         grid-template-columns: 1fr;
+    }
+
+    .section-heading-row {
+        flex-direction: column;
+    }
+
+    .btn-historial-citas {
+        width: 100%;
+    }
+
+    .historial-cita-card {
+        grid-template-columns: 1fr;
+    }
+
+    .historial-cita-card b {
+        justify-self: start;
     }
 
     .reclamo-timeline-header {

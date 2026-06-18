@@ -69,13 +69,22 @@
     text-shadow: none !important;
 }
 
+.page-dark-navbar .navbar-integrada:not(.scrolled):not(.menu-open) .bloque-logo {
+    color: var(--c-arena) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
 .page-index .navbar-integrada:not(.scrolled):not(.menu-open) .bloque-logo:hover {
     color: var(--c-arena) !important;
     opacity: 0.92;
 }
 
-/* Cuando el navbar tiene fondo oscuro por scroll o menú móvil abierto,
-   el logo debe ser claro en todas las páginas. */
+.page-dark-navbar .navbar-integrada:not(.scrolled):not(.menu-open) .bloque-logo:hover {
+    color: var(--c-blanco) !important;
+    opacity: 0.92;
+}
+
 .navbar-integrada.scrolled .bloque-logo,
 .navbar-integrada.menu-open .bloque-logo {
     color: var(--c-arena) !important;
@@ -215,6 +224,7 @@
 
 .rukano-user-trigger:hover,
 .rukano-user-menu:focus-within .rukano-user-trigger,
+.rukano-user-menu.activo .rukano-user-trigger,
 .rukano-user-menu.open .rukano-user-trigger {
     background: rgba(245, 239, 234, 0.16);
     border-color: rgba(245, 239, 234, 0.46);
@@ -253,54 +263,129 @@
     transition: transform 0.22s ease;
 }
 
+.rukano-user-menu.activo .navbar-profile-chevron,
 .rukano-user-menu.open .navbar-profile-chevron {
     transform: rotate(180deg);
 }
 
 .rukano-user-dropdown {
     background: var(--c-blanco);
-    border: 2px solid var(--c-licorice);
-    box-shadow: 8px 8px 0 var(--c-licorice);
-    min-width: 240px;
+    border: 3px solid var(--c-licorice);
+    box-shadow: 8px 8px 0px var(--c-licorice);
+    display: block;
+    min-width: 280px;
     opacity: 0;
-    padding: 16px;
+    overflow: hidden;
+    padding: 0;
     pointer-events: none;
     position: absolute;
     right: 0;
-    top: calc(100% + 18px);
+    top: calc(100% + 16px);
     transform: translateY(-8px);
     transition: opacity 0.22s ease, transform 0.22s ease;
     z-index: 2500;
 }
 
+.rukano-user-dropdown.dropdown-menu {
+    display: block;
+}
+
+.rukano-user-menu.activo .rukano-user-dropdown,
 .rukano-user-menu.open .rukano-user-dropdown {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
 }
 
+.rukano-user-dropdown-header {
+    background: var(--c-arena);
+    border-bottom: 2px solid var(--c-licorice);
+    padding: 16px 18px 14px;
+}
+
+.rukano-user-dropdown-header span {
+    color: var(--c-mahogany);
+    display: block;
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.4px;
+    line-height: 1.1;
+    margin-bottom: 7px;
+    text-transform: uppercase;
+}
+
+.rukano-user-dropdown-header strong {
+    color: var(--c-licorice);
+    display: block;
+    font-family: "Arial Black", Arial, sans-serif;
+    font-size: 18px;
+    letter-spacing: 0;
+    line-height: 1.05;
+    text-transform: uppercase;
+}
+
+.rukano-user-dropdown-links {
+    background: var(--c-blanco);
+    display: grid;
+    gap: 0;
+    padding: 8px;
+}
+
+.rukano-user-dropdown-footer {
+    background: var(--c-arena);
+    border-top: 2px solid var(--c-licorice);
+    padding: 8px;
+}
+
 .rukano-user-dropdown a,
 .rukano-user-dropdown button {
-    background: transparent;
-    border: 0;
+    align-items: center;
+    background: var(--c-blanco);
+    border: 2px solid transparent;
+    border-bottom: 1px solid rgba(30, 13, 10, 0.1); /* Línea divisoria muy fina y sutil */
     color: var(--c-licorice);
     cursor: pointer;
-    display: block;
+    display: flex;
     font-family: Arial, sans-serif;
     font-size: 13px;
     font-weight: 900;
+    justify-content: space-between;
     letter-spacing: 0.5px;
-    padding: 10px 8px;
+    line-height: 1.2;
+    min-height: 44px;
+    padding: 12px 13px;
     text-align: left;
     text-decoration: none;
     text-transform: uppercase;
+    transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
     width: 100%;
 }
 
-.rukano-user-dropdown a:hover,
-.rukano-user-dropdown button:hover {
-    background-color: var(--c-arena);
+.rukano-user-dropdown-footer button,
+.rukano-user-dropdown-footer a {
+    border-bottom: none; 
     color: var(--c-mahogany);
+}
+
+.rukano-user-dropdown a:hover,
+.rukano-user-dropdown button:hover,
+.rukano-user-dropdown a:focus-visible,
+.rukano-user-dropdown button:focus-visible {
+    background-color: var(--c-licorice);
+    border-color: var(--c-licorice);
+    color: var(--c-blanco);
+    outline: none;
+    transform: translateX(2px);
+}
+
+.rukano-user-dropdown-footer button:hover,
+.rukano-user-dropdown-footer a:hover,
+.rukano-user-dropdown-footer button:focus-visible,
+.rukano-user-dropdown-footer a:focus-visible {
+    background-color: var(--c-mahogany);
+    border-color: var(--c-mahogany);
+    color: var(--c-blanco);
 }
 
 .hamburguesa {

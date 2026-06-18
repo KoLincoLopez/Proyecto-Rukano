@@ -6,30 +6,13 @@
 <title>Gasfitería completa — Rukano</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <link rel="stylesheet" href="css/detalleServicio.css">
+<link rel="stylesheet" href="css/navbar.css">
 
 
 </head>
-<body>
+<body class="page-dark-navbar">
 
-<!-- NAV -->
-<nav class="detalle-nav">
-  <a class="logo" href="index.html">RUKANO</a>
-  <div class="nav-right">
-    <a href="index.html#servicios" class="nav-link">Explorar</a>
-    <a href="index.html#como-funciona" class="nav-link">Cómo funciona</a>
-    <!-- Skeleton visible mientras Firebase verifica sesión -->
-    <div id="nav-auth-area" class="nav-auth-skeleton-wrap">
-      <div class="nav-sk-item nav-sk-wide"></div>
-      <div class="nav-sk-item nav-sk-narrow"></div>
-    </div>
-    <!-- Ambos ocultos al inicio; Firebase los muestra según estado -->
-    <a href="inicioSesion.html" class="btn-nav-sesion" style="display:none;">Iniciar sesión</a>
-    <div class="user-chip" style="display:none;">
-      <div class="user-avatar-sm"></div>
-      <span></span>
-    </div>
-  </div>
-</nav>
+<div id="navbar-root"></div>
 
 <!-- BREADCRUMB -->
 <div class="breadcrumb">
@@ -376,5 +359,7 @@
 <!-- Demo bar eliminada: la sesión la maneja Firebase Auth -->
 
 <script src="js/apiConfig.js"></script>
+<script src="js/navbar.js" defer></script>
 <script type="module" src="js/detalleServicio.js"></script>
+</body>
 </html>

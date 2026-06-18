@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pago pendiente</title>
     <link rel="stylesheet" href="../css/index.css">
-    <link rel="stylesheet" href="../css/payment-stile/pendiente.css">
-    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/payment-stile/status.css">
 </head>
-<body>
-    <div id="navbar-root"></div>
-    <main class="payment-status payment-status--pending">
-        <p class="payment-kicker">Rukano</p>
+<body data-payment-state="pending">
+    <header class="payment-shell-header" aria-label="Rukano">
+        <a href="../panelCliente.html" class="payment-brand">RUKANO</a>
+        <span class="payment-header-note">Operacion en revision</span>
+    </header>
+
+    <main class="payment-status payment-status--pending" aria-live="polite">
+        <span class="payment-state-mark">...</span>
+        <p class="payment-kicker">Pago en revision</p>
         <h1>Pago pendiente</h1>
-        <p>Mercado Pago dejo la operacion en revision. Cuando se actualice, podras continuar el seguimiento del servicio.</p>
+        <p>La operacion esta en revision. Cuando se actualice, podras continuar el seguimiento desde tu panel.</p>
         <div class="payment-actions">
-            <a href="../panelCliente.html">Volver al panel</a>
+            <a href="../panelCliente.html" data-payment-primary>Volver al panel</a>
             <a href="../index.html#servicios" class="payment-link-secondary">Explorar servicios</a>
         </div>
     </main>
-    <script src="../js/navbar.js" defer></script>
+    <script type="module" src="../js/paymentStatus.js"></script>
 </body>
 </html>

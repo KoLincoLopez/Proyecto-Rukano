@@ -243,8 +243,13 @@ class RukanoStressTest(HttpUser):
     def payments_create_preference(self):
         if not ENABLE_PAYMENTS_TESTS:
             return
-        payload = {"title": "Servicio prueba", "quantity": 1, "price": 19990.0}
-        with self.client.post("/payments/create_preference", json=payload, catch_response=True) as response:
+
+        cita_id = KNOWN_CITA_ID or (self.cita_ids[-1] if self.cita_ids else "")
+        if not cita_id:
+            print("Skipping payments_create_preference: KNOWN_CITA_ID is required for the official payment endpoint")
+            return
+
+        with self.client.post(f"/payments/create_preference/{cita_id}", catch_response=True) as response:
             log_response(response)
 
     @task(1)

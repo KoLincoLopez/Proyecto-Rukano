@@ -1,3 +1,36 @@
+// LEGACY / NO OFICIAL:
+// Este archivo no se carga desde el flujo publico actual y no debe usarse
+// para pagos reales. El checkout oficial se inicia desde panel.js con una
+// cita reservada usando POST /payments/create_preference/{cita_id}.
+// Se conserva solo para evitar que paginas antiguas intenten iniciar el
+// checkout directo por servicio.
+(function () {
+    const btnComprar = document.getElementById("btn-comprar");
+
+    if (!btnComprar) {
+        return;
+    }
+
+    btnComprar.addEventListener("click", () => {
+        mostrarEstadoPago(
+            "Este flujo de pago esta desactivado. Reserva una cita y paga desde el panel de cliente."
+        );
+    });
+
+    function mostrarEstadoPago(mensaje) {
+        const estado = document.getElementById("pago-mensaje");
+
+        if (estado) {
+            estado.textContent = mensaje;
+        }
+    }
+})();
+
+/*
+LEGACY DESACTIVADO / REFERENCIA HISTORICA:
+El bloque siguiente conserva la implementacion anterior del checkout directo
+por servicio. No debe reactivarse sin adaptar el flujo a una cita valida.
+
 (function () {
     const btnComprar = document.getElementById("btn-comprar");
     const usarCheckoutRedireccion = true;
@@ -36,7 +69,7 @@
 
             if (!response.ok) {
                 if (response.status === 503) {
-                    throw new Error("El pago no está configurado en este entorno.");
+                    throw new Error("El pago no esta configurado en este entorno.");
                 }
 
                 throw new Error(data.detail || `Error en el servidor: ${response.status}`);
@@ -137,5 +170,4 @@
         return valor ? valor.trim() : "";
     }
 })();
-// LEGACY: checkout directo por servicio desactivado.
-// El flujo oficial usa /payments/create_preference/{cita_id} desde panel.js.
+*/

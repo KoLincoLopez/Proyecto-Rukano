@@ -66,6 +66,10 @@ def obtener_precio_y_titulo_cita(cita_data: dict, cita_id: str):
     return precio, titulo
 
 
+# NO OFICIAL:
+# Endpoint antiguo del checkout directo sin cita. Se mantiene solo para
+# responder 410 y evitar que flujos viejos parezcan funcionar.
+# Flujo oficial actual: POST /payments/create_preference/{cita_id}.
 @router.post("/create_preference", deprecated=True)
 async def create_payment_preference():
     raise HTTPException(

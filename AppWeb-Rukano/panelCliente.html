@@ -121,12 +121,29 @@
         <!-- HISTORIAL REAL DEL CLIENTE -->
         <section class="panel-card citas-section">
             <div class="section-heading">
-                <h2>Mis citas</h2>
-                <p>Revisa tus reservas activas, horarios y acceso a valoración de servicios.</p>
+                <div class="section-heading-row">
+                    <div>
+                        <h2>Mis citas recientes</h2>
+                        <p>Revisa tus reservas activas, horarios, acceso a valoracion de servicios y tu historial.</p>
+                    </div>
+
+                    <button type="button" id="btnToggleHistorial" class="btn-historial-citas" hidden>
+                        Ver historial
+                    </button>
+                </div>
             </div>
 
             <div id="listaCitasCliente">
                 <p>Cargando citas...</p>
+            </div>
+
+            <div id="historialCitasCliente" class="historial-citas-cliente" hidden>
+                <div class="historial-citas-header">
+                    <strong>Historial</strong>
+                    <span id="historialCitasResumen"></span>
+                </div>
+
+                <div id="listaHistorialCitasCliente" class="historial-citas-lista"></div>
             </div>
         </section>
 

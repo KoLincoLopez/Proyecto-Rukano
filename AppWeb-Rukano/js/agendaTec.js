@@ -380,7 +380,7 @@ function ordenarCitas(citas) {
     return [...citas].sort((a, b) => {
         const fechaA = `${obtenerFechaCitaISO(a)} ${obtenerDato(a.horaInicio || a.hora, "")}`;
         const fechaB = `${obtenerFechaCitaISO(b)} ${obtenerDato(b.horaInicio || b.hora, "")}`;
-        return fechaA.localeCompare(fechaB);
+        return fechaB.localeCompare(fechaA);
     });
 }
 

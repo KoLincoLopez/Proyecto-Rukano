@@ -87,38 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (userSnap.exists()) {
                     datosUsuario = userSnap.data();
 
-                    // ── RENDERIZADO DEL NAVBAR CON DATOS REALES ──
-                    const authContainer = document.getElementById("auth-container");
-                    if (authContainer) {
-                        authContainer.innerHTML = `
-                            <div class="perfil-nav-container">
-                                <div class="usuario-badge">
-                                    <span class="usuario-inicial">${escapeHtml(datosUsuario.nombre.charAt(0).toUpperCase())}</span>
-                                    <span class="usuario-nombre">${escapeHtml(datosUsuario.nombre.toUpperCase())}</span>
-                                </div>
-                                <a href="panelCliente.html" class="btn-perfil-nav">MI PERFIL</a>
-                            </div>
-                        `;
-                    }
-
-                    // ── OCULTAR SKELETON NAV Y MOSTRAR ESTADO REAL ──
-                    const navAuthArea = document.getElementById("nav-auth-area");
-                    if (navAuthArea) navAuthArea.classList.add("hidden");
-
-                    // ── ACTUALIZAR EL user-chip DEL NAV (el que ya existe en el HTML) ──
-                    const userChip = document.querySelector('.user-chip');
-                    if (userChip) {
-                        const avatarEl = userChip.querySelector('.user-avatar-sm');
-                        const nombreEl = userChip.querySelector('span:last-child');
-                        if (avatarEl) avatarEl.textContent = datosUsuario.nombre.charAt(0).toUpperCase();
-                        if (nombreEl) nombreEl.textContent = datosUsuario.nombre;
-                        userChip.style.display = 'flex';
-                    }
-
-                    // ── OCULTAR BOTÓN "INICIAR SESIÓN" DEL NAV ──
-                    const btnSesion = document.querySelector('.btn-nav-sesion');
-                    if (btnSesion) btnSesion.style.display = 'none';
-
                 } else {
                     console.warn("Usuario en Auth pero sin documento en Firestore.");
                 }
@@ -133,16 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // Sin sesión: limpiamos estado
             usuarioLogueado = null;
             datosUsuario    = null;
-
-            // Restaurar nav a estado "sin sesión"
-            const navAuthArea = document.getElementById("nav-auth-area");
-            if (navAuthArea) navAuthArea.classList.add("hidden");
-
-            const userChip = document.querySelector('.user-chip');
-            if (userChip) userChip.style.display = 'none';
-
-            const btnSesion = document.querySelector('.btn-nav-sesion');
-            if (btnSesion) btnSesion.style.display = '';
 
             aplicarEstadoSesion(false);
         }

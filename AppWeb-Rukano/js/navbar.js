@@ -55,7 +55,9 @@
             if (userTrigger && userArea) {
                 event.stopPropagation();
                 cerrarOtrosMenus(userArea);
-                const abierto = userArea.classList.toggle("open");
+                const abierto = !userArea.classList.contains("activo");
+                userArea.classList.toggle("activo", abierto);
+                userArea.classList.toggle("open", abierto);
                 userTrigger.setAttribute("aria-expanded", String(abierto));
                 return;
             }
@@ -106,16 +108,17 @@
     }
 
     function cerrarOtrosMenus(menuActual) {
-        document.querySelectorAll("[data-navbar-user].open").forEach((menu) => {
+        document.querySelectorAll("[data-navbar-user].activo, [data-navbar-user].open").forEach((menu) => {
             if (menu !== menuActual) cerrarMenuUsuario(menu);
         });
     }
 
     function cerrarTodosLosMenus() {
-        document.querySelectorAll("[data-navbar-user].open").forEach(cerrarMenuUsuario);
+        document.querySelectorAll("[data-navbar-user].activo, [data-navbar-user].open").forEach(cerrarMenuUsuario);
     }
 
     function cerrarMenuUsuario(menu) {
+        menu.classList.remove("activo");
         menu.classList.remove("open");
         const trigger = menu.querySelector("[data-navbar-user-trigger]");
         trigger?.setAttribute("aria-expanded", "false");
@@ -123,7 +126,7 @@
 
     async function inicializarAuthNavbar(root, rutas) {
         try {
-            const [{ auth, db }, { onAuthStateChanged }, { doc, getDoc }] = await Promise.all([
+            const [{ auth, db }, { onAuthStateChanged, signOut }, { doc, getDoc }] = await Promise.all([
                 import("./Firebase-config.js"),
                 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"),
                 import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js")
@@ -149,7 +152,7 @@
                     console.warn("No se pudo cargar el nombre del usuario para el navbar:", error);
                 }
 
-                renderNavbarUsuario(authContainer, rutas, obtenerNombreNavbar(datosUsuario, user), datosUsuario);
+                renderNavbarUsuario(authContainer, rutas, obtenerNombreNavbar(datosUsuario, user), datosUsuario, auth, signOut);
             });
         } catch (error) {
             console.warn("No se pudo inicializar el usuario del navbar:", error);
@@ -168,8 +171,10 @@
         `;
     }
 
-    function renderNavbarUsuario(authContainer, rutas, nombreUsuario, datosUsuario = {}) {
+    function renderNavbarUsuario(authContainer, rutas, nombreUsuario, datosUsuario = {}, auth = null, signOutFn = null) {
         const panelDestino = obtenerDestinoPanel(datosUsuario, rutas);
+        const rol = normalizarRol(datosUsuario.rol);
+        const etiquetaRol = rol === "tecnico" ? "Tecnico" : "Cliente";
 
         authContainer.classList.remove("navbar-auth-loading");
         authContainer.innerHTML = `
@@ -183,11 +188,32 @@
                     <span class="navbar-profile-name">${escaparHtml(nombreUsuario)}</span>
                     <span class="navbar-profile-chevron" aria-hidden="true">&#9662;</span>
                 </button>
-                <div class="rukano-user-dropdown">
-                    <a href="${panelDestino.href}">${panelDestino.label}</a>
+                <div class="rukano-user-dropdown usuario-dropdown dropdown-menu" role="menu">
+                    <div class="rukano-user-dropdown-header">
+                        <span>Sesion activa</span>
+                        <strong>${etiquetaRol}</strong>
+                    </div>
+                    <div class="rukano-user-dropdown-links">
+                        <a href="${panelDestino.href}" role="menuitem">${panelDestino.label}</a>
+                    </div>
+                    <div class="rukano-user-dropdown-footer">
+                        <button type="button" data-navbar-logout role="menuitem">Cerrar sesion</button>
+                    </div>
                 </div>
             </div>
         `;
+
+        const logoutButton = authContainer.querySelector("[data-navbar-logout]");
+        logoutButton?.addEventListener("click", async () => {
+            try {
+                if (auth && signOutFn) {
+                    await signOutFn(auth);
+                }
+                window.location.href = rutas.inicioSesion;
+            } catch (error) {
+                console.warn("No se pudo cerrar sesion desde el navbar:", error);
+            }
+        });
     }
 
     function obtenerDestinoPanel(datosUsuario = {}, rutas) {

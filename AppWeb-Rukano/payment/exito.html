@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pago exitoso</title>
     <link rel="stylesheet" href="../css/index.css">
-    <link rel="stylesheet" href="../css/payment-stile/exito.css">
-    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/payment-stile/status.css">
 </head>
-<body>
-    <div id="navbar-root"></div>
-    <main class="payment-status payment-status--success">
-        <p class="payment-kicker">Rukano</p>
-        <h1>Pago recibido</h1>
-        <p>Mercado Pago recibio la operacion. La confirmacion de tu cita se actualizara automaticamente cuando el webhook valide el pago aprobado.</p>
+<body data-payment-state="success">
+    <header class="payment-shell-header" aria-label="Rukano">
+        <a href="../panelCliente.html" class="payment-brand">RUKANO</a>
+        <span class="payment-header-note">Confirmacion segura</span>
+    </header>
+
+    <main class="payment-status payment-status--success" aria-live="polite">
+        <span class="payment-state-mark">OK</span>
+        <p class="payment-kicker">Pago recibido</p>
+        <h1>Pago exitoso</h1>
+        <p>Gracias por tu compra. El pago fue recibido y podras seguir el estado de tu cita desde el panel.</p>
         <div class="payment-actions">
-            <a href="../panelCliente.html">Volver al panel</a>
+            <a href="../panelCliente.html" data-payment-primary>Volver al panel</a>
             <a href="../index.html#servicios" class="payment-link-secondary">Explorar servicios</a>
         </div>
     </main>
-    <script src="../js/navbar.js" defer></script>
+    <script type="module" src="../js/paymentStatus.js"></script>
 </body>
 </html>

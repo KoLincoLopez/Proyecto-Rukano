@@ -99,17 +99,6 @@ body{
   user-select:none;
 }
 
-.hero-eyebrow{
-  display:inline-flex;align-items:center;gap:10px;
-  background:var(--c-mahogany);
-  color:white;
-  font-family:'Arial',sans-serif;
-  font-size:11px;font-weight:900;
-  text-transform:uppercase;letter-spacing:2px;
-  padding:7px 18px;border-radius:50px;
-  margin-bottom:32px;
-  width:fit-content;
-}
 
 .hero-titulo{
   font-family:'Arial Black',sans-serif;

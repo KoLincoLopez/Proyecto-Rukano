@@ -1,3 +1,9 @@
+// LEGACY / NO OFICIAL:
+// Este archivo pertenece a una implementacion anterior del panel tecnico y no
+// debe usarse como referencia para el flujo actual.
+// Flujo oficial actual: panelTecnico.html carga js/panel.js.
+// Antes de eliminarlo, debe ser revisado por el equipo para confirmar que no
+// se usa en navegacion activa.
 import { auth, db } from "./Firebase-config.js";
 import { apiFetch } from "./apiFetch.js";
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";

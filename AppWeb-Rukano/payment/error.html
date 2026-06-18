@@ -4,21 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error en el pago</title>
+    
     <link rel="stylesheet" href="../css/index.css">
-    <link rel="stylesheet" href="../css/payment-stile/error.css">
-    <link rel="stylesheet" href="../css/navbar.css">
+    <link rel="stylesheet" href="../css/payment-stile/status.css">
 </head>
-<body>
-    <div id="navbar-root"></div>
-    <main class="payment-status payment-status--error">
-        <p class="payment-kicker">Rukano</p>
-        <h1>No se pudo completar el pago</h1>
-        <p>Mercado Pago no confirmo la operacion. Puedes volver al servicio e intentarlo nuevamente.</p>
+<body data-payment-state="error">
+    <header class="payment-shell-header" aria-label="Rukano">
+        <a href="../panelCliente.html" class="payment-brand">RUKANO</a>
+        <span class="payment-header-note">Revision necesaria</span>
+    </header>
+
+    <main class="payment-status payment-status--error" aria-live="polite">
+        <span class="payment-state-mark">!</span>
+        <p class="payment-kicker">Pago no confirmado</p>
+        <h1>Error en el pago</h1>
+        <p>Vuelve a tu panel para revisar la cita e intentarlo nuevamente si corresponde.</p>
         <div class="payment-actions">
-            <a href="../index.html">Volver al inicio</a>
-            <a href="../panelCliente.html" class="payment-link-secondary">Ir al panel</a>
+            <a href="../panelCliente.html" data-payment-primary>Volver al panel</a>
+            <a href="../index.html#servicios" class="payment-link-secondary">Explorar servicios</a>
         </div>
     </main>
-    <script src="../js/navbar.js" defer></script>
+    <script type="module" src="../js/paymentStatus.js"></script>
 </body>
 </html>

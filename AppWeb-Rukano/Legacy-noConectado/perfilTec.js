@@ -1,3 +1,10 @@
+// LEGACY / NO OFICIAL:
+// Este archivo controla la pagina antigua perfilTec.html y no debe usarse como
+// referencia para el perfil tecnico actual.
+// Flujo oficial actual: miperfilTec.html con js/miperfilTec.js y
+// js/certificacion.js.
+// Antes de eliminarlo, debe ser revisado por el equipo para confirmar que no
+// se usa en navegacion activa.
 import { auth, db } from "./Firebase-config.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
