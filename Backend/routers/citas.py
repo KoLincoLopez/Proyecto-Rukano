@@ -87,6 +87,10 @@ async def reservar_cita(
             and datos.hora < str(item.get("fin") or item.get("hora_fin") or "")
             for item in disponibilidad
         )
+        ## Debug: Imprime la disponibilidad y el día de la cita para verificar
+        print(f"DEBUG disponibilidad: {disponibilidad}")
+        print(f"DEBUG dia_cita: {dia_cita}")
+        print(f"DEBUG hora enviada: {datos.hora}")
         if not horario_valido:
             raise HTTPException(
                 status_code=400,
@@ -223,10 +227,37 @@ async def obtener_citas_cliente(
     )
     if cliente_id != uid_cliente:
         raise HTTPException(status_code=403, detail="No puedes consultar las citas de otro cliente")
-    # Devuelve las citas asociadas a un cliente (idCliente)
+
     docs = db.collection("citas").where(filter=FieldFilter("idCliente", "==", cliente_id)).stream()
-    citas = [doc.to_dict() for doc in docs]
-    return sorted(citas, key=lambda x: (x['fecha'], x['hora']))
+
+    # Caché de nombres de técnicos para evitar consultas repetidas a Firestore
+    cache_tecnicos: dict[str, str] = {}
+
+    citas_enriquecidas = []
+    for doc in docs:
+        cita = doc.to_dict()
+
+        # --- SANITIZACIÓN: eliminar campos internos sensibles antes de enviar al cliente ---
+        id_tecnico = cita.pop("idTecnico", None)
+        cita.pop("idCliente", None)  # El cliente ya sabe quién es; no necesita ver su propio UID
+
+        # Resolver nombre del técnico usando caché local para minimizar lecturas a Firestore
+        nombre_tecnico = "Técnico no disponible"
+        if id_tecnico:
+            if id_tecnico not in cache_tecnicos:
+                tecnico_doc = db.collection("usuarios").document(id_tecnico).get()
+                if tecnico_doc.exists:
+                    datos_tecnico = tecnico_doc.to_dict()
+                    # Solo extraemos el nombre para mostrar; ningún campo de auth/seguridad sale
+                    nombre_tecnico = datos_tecnico.get("nombre") or datos_tecnico.get("displayName") or "Técnico sin nombre"
+                cache_tecnicos[id_tecnico] = nombre_tecnico
+            else:
+                nombre_tecnico = cache_tecnicos[id_tecnico]
+
+        cita["nombreTecnico"] = nombre_tecnico
+        citas_enriquecidas.append(cita)
+
+    return sorted(citas_enriquecidas, key=lambda x: (x.get("fecha", ""), x.get("hora", "")))
 
 # --- ENDPOINT: CAMBIAR ESTADO DE LA CITA (DE PENDIENTE A RESERVADA/CANCELADA) ---
 @router.patch("/{id_cita}/estado")

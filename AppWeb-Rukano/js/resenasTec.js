@@ -1,5 +1,6 @@
 import { auth } from "./Firebase-config.js";
 import { apiFetch } from "./apiFetch.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const estrellas = document.querySelectorAll('input[name="rating"]');
 const comentario = document.getElementById("comentario");
@@ -17,7 +18,13 @@ const API_URL = window.RukanoApiConfig.getApiBaseUrl();
 let rating = 0;
 let citaPuedeEvaluarse = false;
 
-inicializarResena();
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        inicializarResena(); // ✅ Firebase ya confirmó la sesión
+    } else {
+        bloquearFormulario("Debes iniciar sesión para dejar una reseña.");
+    }
+});
 
 function volverAlPanel() {
     window.location.href = destinoPanel;
