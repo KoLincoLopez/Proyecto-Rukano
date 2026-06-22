@@ -186,7 +186,6 @@ body{
   align-items:center;
 }
 
-.intro-left{}
 
 .seccion-label{
   font-family:'Arial Black',sans-serif;
@@ -371,7 +370,6 @@ body{
   gap:80px;align-items:start;position:relative;z-index:1;
 }
 
-.meta-left{}
 
 .meta-titulo{
   font-family:'Arial Black',sans-serif;
@@ -409,8 +407,6 @@ body{
   letter-spacing:-2px;line-height:1;
   flex-shrink:0;width:60px;
 }
-
-.valor-contenido{}
 
 .valor-titulo{
   font-family:'Arial Black',sans-serif;
