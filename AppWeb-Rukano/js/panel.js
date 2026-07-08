@@ -287,12 +287,14 @@ window.addEventListener("DOMContentLoaded", () => {
 
                 card.innerHTML = `
                     <strong>${servicio.nombre || servicio.titulo || "Servicio"}</strong>
-                    <p>Categoria: ${servicio.categoria || "No especificada"}</p>
-                    <p>Comuna: ${servicio.comuna || "No especificada"}</p>
-                    <p>Precio: $${Math.round(servicio.precio || 0)}</p>
-                    <p>Tiempo estimado: ${servicio.tiempoEstimado || "No especificado"}</p>
-                    <p>Disponibilidad: ${disponibilidad}</p>
-                    <p>Estado: ${servicio.estado || "activo"}</p>
+                    <div class="servicio-tecnico-meta">
+                        <p><span>Categoria</span><b>${servicio.categoria || "No especificada"}</b></p>
+                        <p><span>Comuna</span><b>${servicio.comuna || "No especificada"}</b></p>
+                        <p><span>Precio</span><b>$${Math.round(servicio.precio || 0)}</b></p>
+                        <p><span>Tiempo estimado</span><b>${servicio.tiempoEstimado || "No especificado"}</b></p>
+                        <p><span>Disponibilidad</span><b>${disponibilidad}</b></p>
+                        <p><span>Estado</span><b>${servicio.estado || "activo"}</b></p>
+                    </div>
 
                     <div class="servicio-tecnico-acciones">
                         <button class="btnEditar" data-id="${docServicio.id}">
