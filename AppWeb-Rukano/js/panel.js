@@ -1050,8 +1050,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
         if (!lista) return;
 
-        if (await cargarCitasClienteOrdenadas(uidCliente, lista)) return;
-
         lista.innerHTML = "<p>Cargando tus citas...</p>";
 
         try {
