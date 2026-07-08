@@ -249,7 +249,13 @@ async def obtener_citas_cliente(
                 if tecnico_doc.exists:
                     datos_tecnico = tecnico_doc.to_dict()
                     # Solo extraemos el nombre para mostrar; ningún campo de auth/seguridad sale
-                    nombre_tecnico = datos_tecnico.get("nombre") or datos_tecnico.get("displayName") or "Técnico sin nombre"
+                    nombre_completo = " ".join(
+                        filter(None, [
+                            str(datos_tecnico.get("nombre") or "").strip(),
+                            str(datos_tecnico.get("apellido") or datos_tecnico.get("apellidos") or "").strip()
+                        ])
+                    )
+                    nombre_tecnico = nombre_completo or datos_tecnico.get("displayName") or "Técnico sin nombre"
                 cache_tecnicos[id_tecnico] = nombre_tecnico
             else:
                 nombre_tecnico = cache_tecnicos[id_tecnico]
