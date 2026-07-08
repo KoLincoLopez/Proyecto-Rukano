@@ -43,6 +43,30 @@
     </section>
 
     <div class="contenedor-simetrico">
+        <section class="catalogo-toolbar" aria-label="Filtros de servicios">
+            <div class="catalogo-toolbar-copy">
+                <span class="catalogo-eyebrow">Servicios disponibles</span>
+                <h2>Compara profesionales de tu zona</h2>
+            </div>
+
+            <div class="catalogo-controles">
+                <label class="catalogo-control" for="ordenServicios">
+                    Ordenar por
+                    <select id="ordenServicios">
+                        <option value="relevancia">Relevancia</option>
+                        <option value="precio_asc">Menor precio</option>
+                        <option value="precio_desc">Mayor precio</option>
+                        <option value="rating_desc">Mejor evaluados</option>
+                    </select>
+                </label>
+
+                <label class="catalogo-check">
+                    <input type="checkbox" id="soloConPrecio">
+                    Con tarifa visible
+                </label>
+            </div>
+        </section>
+
         <div class="grilla-servicios" id="servicios">
             <div class="estado-busqueda-editorial">
                 <div class="bloque-decorativo-brutal">*</div>

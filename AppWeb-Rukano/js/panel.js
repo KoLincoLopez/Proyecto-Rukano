@@ -50,7 +50,8 @@ window.addEventListener("DOMContentLoaded", () => {
             }
 
             if (rol === "tecnico" && paginaActual.includes("panelTecnico.html")) {
-                await cargarMisServicios(user.uid);
+                const servicios = await cargarMisServicios(user.uid);
+                await cargarPanelProfesionalTecnico(user.uid, datosUsuarioActual, servicios);
             }
 
             if (rol === "cliente" && paginaActual.includes("panelCliente.html")) {
@@ -101,6 +102,22 @@ window.addEventListener("DOMContentLoaded", () => {
         return `${horario.dia}: ${horario.inicio} - ${horario.fin}`;
     }
 
+    function formatearFechaServicio(valor) {
+        if (!valor) return "Sin registro";
+
+        const fecha = typeof valor.toDate === "function"
+            ? valor.toDate()
+            : new Date(valor.seconds ? valor.seconds * 1000 : valor);
+
+        if (Number.isNaN(fecha.getTime())) return "Sin registro";
+
+        return fecha.toLocaleDateString("es-CL", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
     function actualizarResumenServicios(servicios = []) {
         const totalServicios = document.getElementById("totalServiciosTecnico");
         const serviciosActivos = document.getElementById("serviciosActivosTecnico");
@@ -117,6 +134,273 @@ window.addEventListener("DOMContentLoaded", () => {
         if (totalServicios) totalServicios.textContent = String(servicios.length);
         if (serviciosActivos) serviciosActivos.textContent = String(activos);
         if (serviciosConDisponibilidad) serviciosConDisponibilidad.textContent = String(conDisponibilidad);
+    }
+
+    function obtenerDataServicio(servicio = {}) {
+        return servicio.data || servicio;
+    }
+
+    function actualizarEstadoCard(idCard, idTexto, estado, texto) {
+        const card = document.getElementById(idCard);
+        const textoElemento = document.getElementById(idTexto);
+
+        if (!card || !textoElemento) return;
+
+        card.classList.remove("estado-ok", "estado-alerta", "estado-pendiente");
+        card.classList.add(estado);
+        textoElemento.textContent = texto;
+    }
+
+    async function cargarPanelProfesionalTecnico(uidTecnico, usuario = {}, servicios = []) {
+        const [citas, resenas, certificacion] = await Promise.all([
+            cargarCitasTecnico(uidTecnico),
+            cargarResenasTecnico(uidTecnico),
+            cargarCertificacionTecnico()
+        ]);
+
+        actualizarEstadoProfesional(usuario, servicios, certificacion);
+        renderizarAccionesPendientes(usuario, servicios, citas, certificacion);
+        renderizarReputacionTecnico(resenas);
+    }
+
+    async function cargarCitasTecnico(uidTecnico) {
+        try {
+            const resultado = await getDocs(query(
+                collection(db, "citas"),
+                where("idTecnico", "==", uidTecnico)
+            ));
+
+            return resultado.docs.map((documento) => ({
+                id: documento.id,
+                ...documento.data()
+            }));
+        } catch (error) {
+            console.log("No se pudieron cargar las citas del tecnico:", error);
+            return [];
+        }
+    }
+
+    async function cargarResenasTecnico(uidTecnico) {
+        const resenas = new Map();
+
+        try {
+            const consultas = await Promise.all([
+                getDocs(query(collection(db, "resenas"), where("tecnicoId", "==", uidTecnico))),
+                getDocs(query(collection(db, "resenas"), where("idTecnico", "==", uidTecnico)))
+            ]);
+
+            consultas.forEach((resultado) => {
+                resultado.docs.forEach((documento) => {
+                    resenas.set(documento.id, {
+                        id: documento.id,
+                        ...documento.data()
+                    });
+                });
+            });
+        } catch (error) {
+            console.log("No se pudieron cargar las resenas del tecnico:", error);
+        }
+
+        return Array.from(resenas.values());
+    }
+
+    async function cargarCertificacionTecnico() {
+        try {
+            const response = await apiFetch(`${API_URL}/certificados/mis-certificados`);
+            if (!response.ok) throw new Error("No se pudo consultar certificacion");
+            return await response.json();
+        } catch (error) {
+            console.log("No se pudo cargar la certificacion del tecnico:", error);
+            return null;
+        }
+    }
+
+    function actualizarEstadoProfesional(usuario = {}, servicios = [], certificacion = null) {
+        const verificado = usuario.verificado === true;
+        const serviciosConDisponibilidad = servicios.filter((servicio) => {
+            const dataServicio = obtenerDataServicio(servicio);
+            return Array.isArray(dataServicio.disponibilidad) && dataServicio.disponibilidad.length > 0;
+        }).length;
+        const perfil = calcularCompletitudPerfil(usuario);
+        const estadoCertificacion = certificacion?.estado || (verificado ? "verificado" : "inexistente");
+
+        actualizarEstadoCard(
+            "estadoVerificacionCard",
+            "estadoVerificacionTexto",
+            verificado ? "estado-ok" : "estado-pendiente",
+            verificado ? "Perfil verificado para generar mayor confianza." : "Verificacion pendiente de revision."
+        );
+
+        actualizarEstadoCard(
+            "estadoCertificacionCard",
+            "estadoCertificacionTexto",
+            estadoCertificacion === "verificado" ? "estado-ok" : estadoCertificacion === "subido" ? "estado-pendiente" : "estado-alerta",
+            obtenerTextoCertificacion(estadoCertificacion)
+        );
+
+        actualizarEstadoCard(
+            "estadoPerfilCard",
+            "estadoPerfilTexto",
+            perfil.porcentaje >= 85 ? "estado-ok" : perfil.porcentaje >= 60 ? "estado-pendiente" : "estado-alerta",
+            `${perfil.porcentaje}% completo${perfil.faltantes.length ? `: falta ${perfil.faltantes.slice(0, 2).join(", ")}` : "."}`
+        );
+
+        actualizarEstadoCard(
+            "estadoDisponibilidadCard",
+            "estadoDisponibilidadTexto",
+            servicios.length === 0 ? "estado-pendiente" : serviciosConDisponibilidad === servicios.length ? "estado-ok" : "estado-alerta",
+            servicios.length === 0
+                ? "Publica un servicio para configurar horarios."
+                : `${serviciosConDisponibilidad} de ${servicios.length} servicios con disponibilidad.`
+        );
+    }
+
+    function calcularCompletitudPerfil(usuario = {}) {
+        const campos = [
+            ["nombre", usuario.nombre],
+            ["apellido", usuario.apellido || usuario.apellidos],
+            ["telefono", usuario.telefono],
+            ["comuna", usuario.comuna],
+            ["especialidad", usuario.especialidad],
+            ["descripcion", usuario.descripcion],
+            ["foto", usuario.foto_perfil || usuario.foto || usuario.photoURL],
+            ["cuenta bancaria", usuario.cuenta_bancaria]
+        ];
+        const completos = campos.filter(([, valor]) => String(valor || "").trim()).length;
+        const faltantes = campos
+            .filter(([, valor]) => !String(valor || "").trim())
+            .map(([nombre]) => nombre);
+
+        return {
+            porcentaje: Math.round((completos / campos.length) * 100),
+            faltantes
+        };
+    }
+
+    function obtenerTextoCertificacion(estado) {
+        if (estado === "verificado") return "Documentacion revisada y aprobada.";
+        if (estado === "subido") return "Documentos subidos, esperando revision.";
+        return "Aun no hay documentos de certificacion.";
+    }
+
+    function renderizarAccionesPendientes(usuario = {}, servicios = [], citas = [], certificacion = null) {
+        const lista = document.getElementById("listaAccionesPendientes");
+        if (!lista) return;
+
+        const estadoCertificacion = certificacion?.estado || (usuario.verificado ? "verificado" : "inexistente");
+        const perfil = calcularCompletitudPerfil(usuario);
+        const pendientesCita = citas.filter((cita) => normalizarTexto(cita.estado) === "pendiente").length;
+        const proximasCitas = citas.filter((cita) => {
+            return ["pendiente", "reservada", "pago_realizado"].includes(normalizarTexto(cita.estado));
+        }).length;
+        const serviciosSinDisponibilidad = servicios.filter((servicio) => {
+            const disponibilidad = obtenerDataServicio(servicio).disponibilidad;
+            return !Array.isArray(disponibilidad) || disponibilidad.length === 0;
+        }).length;
+
+        const acciones = [];
+
+        if (pendientesCita > 0) {
+            acciones.push({
+                icono: "calendar-outline",
+                titulo: `${pendientesCita} cita${pendientesCita === 1 ? "" : "s"} pendiente${pendientesCita === 1 ? "" : "s"}`,
+                texto: "Revisa solicitudes nuevas en tu agenda.",
+                href: "agendaTec.html"
+            });
+        }
+
+        if (servicios.length === 0) {
+            acciones.push({
+                icono: "add-circle-outline",
+                titulo: "Publica tu primer servicio",
+                texto: "Crea una oferta para comenzar a recibir solicitudes.",
+                href: "subirServicio.html"
+            });
+        } else if (serviciosSinDisponibilidad > 0) {
+            acciones.push({
+                icono: "time-outline",
+                titulo: `${serviciosSinDisponibilidad} servicio${serviciosSinDisponibilidad === 1 ? "" : "s"} sin disponibilidad`,
+                texto: "Completa horarios para que los clientes puedan reservar.",
+                href: "subirServicio.html"
+            });
+        }
+
+        if (estadoCertificacion !== "verificado") {
+            acciones.push({
+                icono: "document-attach-outline",
+                titulo: estadoCertificacion === "subido" ? "Certificacion en revision" : "Sube tu certificacion",
+                texto: estadoCertificacion === "subido" ? "Tus documentos estan esperando validacion." : "Aumenta la confianza de los clientes.",
+                href: "miperfilTec.html#certificacion"
+            });
+        }
+
+        if (perfil.porcentaje < 85) {
+            acciones.push({
+                icono: "person-circle-outline",
+                titulo: "Completa tu perfil",
+                texto: `Tu perfil esta al ${perfil.porcentaje}%. Mejora tu presentacion profesional.`,
+                href: "miperfilTec.html"
+            });
+        }
+
+        if (proximasCitas > 0) {
+            acciones.push({
+                icono: "briefcase-outline",
+                titulo: `${proximasCitas} compromiso${proximasCitas === 1 ? "" : "s"} activo${proximasCitas === 1 ? "" : "s"}`,
+                texto: "Mantente al dia con tus trabajos agendados.",
+                href: "agendaTec.html"
+            });
+        }
+
+        if (acciones.length === 0) {
+            lista.innerHTML = '<p class="panel-estado-vacio">Todo esta al dia. Tu perfil y tus servicios se ven listos para operar.</p>';
+            return;
+        }
+
+        lista.innerHTML = acciones.slice(0, 5).map((accion) => `
+            <a class="accion-pendiente-card" href="${accion.href}">
+                <ion-icon name="${accion.icono}"></ion-icon>
+                <span>
+                    <strong>${accion.titulo}</strong>
+                    <small>${accion.texto}</small>
+                </span>
+            </a>
+        `).join("");
+    }
+
+    function renderizarReputacionTecnico(resenas = []) {
+        const promedioElemento = document.getElementById("promedioReputacionTecnico");
+        const detalleElemento = document.getElementById("detalleReputacionTecnico");
+        const ultimaElemento = document.getElementById("ultimaResenaTecnico");
+
+        if (!promedioElemento || !detalleElemento || !ultimaElemento) return;
+
+        const resenasConNota = resenas
+            .map((resena) => ({
+                ...resena,
+                nota: Number(resena.puntuacion ?? resena.estrellas ?? resena.rating ?? resena.calificacion)
+            }))
+            .filter((resena) => Number.isFinite(resena.nota) && resena.nota > 0);
+
+        if (resenasConNota.length === 0) {
+            promedioElemento.textContent = "0.0";
+            detalleElemento.textContent = "Sin resenas aun";
+            ultimaElemento.textContent = "Aun no tienes resenas publicadas.";
+            return;
+        }
+
+        const promedio = resenasConNota.reduce((suma, resena) => suma + resena.nota, 0) / resenasConNota.length;
+        const ultima = [...resenasConNota].sort((a, b) => obtenerTimestampOrden(b) - obtenerTimestampOrden(a))[0];
+        const comentario = ultima.comentario || ultima.resena || ultima.descripcion || "Ultima resena sin comentario escrito.";
+
+        promedioElemento.textContent = promedio.toFixed(1);
+        detalleElemento.textContent = resenasConNota.length === 1 ? "1 resena recibida" : `${resenasConNota.length} resenas recibidas`;
+        ultimaElemento.innerHTML = "";
+        const etiqueta = document.createElement("span");
+        const texto = document.createElement("p");
+        etiqueta.textContent = "Ultima resena";
+        texto.textContent = comentario;
+        ultimaElemento.append(etiqueta, texto);
     }
 
     function configurarModalPanelTecnico() {
@@ -244,7 +528,7 @@ window.addEventListener("DOMContentLoaded", () => {
     async function cargarMisServicios(uidTecnico, mensajeCarga = "Cargando tus servicios...") {
         const lista = document.getElementById("listaMisServicios");
 
-        if (!lista) return;
+        if (!lista) return [];
 
         lista.innerHTML = `<p class="servicios-estado">${mensajeCarga}</p>`;
 
@@ -270,7 +554,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             if (serviciosPublicados.length === 0) {
                 lista.innerHTML = '<p class="servicios-estado">Aun no has publicado servicios.</p>';
-                return;
+                return serviciosPublicados;
             }
 
             lista.innerHTML = "";
@@ -281,19 +565,26 @@ window.addEventListener("DOMContentLoaded", () => {
                 const disponibilidad = Array.isArray(servicio.disponibilidad)
                     ? servicio.disponibilidad.map(formatearDisponibilidadItem).join(" | ")
                     : "Sin disponibilidad";
+                const estadoServicio = servicio.estado || "activo";
+                const fechaActualizacion = formatearFechaServicio(servicio.updatedAt || servicio.createdAt);
 
                 const card = document.createElement("div");
                 card.className = "dato servicio-tecnico-card";
 
                 card.innerHTML = `
-                    <strong>${servicio.nombre || servicio.titulo || "Servicio"}</strong>
+                    <div class="servicio-tecnico-top">
+                        <strong>${servicio.nombre || servicio.titulo || "Servicio"}</strong>
+                        <span class="servicio-estado-badge ${normalizarTexto(estadoServicio) === "inactivo" ? "inactivo" : "activo"}">
+                            ${estadoServicio}
+                        </span>
+                    </div>
                     <div class="servicio-tecnico-meta">
                         <p><span>Categoria</span><b>${servicio.categoria || "No especificada"}</b></p>
                         <p><span>Comuna</span><b>${servicio.comuna || "No especificada"}</b></p>
                         <p><span>Precio</span><b>$${Math.round(servicio.precio || 0)}</b></p>
                         <p><span>Tiempo estimado</span><b>${servicio.tiempoEstimado || "No especificado"}</b></p>
                         <p><span>Disponibilidad</span><b>${disponibilidad}</b></p>
-                        <p><span>Estado</span><b>${servicio.estado || "activo"}</b></p>
+                        <p><span>Actualizado</span><b>${fechaActualizacion}</b></p>
                     </div>
 
                     <div class="servicio-tecnico-acciones">
@@ -324,12 +615,14 @@ window.addEventListener("DOMContentLoaded", () => {
                             const errorData = await response.json().catch(() => ({}));
                             throw new Error(errorData.detail || "No se pudo eliminar el servicio.");
                         }
-                        await cargarMisServicios(uidTecnico, "Actualizando tus servicios...");
+                        const serviciosActualizados = await cargarMisServicios(uidTecnico, "Actualizando tus servicios...");
+                        await cargarPanelProfesionalTecnico(uidTecnico, datosUsuarioActual, serviciosActualizados);
                         modalPanel?.notificar("Servicio eliminado correctamente.");
                     } catch (error) {
                         console.log(error);
                         modalPanel?.notificar("No se pudo eliminar el servicio. Intenta nuevamente.", "error");
-                        await cargarMisServicios(uidTecnico);
+                        const serviciosActualizados = await cargarMisServicios(uidTecnico);
+                        await cargarPanelProfesionalTecnico(uidTecnico, datosUsuarioActual, serviciosActualizados);
                     }
                 });
 
@@ -354,25 +647,32 @@ window.addEventListener("DOMContentLoaded", () => {
                             throw new Error(errorData.detail || "No se pudo actualizar el servicio.");
                         }
 
-                        await cargarMisServicios(uidTecnico, "Actualizando tus servicios...");
+                        const serviciosActualizados = await cargarMisServicios(uidTecnico, "Actualizando tus servicios...");
+                        await cargarPanelProfesionalTecnico(uidTecnico, datosUsuarioActual, serviciosActualizados);
                         modalPanel?.notificar("Servicio actualizado correctamente.");
 
                     } catch (error) {
                         console.log(error);
                         modalPanel?.notificar("No se pudo actualizar el servicio. Intenta nuevamente.", "error");
-                        await cargarMisServicios(uidTecnico);
+                        const serviciosActualizados = await cargarMisServicios(uidTecnico);
+                        await cargarPanelProfesionalTecnico(uidTecnico, datosUsuarioActual, serviciosActualizados);
                     }
                 });
             });
 
+            return serviciosPublicados;
+
         } catch (error) {
             console.log("Error al cargar servicios:", error);
             lista.innerHTML = '<p class="servicios-estado error">No se pudieron cargar tus servicios. Intenta nuevamente.</p>';
+            actualizarResumenServicios([]);
+            return [];
         }
     }
 
     async function prepararPanelCliente(uidCliente, datosCliente = {}, userAuth = null) {
         pintarDatosCliente(datosCliente, userAuth);
+        actualizarResumenCliente();
 
         const params = new URLSearchParams(window.location.search);
 
@@ -423,6 +723,22 @@ window.addEventListener("DOMContentLoaded", () => {
                 enviarReporteCliente(uidCliente);
             });
         }
+    }
+
+    function actualizarResumenCliente(citas = []) {
+        const citasActivas = document.getElementById("clienteCitasActivas");
+        const pagosPendientes = document.getElementById("clientePagosPendientes");
+        const resenasPendientes = document.getElementById("clienteResenasPendientes");
+
+        const activas = citas.filter((cita) => {
+            return ["pendiente", "reservada", "pago_realizado"].includes(normalizarTexto(cita.estadoNorm || cita.estado));
+        }).length;
+        const pagos = citas.filter((cita) => normalizarTexto(cita.estadoNorm || cita.estado) === "reservada").length;
+        const resenas = citas.filter((cita) => cita.puedeResenar === true).length;
+
+        if (citasActivas) citasActivas.textContent = String(activas);
+        if (pagosPendientes) pagosPendientes.textContent = String(pagos);
+        if (resenasPendientes) resenasPendientes.textContent = String(resenas);
     }
 
     function pintarDatosCliente(datosCliente = {}, userAuth = null) {
@@ -1068,11 +1384,13 @@ window.addEventListener("DOMContentLoaded", () => {
             const citasData = await response.json();
 
             if (!Array.isArray(citasData) || citasData.length === 0) {
-                lista.innerHTML = "<p>Aun no tienes citas registradas.</p>";
+                actualizarResumenCliente();
+                lista.innerHTML = '<p class="citas-vacias">Aun no tienes citas registradas.</p>';
                 return;
             }
 
             lista.innerHTML = "";
+            const resumenCitas = [];
 
             for (const cita of citasData) {
                 const citaId = cita.idCita || "";
@@ -1118,6 +1436,11 @@ window.addEventListener("DOMContentLoaded", () => {
                         console.warn("No se pudo validar si la cita admite reseña:", error);
                     }
                 }
+
+                resumenCitas.push({
+                    estadoNorm,
+                    puedeResenar
+                });
 
                 const accionResena = puedeResenar
                     ? `<a href="resenasTec.html?citaId=${encodeURIComponent(citaId)}&servicioId=${encodeURIComponent(servicioId)}" class="btn-link btn-reservar">
@@ -1297,9 +1620,12 @@ window.addEventListener("DOMContentLoaded", () => {
                 lista.appendChild(card);
             }
 
+            actualizarResumenCliente(resumenCitas);
+
         } catch (error) {
             console.log("Error al cargar citas:", error);
-            lista.innerHTML = "<p>No se pudieron cargar tus citas. Intenta nuevamente.</p>";
+            actualizarResumenCliente();
+            lista.innerHTML = '<p class="citas-vacias">No se pudieron cargar tus citas. Intenta nuevamente.</p>';
         }
     }
 

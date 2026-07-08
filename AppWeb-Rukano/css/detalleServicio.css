@@ -608,6 +608,30 @@
 
   .side-card-footer { padding: 0 22px 22px; }
 
+  .side-trust-panel {
+    background: var(--c-arena);
+    border-top: 1px solid var(--c-arena-dark);
+    display: grid;
+    gap: 10px;
+    padding: 18px 22px;
+  }
+
+  .side-trust-panel div {
+    align-items: center;
+    color: var(--c-licorice);
+    display: flex;
+    font-size: 12px;
+    font-weight: 900;
+    gap: 10px;
+    line-height: 1.35;
+  }
+
+  .side-trust-panel i {
+    color: var(--c-mahogany);
+    flex: 0 0 auto;
+    font-size: 18px;
+  }
+
   /* CTA — CONTRATAR */
   .btn-contratar {
     display: flex;
@@ -1220,6 +1244,31 @@
 .no-border { border-bottom: none; }
 .terms-note { padding: 14px 4px 0; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: var(--c-text-muted); line-height: 1.8; text-align: center; }
 .terms-note a.terms-link { color: var(--c-mahogany); text-decoration: none; }
+
+.booking-steps-note {
+  background: var(--c-blanco);
+  border-left: 5px solid var(--c-mahogany);
+  margin-top: 16px;
+  padding: 18px;
+}
+
+.booking-steps-note strong {
+  color: var(--c-licorice);
+  display: block;
+  font-family: 'Arial Black', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.booking-steps-note ol {
+  color: rgba(30, 13, 10, 0.72);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.55;
+  margin: 0 0 0 18px;
+}
 .btn-center { max-width: 260px; margin: 0 auto; }
 
 .btn-report {

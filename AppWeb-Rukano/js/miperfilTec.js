@@ -93,6 +93,10 @@ function inicializarTabsPerfil() {
     
     panelCertificacion.style.setProperty("display", "none", "important");
     panelCertificacion.setAttribute("hidden", "true");
+
+    if (window.location.hash === "#certificacion") {
+        document.querySelector('.perfil-tab[data-tab="certificacion"]')?.click();
+    }
 }
 
 function renderizarPerfilTecnico(datosUsuario, user) {

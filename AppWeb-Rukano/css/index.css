@@ -166,6 +166,88 @@ body {
     padding: 20px 0 60px 0;
 }
 
+.catalogo-toolbar {
+    align-items: end;
+    background: var(--c-blanco);
+    border-bottom: 4px solid var(--c-mahogany);
+    display: flex;
+    gap: 24px;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding: 30px;
+}
+
+.catalogo-eyebrow {
+    color: var(--c-mahogany);
+    display: block;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.catalogo-toolbar h2 {
+    color: var(--c-licorice);
+    font-family: 'Arial Black', sans-serif;
+    font-size: clamp(24px, 3vw, 40px);
+    letter-spacing: 0;
+    line-height: 1;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.catalogo-controles {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: flex-end;
+}
+
+.catalogo-control {
+    color: rgba(30, 13, 10, 0.68);
+    display: grid;
+    font-size: 11px;
+    font-weight: 900;
+    gap: 7px;
+    text-transform: uppercase;
+}
+
+.catalogo-control select {
+    background: var(--c-arena);
+    border: 2px solid transparent;
+    color: var(--c-licorice);
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    min-height: 42px;
+    padding: 0 14px;
+}
+
+.catalogo-control select:focus {
+    border-color: var(--c-mahogany);
+    outline: none;
+}
+
+.catalogo-check {
+    align-items: center;
+    background: var(--c-licorice);
+    color: var(--c-arena);
+    display: inline-flex;
+    font-size: 12px;
+    font-weight: 900;
+    gap: 10px;
+    min-height: 42px;
+    padding: 0 16px;
+    text-transform: uppercase;
+}
+
+.catalogo-check input {
+    accent-color: var(--c-froly);
+}
+
 .card-editorial {
     background-color: var(--c-blanco);
     border: 2px solid transparent;
@@ -215,6 +297,22 @@ body {
     border-radius: 4px;
     margin-bottom: 8px;
     letter-spacing: 1px;
+}
+
+.card-trust-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 18px;
+}
+
+.trust-pill {
+    background: var(--c-arena);
+    color: var(--c-licorice);
+    font-size: 11px;
+    font-weight: 900;
+    padding: 7px 9px;
+    text-transform: uppercase;
 }
 
 .nombre-masivo {
@@ -847,6 +945,21 @@ body {
 
     .grilla-servicios {
         grid-template-columns: 1fr;
+    }
+
+    .catalogo-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .catalogo-controles {
+        justify-content: stretch;
+    }
+
+    .catalogo-control,
+    .catalogo-control select,
+    .catalogo-check {
+        width: 100%;
     }
 
     .grilla-pilares {

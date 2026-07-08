@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputBusqueda = document.querySelector(".input-invisible");
     const lupaBusqueda = document.querySelector(".lupa-profesional");
     const botonesCategoria = document.querySelectorAll(".boton-ovalado[data-categoria]");
+    const ordenServicios = document.getElementById("ordenServicios");
+    const soloConPrecio = document.getElementById("soloConPrecio");
 
     let usuarioLogueado = null;
     let comunaUsuario = null;
@@ -69,6 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
     inputBusqueda?.addEventListener("keypress", (event) => {
         if (event.key === "Enter") realizarBusquedaGeneral();
     });
+    ordenServicios?.addEventListener("change", () => pintarServicios());
+    soloConPrecio?.addEventListener("change", () => pintarServicios());
 });
 
 async function ejecutarBusqueda(url, usuarioLogueado, comunaUsuario) {
@@ -133,10 +137,16 @@ function pintarServicios(listaDeServicios) {
         return;
     }
 
-    const serviciosMostrados = serviciosActuales.slice(0, cantidadVisible);
+    const serviciosFiltrados = aplicarFiltrosCatalogo(serviciosActuales);
+    if (serviciosFiltrados.length === 0) {
+        mostrarEstadoBusqueda("No hay servicios que coincidan con los filtros.");
+        return;
+    }
+
+    const serviciosMostrados = serviciosFiltrados.slice(0, cantidadVisible);
     grilla.innerHTML = serviciosMostrados.map((servicio) => crearCardServicio(servicio)).join("");
 
-    if (serviciosActuales.length > cantidadVisible) {
+    if (serviciosFiltrados.length > cantidadVisible) {
         const wrapperBtn = document.createElement("div");
         wrapperBtn.className = "contenedor-ver-mas";
 
@@ -154,6 +164,29 @@ function pintarServicios(listaDeServicios) {
         wrapperBtn.appendChild(btnVerMas);
         grilla.appendChild(wrapperBtn);
     }
+}
+
+function aplicarFiltrosCatalogo(servicios) {
+    const soloConPrecio = document.getElementById("soloConPrecio")?.checked;
+    const orden = document.getElementById("ordenServicios")?.value || "relevancia";
+
+    let lista = [...servicios];
+
+    if (soloConPrecio) {
+        lista = lista.filter((servicio) => Number(servicio.precio) > 0);
+    }
+
+    const precio = (servicio) => Number(servicio.precio) || 0;
+    const rating = (servicio) => {
+        const valor = servicio.rating ?? servicio.calificacion ?? servicio.promedioResenas ?? servicio["promedioRese\u00f1as"];
+        return Number(valor) || 0;
+    };
+
+    if (orden === "precio_asc") lista.sort((a, b) => precio(a) - precio(b));
+    if (orden === "precio_desc") lista.sort((a, b) => precio(b) - precio(a));
+    if (orden === "rating_desc") lista.sort((a, b) => rating(b) - rating(a));
+
+    return lista;
 }
 
 function crearCardServicio(servicio) {
@@ -185,6 +218,11 @@ function crearCardServicio(servicio) {
 
             <div class="card-body-pro">
                 <p class="texto-resumen">${escapeHtml(descripcion)}</p>
+
+                <div class="card-trust-row">
+                    <span class="trust-pill">Pago protegido</span>
+                    <span class="trust-pill">${rating === "Sin resenas" ? "Nuevo tecnico" : "Evaluado"}</span>
+                </div>
 
                 <div class="card-meta-editorial">
                     <div class="meta-row">
