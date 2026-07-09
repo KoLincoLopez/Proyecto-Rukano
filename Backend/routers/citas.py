@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
+from firebase_admin import auth
 from pydantic import BaseModel
 from datetime import datetime, timezone
 import uuid
@@ -19,8 +20,23 @@ class ReservaCita(BaseModel):
 
 # --- ENDPOINT: RESERVAR CON VALIDACIÓN DE FORMULARIO ---
 @router.post("/reservar")
-async def reservar_cita(datos: ReservaCita):
+async def reservar_cita(
+    datos: ReservaCita,
+    authorization: str = Header(None)):
     try:
+         # VALIDACIÓN DEL TOKEN
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="No autorizado")
+
+        id_token = authorization.split("Bearer ")[1]
+
+        try:
+            decoded_token = auth.verify_id_token(id_token)
+            uid = decoded_token["uid"]
+        except Exception:
+            raise HTTPException(status_code=401, detail="Token inválido")
+        
+         # VALIDACIÓN DEL SERVICIO
         servicio_ref = db.collection("servicios").document(datos.idServicio)
         servicio_doc = servicio_ref.get()
 
@@ -52,7 +68,7 @@ async def reservar_cita(datos: ReservaCita):
             cita_data = {
                 "idCita": id_cita,
                 "idServicio": datos.idServicio,
-                "idCliente": datos.idCliente,
+                "idCliente": uid,
                 "idTecnico": datos_servicio.get("idTecnico", "N/A"),
                 "tituloServicio": datos_servicio.get("nombre", "Servicio sin nombre"),
                 "fecha": datos.fecha,

@@ -376,9 +376,14 @@ async function procesarContratacion() {
     if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = "Enviando..."; }
 
     try {
+        const token = await auth.currentUser.getIdToken();
+
         const response = await fetch(`${API_URL}/citas/reservar`, {
             method:  "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
             body:    JSON.stringify(payload),
         });
 
