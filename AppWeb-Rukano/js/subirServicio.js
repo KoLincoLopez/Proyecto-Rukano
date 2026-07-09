@@ -133,7 +133,7 @@ function precargarFormularioDemo(datosUsuario = {}) {
     setFieldValue("descripcionTecnico", "Tecnico electricista especializado en instalaciones y reparaciones domiciliarias. Realizo diagnosticos claros, trabajo con medidas de seguridad y explico al cliente el alcance de cada reparacion antes de comenzar.");
     setFieldValue("experiencia", obtenerDatoDemo(
         datosUsuario.experiencia,
-        "6 anos de experiencia en electricidad domiciliaria y atencion a clientes residenciales."
+        "6 años de experiencia en electricidad domiciliaria y atencion a clientes residenciales."
     ));
 
     includeItems.length = 0;
