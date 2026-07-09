@@ -133,7 +133,7 @@ function precargarFormularioDemo(datosUsuario = {}) {
     setFieldValue("descripcionTecnico", obtenerDatoDemo(
         datosUsuario.descripcionTecnico,
         datosUsuario.descripcion,
-        "Tecnico electricista con experiencia en instalaciones domiciliarias, mantenimiento preventivo y solucion de fallas electricas en hogares."
+        "Tecnico electricista especializado en instalaciones y reparaciones domiciliarias. Realizo diagnosticos claros, trabajo con medidas de seguridad y explico al cliente el alcance de cada reparacion antes de comenzar."
     ));
     setFieldValue("experiencia", obtenerDatoDemo(
         datosUsuario.experiencia,
