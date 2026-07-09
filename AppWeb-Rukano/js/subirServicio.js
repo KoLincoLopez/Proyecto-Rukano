@@ -130,11 +130,7 @@ function precargarFormularioDemo(datosUsuario = {}) {
     setFieldValue("comuna", obtenerDatoDemo(datosUsuario.comuna, "Puente Alto"));
     setFieldValue("precio", "35000");
     setFieldValue("tiempoEstimado", "2");
-    setFieldValue("descripcionTecnico", obtenerDatoDemo(
-        datosUsuario.descripcionTecnico,
-        datosUsuario.descripcion,
-        "Tecnico electricista especializado en instalaciones y reparaciones domiciliarias. Realizo diagnosticos claros, trabajo con medidas de seguridad y explico al cliente el alcance de cada reparacion antes de comenzar."
-    ));
+    setFieldValue("descripcionTecnico", "Tecnico electricista especializado en instalaciones y reparaciones domiciliarias. Realizo diagnosticos claros, trabajo con medidas de seguridad y explico al cliente el alcance de cada reparacion antes de comenzar.");
     setFieldValue("experiencia", obtenerDatoDemo(
         datosUsuario.experiencia,
         "6 anos de experiencia en electricidad domiciliaria y atencion a clientes residenciales."
