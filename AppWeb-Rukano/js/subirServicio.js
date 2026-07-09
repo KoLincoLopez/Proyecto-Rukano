@@ -54,6 +54,8 @@ async function validarSesionTecnico(user) {
         tecnicoUid = user.uid;
         tecnicoDatos = datosUsuario;
         precargarDatosTecnico(datosUsuario);
+        precargarFormularioDemo(datosUsuario);
+        mostrarPaso(1);
         mostrarEstado("Listo para publicar. Revisa los campos antes de enviar.", "neutral");
     } catch (error) {
         console.log("Error al validar tecnico:", error);
@@ -119,6 +121,95 @@ function precargarDatosTecnico(datosUsuario = {}) {
     if (experiencia && datosUsuario.experiencia) experiencia.value = String(datosUsuario.experiencia).trim();
 
     updatePreview();
+}
+
+function precargarFormularioDemo(datosUsuario = {}) {
+    setFieldValue("nombre", "Instalacion y reparacion electrica domiciliaria");
+    setFieldValue("categoria", "Electricidad");
+    setFieldValue("descripcion", "Servicio profesional de diagnostico, reparacion e instalacion electrica para viviendas. Incluye revision de tablero, enchufes, luminarias y circuitos interiores, con recomendaciones claras antes de ejecutar cualquier trabajo adicional.");
+    setFieldValue("comuna", obtenerDatoDemo(datosUsuario.comuna, "Puente Alto"));
+    setFieldValue("precio", "35000");
+    setFieldValue("tiempoEstimado", "2");
+    setFieldValue("descripcionTecnico", obtenerDatoDemo(
+        datosUsuario.descripcionTecnico,
+        datosUsuario.descripcion,
+        "Tecnico electricista con experiencia en instalaciones domiciliarias, mantenimiento preventivo y solucion de fallas electricas en hogares."
+    ));
+    setFieldValue("experiencia", obtenerDatoDemo(
+        datosUsuario.experiencia,
+        "6 anos de experiencia en electricidad domiciliaria y atencion a clientes residenciales."
+    ));
+
+    includeItems.length = 0;
+    includeItems.push(
+        "Diagnostico inicial del problema electrico",
+        "Revision de tablero, enchufes o luminarias",
+        "Mano de obra para reparacion menor"
+    );
+
+    excludeItems.length = 0;
+    excludeItems.push(
+        "Materiales electricos especiales o certificados",
+        "Trabajos en altura o canalizaciones complejas",
+        "Aumento de capacidad autorizado por compania electrica"
+    );
+
+    questionCounter = 0;
+    questions.length = 0;
+    questions.push(
+        {
+            id: 1,
+            text: "Que problema electrico necesitas resolver?",
+            type: "text",
+            required: true
+        },
+        {
+            id: 2,
+            text: "La vivienda tiene cortes de energia frecuentes?",
+            type: "boolean",
+            required: false
+        }
+    );
+    questionCounter = questions.length;
+
+    precargarDisponibilidadDemo();
+    renderItems("include");
+    renderItems("exclude");
+    renderQuestions();
+    limpiarErrores();
+    updateCounters();
+    updatePreview();
+}
+
+function obtenerDatoDemo(...valores) {
+    const valor = valores.find((item) => item !== undefined && item !== null && String(item).trim() !== "");
+    return valor !== undefined ? String(valor).trim() : "";
+}
+
+function setFieldValue(id, value) {
+    const field = document.getElementById(id);
+    if (field) field.value = value;
+}
+
+function precargarDisponibilidadDemo() {
+    const horarios = {
+        Lunes: ["09:00", "13:00"],
+        Miercoles: ["14:00", "18:00"],
+        Viernes: ["10:00", "15:00"]
+    };
+
+    document.querySelectorAll(".availability-day").forEach((day) => {
+        const check = day.querySelector(".check-dia");
+        const inicio = day.querySelector(".hora-inicio");
+        const fin = day.querySelector(".hora-fin");
+        const horario = horarios[check?.value];
+
+        if (!check || !inicio || !fin) return;
+
+        check.checked = Boolean(horario);
+        inicio.value = horario?.[0] || "";
+        fin.value = horario?.[1] || "";
+    });
 }
 
 function avanzarPaso(step) {
@@ -465,6 +556,7 @@ function resetForm() {
     questionCounter = 0;
 
     precargarDatosTecnico(tecnicoDatos);
+    precargarFormularioDemo(tecnicoDatos);
     renderItems("include");
     renderItems("exclude");
     renderQuestions();
